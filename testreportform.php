@@ -6,7 +6,7 @@ use Twilio\Rest\Client;
 
 $twilio_sid = '';
 $twilio_token = '';
-$twilio_phone_number = ''; // Your Twilio phone number (for SMS)
+$twilio_phone_number = ''; // Your Twilio phone number (for SMS & Whatsapp)
 
 $client = new Client($twilio_sid, $twilio_token);
 
