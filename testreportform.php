@@ -12,8 +12,6 @@ if ($conn->connect_error) {
 
 $name = $sample = $metal_type = $sr_no = $mobile = $weight = "";
 $total_karat = 0;
-$total_silver = 0;
-$total_platinum = 0;
 $count = 0; // Initialize count variable
 
 // Fetch count of reports for today
@@ -54,10 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mobile = $_POST['mobile'];
         $weight = $_POST['weight'];
         $gold_percent = isset($_POST['gold_percent']) ? $_POST['gold_percent'] : 0.00;
-        $silver_percent = isset($_POST['silver_percent']) ? $_POST['silver_percent'] : 0.00;
-        $platinum_percent = isset($_POST['platinum_percent']) ? $_POST['platinum_percent'] : 0.00;
         
         // Handle optional metals with default values
+        $silver = isset($_POST['silver']) ? $_POST['silver'] : 0.00;
+        $platinum = isset($_POST['platinum']) ? $_POST['platinum'] : 0.00;
+
         $zinc = isset($_POST['zinc']) ? $_POST['zinc'] : 0.00;
         $copper = isset($_POST['copper']) ? $_POST['copper'] : 0.00;
         $others = isset($_POST['others']) ? $_POST['others'] : 0.00;
@@ -68,17 +67,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $lead = isset($_POST['lead']) ? $_POST['lead'] : 0.00;
 
         // Calculate Total Carat (formula: Carat = (Gold Percentage * Count * Weight) / 24)
-        $total_carat = ($gold_percent * $weight) / 24;
-
-        // Calculate Silver weight (Silver Percentage * Weight)
-        $total_silver = ($silver_percent * $weight) / 100;
-
-        // Calculate Platinum weight (Platinum Percentage * Weight)
-        $total_platinum = ($platinum_percent * $weight) / 100;
+        $total_karat = ($gold_percent * $weight) / 24;
 
         // SQL query to insert into the database
-        $sql = "INSERT INTO test_reports (sr_no, report_date, name, sample, metal_type, count, mobile, weight, gold_percent, silver_percent, platinum_percent, zinc, copper, others, rhodium, iridium, ruthenium, palladium, lead, total_carat, total_silver, total_platinum)
-                VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver_percent', '$platinum_percent', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_carat', '$total_silver', '$total_platinum')";
+        $sql = "INSERT INTO test_reports (sr_no, report_date, name, sample, metal_type, count, mobile, weight, gold_percent, silver, platinum, zinc, copper, others, rhodium, iridium, ruthenium, palladium, lead, total_karat)
+                VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
 
         if (mysqli_query($conn, $sql)) {
             echo "Test report saved successfully!";
@@ -142,22 +135,21 @@ $conn->close();
 
 
     <!-- JavaScript for calculating Karat Purity -->
-    <script>
-        function calculateKarat() {
-            var weight = parseFloat(document.getElementById("weight").value);
-            var gold_percent = parseFloat(document.getElementById("gold_percent").value);
-            
-            // Ensure the inputs are valid numbers
-            if (!isNaN(weight) && !isNaN(gold_percent) && weight > 0 && gold_percent > 0) {
-                var total_weight = weight;
-                var gold_weight = total_weight * (gold_percent / 100);
-                var total_karat = (gold_weight / total_weight) * 24;
-                document.getElementById("total_karat").value = total_karat.toFixed(2); // Display result with 2 decimals
-            } else {
-                document.getElementById("total_karat").value = "0.00"; // Default value if inputs are not valid
-            }
+<script>
+    function calculateKarat() {
+        var weight = parseFloat(document.getElementById("weight").value);
+        var gold_percent = parseFloat(document.getElementById("gold_percent").value);
+        
+        // Ensure the inputs are valid numbers
+        if (!isNaN(weight) && !isNaN(gold_percent) && weight > 0 && gold_percent > 0) {
+            var total_karat = gold_percent * (24 / 100);  // Calculate total karat based on gold percent
+            document.getElementById("total_karat").value = total_karat.toFixed(2); // Display result with 2 decimals
+        } else {
+            document.getElementById("total_karat").value = "0.00"; // Default value if inputs are not valid
         }
-    </script>
+    }
+</script>
+
 
 </head>
 
@@ -217,6 +209,11 @@ $conn->close();
         </div>
 
         <div class="form-group">
+            <label for="platinum">Platinum</label>
+            <input type="number" step="0.01" class="form-control" id="platinum" name="platinum">
+        </div>
+
+        <div class="form-group">
             <label for="zinc">Zinc</label>
             <input type="number" step="0.01" class="form-control" id="zinc" name="zinc">
         </div>
@@ -229,11 +226,6 @@ $conn->close();
         <div class="form-group">
             <label for="others">Others</label>
             <input type="number" step="0.01" class="form-control" id="others" name="others">
-        </div>
-
-        <div class="form-group">
-            <label for="platinum">Platinum</label>
-            <input type="number" step="0.01" class="form-control" id="platinum" name="platinum">
         </div>
 
         <div class="form-group">
