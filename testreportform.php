@@ -115,19 +115,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "Error sending SMS: " . $e->getMessage();
             }
 
-       // Send WhatsApp Message
-       try {
-        $client->messages->create(
-            'whatsapp:' . $mobile, // WhatsApp number format
-            [
-                'from' => 'whatsapp:' . $twilio_phone_number, // WhatsApp enabled Twilio number
-                'body' => $message
-            ]
-        );
-        echo "WhatsApp message sent successfully!";
-    } catch (Exception $e) {
-        echo "Error sending WhatsApp message: " . $e->getMessage();
-    }
+        // Send WhatsApp message via the WhatsApp Business API
+        $whatsapp_url = 'https://graph.facebook.com/v14.0/' . $twilio_phone_number . '/messages'; // WhatsApp Business API endpoint
+        $access_token = 'your_facebook_access_token'; // Facebook access token for WhatsApp API
+
+        $whatsapp_data = [
+            'messaging_product' => 'whatsapp',
+            'to' => $mobile,
+            'type' => 'text',
+            'text' => ['body' => $message]
+        ];
+
+        // Make the HTTP POST request to WhatsApp API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $access_token,
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if ($response) {
+            echo "WhatsApp message sent successfully!";
+        } else {
+            echo "Error sending WhatsApp message.";
+        }
 } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
 }
