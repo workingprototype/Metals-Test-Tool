@@ -20,6 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sample = $_POST['sample'];
         $weight = $_POST['weight'];
 
+        // Always prepend +91 to the mobile number
+        $mobile = "+91" . $mobile;
+
         $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, sample, weight) 
                 VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$sample', '$weight')";
 
@@ -156,7 +159,10 @@ $conn->close();
 
         <div class="form-group">
             <label for="mobile">Mobile</label>
-            <input type="text" class="form-control" id="mobile" name="mobile" required>
+            <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+            </div>
         </div>
 
         <div class="form-group">

@@ -1,4 +1,16 @@
 <?php
+// Twilio API setup
+require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
+
+use Twilio\Rest\Client;
+
+$twilio_sid = '';
+$twilio_token = '';
+$twilio_phone_number = ''; // Your Twilio phone number (for SMS)
+
+$client = new Client($twilio_sid, $twilio_token);
+
+
 $servername = "localhost";
 $username = "user";  // Use appropriate MySQL credentials
 $password = "password";
@@ -66,8 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $palladium = isset($_POST['palladium']) ? $_POST['palladium'] : 0.00;
         $lead = isset($_POST['lead']) ? $_POST['lead'] : 0.00;
 
-        // Calculate Total Carat (formula: Carat = (Gold Percentage * Count * Weight) / 24)
-        $total_karat = ($gold_percent * $weight) / 24;
+        $total_karat = isset($_POST['total_karat']) ? $_POST['total_karat'] : 0.00;
 
         // SQL query to insert into the database
         $sql = "INSERT INTO test_reports (sr_no, report_date, name, sample, metal_type, count, mobile, weight, gold_percent, silver, platinum, zinc, copper, others, rhodium, iridium, ruthenium, palladium, lead, total_karat)
@@ -75,10 +86,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (mysqli_query($conn, $sql)) {
             echo "Test report saved successfully!";
-        } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-        }
+
+            // Send SMS and WhatsApp
+            $message = "Hi $name, 
+                Here's the test report result for your $metal_type. 
+                Weight: $weight, Gold Percentage: $gold_percent%, Silver: $silver, Platinum: $platinum, 
+                Zinc: $zinc, 
+                Copper: $copper, 
+                Others: $others, 
+                Rhodium: $rhodium, 
+                Iridium: $iridium, 
+                Ruthenium: $ruthenium, 
+                Palladium: $palladium, 
+                Lead: $lead, 
+                Total Carat: $total_karat.";
+
+            // Send SMS
+            try {
+                $client->messages->create(
+                    $mobile,
+                    [
+                        'from' => $twilio_phone_number,
+                        'body' => $message
+                    ]
+                );
+                echo "SMS sent successfully!";
+            } catch (Exception $e) {
+                echo "Error sending SMS: " . $e->getMessage();
+            }
+
+       // Send WhatsApp Message
+       try {
+        $client->messages->create(
+            'whatsapp:' . $mobile, // WhatsApp number format
+            [
+                'from' => 'whatsapp:' . $twilio_phone_number, // WhatsApp enabled Twilio number
+                'body' => $message
+            ]
+        );
+        echo "WhatsApp message sent successfully!";
+    } catch (Exception $e) {
+        echo "Error sending WhatsApp message: " . $e->getMessage();
     }
+} else {
+    echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+}
+}
 }
 
 $conn->close();
@@ -259,7 +312,7 @@ $conn->close();
             <input type="text" class="form-control" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Test Report</button>
+        <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save & Send Report</button>
     </form>
 </div>
 
