@@ -4,12 +4,27 @@ require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
 
 use Twilio\Rest\Client;
 
+// Toggle to enable or disable Twilio usage
+$use_twilio = false; // Set to false to disable Twilio functionality
+
+// Twilio credentials
+
 $twilio_sid = '';
 $twilio_token = '';
 $twilio_phone_number = ''; // Your Twilio phone number (for SMS & Whatsapp)
 
-$client = new Client($twilio_sid, $twilio_token);
+// Check if Twilio credentials are available and usage is enabled
+$twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) && !empty($twilio_phone_number);
 
+// Twilio Client initialization (only if credentials are available and toggle is enabled)
+if ($twilio_available) {
+    $client = new Client($twilio_sid, $twilio_token);
+    echo "Twilio functionality is enabled.<br>";
+} elseif ($use_twilio) {
+    echo "Twilio credentials are missing. SMS/WhatsApp features will not work.<br>";
+} else {
+    echo "Twilio functionality is disabled.<br>";
+}
 
 $servername = "localhost";
 $username = "user";  // Use appropriate MySQL credentials
@@ -88,6 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Test report saved successfully!";
 
             // Send SMS and WhatsApp
+            if ($twilio_available) {
             $message = "Hi $name, 
                 Here's the test report result for your $metal_type. 
                 Weight: $weight, Gold Percentage: $gold_percent%, Silver: $silver, Platinum: $platinum, 
@@ -145,6 +161,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "Error sending WhatsApp message.";
         }
+    } else {
+        echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
+    }
 } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
 }
