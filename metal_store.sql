@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2024 at 12:47 PM
+-- Generation Time: Dec 07, 2024 at 08:32 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,15 @@ CREATE TABLE `receipts` (
 --
 
 INSERT INTO `receipts` (`id`, `metal_type`, `sr_no`, `report_date`, `name`, `mobile`, `sample`, `weight`) VALUES
-(7, 'Platinum', '100', '2024-12-03', 'GG Platinum', '101010101010', 'K', 7.000);
+(1, 'Gold', 'K 1', '2024-11-29', 'Fredrick Pages', '+9164646454454', 'K', 0.500),
+(2, 'Silver', 'L 1', '2024-12-07', 'GHA', '+9134534534543', '5J', 0.700),
+(10, 'Platinum', 'L 2', '2024-12-07', 'RWW', '+915555252254', 'asd', 0.630),
+(11, 'Silver', 'L 3', '2024-12-07', 'A6A', '+913236552563', 'K4', 0.300),
+(12, 'Platinum', 'L 4', '2024-12-07', 'POP', '+913384', '221', 0.360),
+(13, 'Platinum', 'L 5', '2024-12-07', 'Arr', '+916695545245', 'K4', 0.300),
+(14, 'Silver', 'L 6', '2024-12-07', 'As3', '+916656565656', 'aA', 0.321),
+(15, 'Silver', 'L 7', '2024-12-07', 'BCDEQ', '+9123232323', 'LA', 0.150),
+(16, 'Platinum', 'L 8', '2024-12-07', 'QWEQ', '+913232323', 'A2', 0.440);
 
 -- --------------------------------------------------------
 
@@ -80,7 +88,8 @@ CREATE TABLE `test_reports` (
 --
 
 INSERT INTO `test_reports` (`id`, `sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `weight`, `gold_percent`, `silver`, `zinc`, `copper`, `others`, `platinum`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) VALUES
-(11, '100', '2024-12-06', 'GG Platinum', 'K', 'Platinum', 0, '101010101010', 7.000, 85.20, 55.00, 5.00, 5.00, 5.00, 5.00, 0.00, 2.00, 6.00, 4.00, 3.00, 20.45);
+(12, 'K 1', '2024-12-07', 'Fredrick Pages', 'K', 'Gold', 0, '+9164646454454', 0.500, 91.34, 3.00, 7.00, 8.00, 9.00, 2.00, 8.00, 9.00, 78.00, 9.00, 8.00, 21.92),
+(13, 'L 3', '2024-12-07', 'A6A', 'K4', 'Silver', 1, '+913236552563', 0.300, 91.75, 2.00, 0.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 22.02);
 
 --
 -- Indexes for dumped tables
@@ -106,13 +115,13 @@ ALTER TABLE `test_reports`
 -- AUTO_INCREMENT for table `receipts`
 --
 ALTER TABLE `receipts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `test_reports`
 --
 ALTER TABLE `test_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -10,6 +10,40 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Calculate the current month and determine the Sr. No. prefix
+$current_month = date('n');  // 1 = January, 12 = December
+$current_letter = chr(64 + $current_month);  // Convert month number to letter (A = 1, B = 2, ..., L = 12)
+
+// Get the last used Sr. No. for the previous month
+$prev_month = $current_month == 1 ? 12 : $current_month - 1;  // Previous month logic
+$sql = "SELECT sr_no FROM receipts WHERE MONTH(report_date) = $prev_month ORDER BY sr_no DESC LIMIT 1";
+$result = $conn->query($sql);
+
+// Initialize the last_letter variable to a default value of 'A'
+$last_letter = 'A';
+
+if ($result->num_rows > 0) {
+    $last_sr_no = $result->fetch_assoc()['sr_no'];
+    $last_letter = substr($last_sr_no, 0, 1);  // Extract the letter from the Sr. No.
+} 
+
+// If the last letter was 'Z', reset the letter to 'A' for the next month
+if ($last_letter == 'Z') {
+    $current_letter = 'A';
+} else {
+    // Otherwise, continue to the next letter
+    $current_letter = chr(ord($last_letter) + 1);
+}
+
+// Get the total number of receipts for the current month to determine the count for this month
+$sql = "SELECT COUNT(*) AS total FROM receipts WHERE MONTH(report_date) = $current_month";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$customer_count = $row['total'] + 1; // Increment the count for the new customer
+
+// Generate the Sr. No.
+$sr_no = $current_letter . " " . $customer_count;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit_receipt'])) {
         $metal_type = $_POST['metal_type'];
@@ -26,49 +60,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, sample, weight) 
                 VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$sample', '$weight')";
 
-        if ($conn->query($sql) === TRUE) {
-            echo "Receipt saved successfully.";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
+    if ($conn->query($sql) === TRUE) {
+        // Show the confirmation message in a popup
+        echo "<script>
+                alert('Receipt saved successfully.');
+                setTimeout(function() {
+                    window.location.href = '" . $_SERVER['PHP_SELF'] . "';
+                }, 1000); // 1000 milliseconds = 1 seconds
+            </script>";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
     }
 }
 
 $conn->close();
 ?>
-
-<!-- HTML original Form for Receipt -->
-<!-- <form method="post">
-    <h2>Receipt Form</h2>
-    <label>Metal Type:</label>
-    <select name="metal_type" required>
-        <option value="Gold">Gold</option>
-        <option value="Silver">Silver</option>
-        <option value="Platinum">Platinum</option>
-    </select><br>
-
-    <label>Sr. No:</label>
-    <input type="text" name="sr_no" required><br>
-
-    <label>Date:</label>
-    <input type="date" name="report_date" value="<?php echo date('Y-m-d'); ?>" required><br>
-
-    <label>Name:</label>
-    <input type="text" name="name" required><br>
-
-    <label>Mobile:</label>
-    <input type="text" name="mobile" required><br>
-
-    <label>Sample:</label>
-    <input type="text" name="sample" required><br>
-
-    <label>Weight (gm):</label>
-    <input type="number" step="0.001" name="weight" required><br>
-
-    <button type="submit" name="submit_receipt">Save Receipt</button>
-</form> -->
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -144,7 +151,7 @@ $conn->close();
 
         <div class="form-group">
             <label for="sr_no">Sr. No</label>
-            <input type="text" class="form-control" id="sr_no" name="sr_no" required>
+            <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" readonly required>
         </div>
 
         <div class="form-group">
