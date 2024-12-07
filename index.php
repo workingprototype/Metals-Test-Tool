@@ -60,17 +60,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, sample, weight) 
                 VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$sample', '$weight')";
 
-    if ($conn->query($sql) === TRUE) {
-        // Show the confirmation message in a popup
-        echo "<script>
-                alert('Receipt saved successfully.');
-                setTimeout(function() {
-                    window.location.href = '" . $_SERVER['PHP_SELF'] . "';
-                }, 1000); // 1000 milliseconds = 1 seconds
-            </script>";
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        if ($conn->query($sql) === TRUE) {
+            // Receipt saved successfully, now show the receipt and print option
+            echo "<script>
+                    alert('Receipt saved successfully.');
+                    window.location.href = '" . $_SERVER['PHP_SELF'] . "?print_receipt=true&sr_no=" . urlencode($sr_no) . "';
+                </script>";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
     }
+}
+
+if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
+    $sr_no = $_GET['sr_no'];
+    $sql = "SELECT * FROM receipts WHERE sr_no = '$sr_no'";
+    $result = $conn->query($sql);
+    $receipt = $result->fetch_assoc();
+    if ($receipt) {
+        ?>
+        <html>
+        <head>
+            <style>
+ 
+                /* Hide form content when printing */
+                .form-container {
+                    display: none;
+                }
+            </style>
+        </head>
+        <body>
+        <div id="receipt">
+            <h3>Receipt</h3>
+            <p><strong>Metal Type:</strong> <?php echo $receipt['metal_type']; ?></p>
+            <p><strong>Sr. No:</strong> <?php echo $receipt['sr_no']; ?></p>
+            <p><strong>Date:</strong> <?php echo $receipt['report_date']; ?></p>
+            <p><strong>Name:</strong> <?php echo $receipt['name']; ?></p>
+            <p><strong>Mobile:</strong> <?php echo $receipt['mobile']; ?></p>
+            <p><strong>Sample:</strong> <?php echo $receipt['sample']; ?></p>
+            <p><strong>Weight:</strong> <?php echo $receipt['weight']; ?> grams</p>
+        </div>
+        <script>
+            window.onload = function() {
+                window.print();  // Automatically trigger the print dialog when page loads
+                window.onafterprint = function() {
+                    window.close();  // Close the window after printing
+                }
+            }
+        </script>
+        </body>
+        </html>
+        <?php
     }
 }
 
