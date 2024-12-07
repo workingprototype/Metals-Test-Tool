@@ -220,6 +220,10 @@ $conn->close();
         .btn-secondary:hover {
             background-color: #e0e0e0;
         }
+        /* Style for print layout */
+        .receipt-layout {
+            display: none; /* Hidden initially */
+        }
     </style>
 
 
@@ -349,8 +353,96 @@ $conn->close();
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save & Send Report</button>
+        <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt</button>
     </form>
 </div>
+<!-- Hidden receipt layout for printing -->
+<div id="receipt" class="receipt-layout">
+    <h2>Receipt</h2>
+    <p><strong>Sr. No:</strong> <span id="printSrNo"></span></p>
+    <p><strong>Date:</strong> <span id="printDate"></span></p>
+    <p><strong>Name:</strong> <span id="printName"></span></p>
+    <p><strong>Mobile:</strong> <span id="printMobile"></span></p>
+    <p><strong>Sample:</strong> <span id="printSample"></span></p>
+    <p><strong>Weight:</strong> <span id="printWeight"></span></p>
+    <p><strong>Metal Type:</strong> <span id="printMetalType"></span></p>
+    <p><strong>Gold %:</strong> <span id="printGoldPercent"></span></p>
+    <p><strong>Silver:</strong> <span id="printSilver"></span></p>
+    <p><strong>Platinum:</strong> <span id="printPlatinum"></span></p>
+    <p><strong>Zinc:</strong> <span id="printZinc"></span></p>
+    <p><strong>Copper:</strong> <span id="printCopper"></span></p>
+    <p><strong>Others:</strong> <span id="printOthers"></span></p>
+    <p><strong>Rhodium:</strong> <span id="printRhodium"></span></p>
+    <p><strong>Iridium:</strong> <span id="printIridium"></span></p>
+    <p><strong>Ruthenium:</strong> <span id="printRuthenium"></span></p>
+    <p><strong>Palladium:</strong> <span id="printPalladium"></span></p>
+    <p><strong>Lead:</strong> <span id="printLead"></span></p>
+    <p><strong>Total Karat:</strong> <span id="printTotalKarat"></span></p>
+</div>
+
+
+<script>
+document.getElementById('savePrintBtn').addEventListener('click', function() {
+    // Collect form data
+    var srNo = document.getElementById('sr_no').value;
+     // Get today's date
+     var today = new Date();
+    var dateString = today.toLocaleDateString();  
+    var name = document.getElementById('name').value;
+    var mobile = document.getElementById('mobile').value;
+    var sample = document.getElementById('sample').value;
+    var weight = document.getElementById('weight').value || '0';
+    var metalType = document.getElementById('metal_type').value;
+    var goldPercent = document.getElementById('gold_percent').value || '0';
+    var silver = document.getElementById('silver').value || '0';
+    var platinum = document.getElementById('platinum').value || '0';
+    var zinc = document.getElementById('zinc').value || '0';
+    var copper = document.getElementById('copper').value || '0';
+    var others = document.getElementById('others').value || '0';
+    var rhodium = document.getElementById('rhodium').value || '0';;
+    var iridium = document.getElementById('iridium').value || '0';
+    var ruthenium = document.getElementById('ruthenium').value || '0';
+    var palladium = document.getElementById('palladium').value || '0';
+    var lead = document.getElementById('lead').value || '0';
+    var totalKarat = document.getElementById('total_karat').value || '0';
+
+    // Populate the receipt layout
+    document.getElementById('printSrNo').textContent = srNo;
+    document.getElementById('printDate').textContent = dateString;
+    document.getElementById('printName').textContent = name;
+    document.getElementById('printMobile').textContent = mobile;
+    document.getElementById('printSample').textContent = sample;
+    document.getElementById('printWeight').textContent = weight;
+    document.getElementById('printMetalType').textContent = metalType;
+    document.getElementById('printGoldPercent').textContent = goldPercent;
+    document.getElementById('printSilver').textContent = silver;
+    document.getElementById('printPlatinum').textContent = platinum;
+    document.getElementById('printZinc').textContent = zinc;
+    document.getElementById('printCopper').textContent = copper;
+    document.getElementById('printOthers').textContent = others;
+    document.getElementById('printRhodium').textContent = rhodium;
+    document.getElementById('printIridium').textContent = iridium;
+    document.getElementById('printRuthenium').textContent = ruthenium;
+    document.getElementById('printPalladium').textContent = palladium;
+    document.getElementById('printLead').textContent = lead;
+    document.getElementById('printTotalKarat').textContent = totalKarat;
+
+    // Show the receipt layout for printing
+    var receiptContent = document.getElementById('receipt').innerHTML;
+
+    // Open the print window
+    var printWindow = window.open('', '_blank', 'width=600,height=400');
+    printWindow.document.write('<html><head><title>Receipt</title>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(receiptContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+});
+
+</script>
 
 <!-- jQuery and Bootstrap Bundle (includes Popper) Todo: Download it locally and make it run offline. --> 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
