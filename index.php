@@ -90,15 +90,113 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
             </style>
         </head>
         <body>
-        <div id="receipt">
-            <h3>Receipt</h3>
-            <p><strong>Metal Type:</strong> <?php echo $receipt['metal_type']; ?></p>
-            <p><strong>Sr. No:</strong> <?php echo $receipt['sr_no']; ?></p>
-            <p><strong>Date:</strong> <?php echo $receipt['report_date']; ?></p>
-            <p><strong>Name:</strong> <?php echo $receipt['name']; ?></p>
-            <p><strong>Mobile:</strong> <?php echo $receipt['mobile']; ?></p>
-            <p><strong>Sample:</strong> <?php echo $receipt['sample']; ?></p>
-            <p><strong>Weight:</strong> <?php echo $receipt['weight']; ?> grams</p>
+        <div id="receipt">         
+            <div style="display:flex;width:80%;">
+                <div style="text-align:center;width:33.33%;">
+                    <div style="margin-top:85px;margin-left:30px;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;font-weight: bold;">
+                            <div>&nbsp;</div>
+                            <div><?php echo $receipt['sr_no']; ?></div>
+                        </div>
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;font-weight: bold;">
+                            <div>&nbsp;</div>
+                            <div> <?php echo $receipt['name']; ?></div>
+                        </div>
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                            <div>&nbsp;</div>
+                            <div> <?php echo $receipt['report_date']; ?></div>
+                        </div>
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                            <div>&nbsp;</div>
+                            <div> <?php echo $receipt['weight']; ?> grams</div>
+                        </div>
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                            <div>&nbsp;</div>
+                            <div> <?php echo $receipt['mobile']; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center;width:66.67%;margin-right:170px;">
+                    <div style="margin-top:72px;margin-right:190px;">
+                        <div style="margin-top:20px;margin-bottom: -31px;">
+                            <div style="display:flex;justify-content:space-between;">
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;">
+                                        <div>&nbsp;</div>
+                                        <div><?php echo $receipt['report_date']; ?></div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:20px;justify-content:center;font-size:x-small;font-weight: bold;">
+                                        <div>&nbsp;</div>
+                                        <div><?php echo $receipt['sr_no']; ?></div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:20px;">
+                            <div style="display:flex;justify-content:space-between;">
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;font-weight: bold;">
+                                        <div>&nbsp;</div>
+                                        <div><?php echo $receipt['name']; ?></div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
+                                        <div>&nbsp;</div>
+                                        <div>&nbsp;</div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:18px;">
+                            <div style="display:flex;justify-content:space-between;">
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;margin-bottom:25px;">
+                                        <div>&nbsp;</div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
+                                        <div>&nbsp;</div>
+                                        <div><?php echo $receipt['sample']; ?></div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:40px;">
+                            <div style="display:flex;justify-content:space-between; margin-top: -15px;">
+                                <div>&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
+                                        <div>&nbsp;</div>
+                                        <div><?php echo $receipt['mobile']; ?></div>
+                                    </div>
+                                </div>
+                                <div  style="font-size:x-small;">&nbsp;</div>
+                                <div style="">
+                                    <div style="align-items:center;display:flex;gap:50px;font-size:x-small;justify-content:center;">
+                                        <div>&nbsp;</div>
+                                        <div>&nbsp;</div>
+                                    </div>
+                                </div>
+                                <div>&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <script>
             window.onload = function() {
