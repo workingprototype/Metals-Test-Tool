@@ -27,8 +27,8 @@ if ($twilio_available) {
 }
 
 $servername = "localhost";
-$username = "user";  // Use appropriate MySQL credentials
-$password = "password";
+$username = "root";  // Use appropriate MySQL credentials
+$password = "";
 $dbname = "metal_store";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -357,27 +357,49 @@ $conn->close();
     </form>
 </div>
 <!-- Hidden receipt layout for printing -->
-<div id="receipt" class="receipt-layout">
-    <h2>Receipt</h2>
-    <p><strong>Sr. No:</strong> <span id="printSrNo"></span></p>
-    <p><strong>Date:</strong> <span id="printDate"></span></p>
-    <p><strong>Name:</strong> <span id="printName"></span></p>
-    <p><strong>Mobile:</strong> <span id="printMobile"></span></p>
-    <p><strong>Sample:</strong> <span id="printSample"></span></p>
-    <p><strong>Weight:</strong> <span id="printWeight"></span></p>
-    <p><strong>Metal Type:</strong> <span id="printMetalType"></span></p>
-    <p><strong>Gold %:</strong> <span id="printGoldPercent"></span></p>
-    <p><strong>Silver:</strong> <span id="printSilver"></span></p>
-    <p><strong>Platinum:</strong> <span id="printPlatinum"></span></p>
-    <p><strong>Zinc:</strong> <span id="printZinc"></span></p>
-    <p><strong>Copper:</strong> <span id="printCopper"></span></p>
-    <p><strong>Others:</strong> <span id="printOthers"></span></p>
-    <p><strong>Rhodium:</strong> <span id="printRhodium"></span></p>
-    <p><strong>Iridium:</strong> <span id="printIridium"></span></p>
-    <p><strong>Ruthenium:</strong> <span id="printRuthenium"></span></p>
-    <p><strong>Palladium:</strong> <span id="printPalladium"></span></p>
-    <p><strong>Lead:</strong> <span id="printLead"></span></p>
-    <p><strong>Total Karat:</strong> <span id="printTotalKarat"></span></p>
+<div id="receipt" class="receipt-layout"  style="margin: 0; padding: 0; display: flex; align-items: center; justify-content: center;">
+<div style="margin-top:12.5%;width:85%;transform:skewY(-1deg);">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:12px;text-align:center;width:33%;"><span id="printSrNo"></span></div>
+            <div style="font-size:12px;text-align:center;width:33%;"><span id="printWeight"></span>  grams</div>
+            <div style="font-size:12px;text-align:right;width:33%;"><span id="printDate"></span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;margin-top: 2.2%;">
+            <div style="font-size:12px;text-align:center;width:33%;"><strong><span id="printName"></span></strong></div>
+            <div style="font-size:12px;text-align:right;width:33%;"><span id="printSample"></span></div>
+            <div style="font-size:12px;text-align:center;width:33%;">&nbsp;</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:9px;margin-top: 28px;">
+            <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
+            <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
+            <div style="font-size:12px;text-align:right;width:33%;"><span id="printPlatinum"></span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:12px;text-align:right;width:33%;"><span id="printGoldPercent"></span></div>
+            <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
+            <div style="font-size:12px;text-align:center;width:20%;"><span id="printTotalKarat"></span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top: 16px;">
+            <div style="float:right;font-size:12px;width:33%;">
+                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printCopper"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printZinc"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+            </div>
+            <div style="float:right;font-size:12px;width:33%;">
+                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printIridium"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printPalladium"></span></div>
+            </div>
+            <div style="float:right;font-size:12px;width:33%;">
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printRuthenium"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printRhodium"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printLead"></span></div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printOthers"></span></div>
+            </div>
+        </div>
+    </div>   
 </div>
 
 
@@ -387,10 +409,15 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     var srNo = document.getElementById('sr_no').value;
      // Get today's date
      var today = new Date();
-    var dateString = today.toLocaleDateString();  
-    var name = document.getElementById('name').value;
-    var mobile = document.getElementById('mobile').value;
-    var sample = document.getElementById('sample').value;
+       // Format date and time
+       var dateString = today.toLocaleDateString();  // This gets the date in a localized format
+    var timeString = today.toLocaleTimeString();  // This gets the time in a localized format
+    
+    // Combine date and time into a single string
+    var dateTimeString = dateString + ' ' + timeString;
+    var name = document.getElementById('name').value || '';
+    var mobile = document.getElementById('mobile').value  || '';
+    var sample = document.getElementById('sample').value || '';
     var weight = document.getElementById('weight').value || '0';
     var metalType = document.getElementById('metal_type').value;
     var goldPercent = document.getElementById('gold_percent').value || '0';
@@ -408,14 +435,14 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
 
     // Populate the receipt layout
     document.getElementById('printSrNo').textContent = srNo;
-    document.getElementById('printDate').textContent = dateString;
+    document.getElementById('printDate').textContent = dateTimeString;
     document.getElementById('printName').textContent = name;
-    document.getElementById('printMobile').textContent = mobile;
+    // document.getElementById('printMobile').textContent = mobile;
     document.getElementById('printSample').textContent = sample;
     document.getElementById('printWeight').textContent = weight;
-    document.getElementById('printMetalType').textContent = metalType;
+    // document.getElementById('printMetalType').textContent = metalType;
     document.getElementById('printGoldPercent').textContent = goldPercent;
-    document.getElementById('printSilver').textContent = silver;
+    // document.getElementById('printSilver').textContent = silver;
     document.getElementById('printPlatinum').textContent = platinum;
     document.getElementById('printZinc').textContent = zinc;
     document.getElementById('printCopper').textContent = copper;
