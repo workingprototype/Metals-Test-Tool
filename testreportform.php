@@ -96,9 +96,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $total_karat = isset($_POST['total_karat']) ? $_POST['total_karat'] : 0.00;
 
         // SQL query to insert into the database
-        $sql = "INSERT INTO test_reports (sr_no, report_date, name, sample, metal_type, count, mobile, weight, gold_percent, silver, platinum, zinc, copper, others, rhodium, iridium, ruthenium, palladium, lead, total_karat)
-                VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
-
+        $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
+        VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
+        
         if (mysqli_query($conn, $sql)) {
             echo "Test report saved successfully!";
 
