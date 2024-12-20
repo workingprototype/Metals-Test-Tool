@@ -358,26 +358,26 @@ $conn->close();
 </div>
 <!-- Hidden receipt layout for printing -->
 <div id="receipt" class="receipt-layout"  style="margin: 0; padding: 0; display: flex; align-items: center; justify-content: center;">
-<div style="margin-top:12.5%;width:85%;transform:skewY(-1deg);">
+<div style="margin-top:12.5%;width:88%;transform:skewY(-1deg);font-family: Arial, sans-serif;">
         <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-            <div style="font-size:12px;text-align:center;width:33%;"><span id="printSrNo"></span></div>
-            <div style="font-size:12px;text-align:center;width:33%;"><span id="printWeight"></span>  grams</div>
+            <div style="font-size:18px;text-align:center;width:28%;text-transform: uppercase;"><strong><span id="printSrNo"></span></strong></div>
+            <div style="font-size:12px;text-align:center;width:33%;"><span id="printWeight"></span></div>
             <div style="font-size:12px;text-align:right;width:33%;"><span id="printDate"></span></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;margin-top: 2.2%;">
-            <div style="font-size:12px;text-align:center;width:33%;"><strong><span id="printName"></span></strong></div>
-            <div style="font-size:12px;text-align:right;width:33%;"><span id="printSample"></span></div>
-            <div style="font-size:12px;text-align:center;width:33%;">&nbsp;</div>
+            <div style="font-size:15px;text-align:center;width:38%;text-transform: uppercase;"><strong><span id="printName"></span></strong></div>
+            <div style="font-size:12px;text-align:right;width:30%;text-transform: uppercase;"><span id="printSample"></span></div>
+            <div style="font-size:12px;text-align:center;width:31%;">&nbsp;</div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:9px;margin-top: 28px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:13px;margin-top: 15px;">
             <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
             <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
-            <div style="font-size:12px;text-align:right;width:33%;"><span id="printPlatinum"></span></div>
+            <div style="font-size:12px;text-align:right;width:33%;margin-right: 20px;"><span id="printPlatinum"></span></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-            <div style="font-size:12px;text-align:right;width:33%;"><span id="printGoldPercent"></span></div>
+            <div style="font-size:18px;text-align:right;width:37%;"><strong><span id="printGoldPercent"></span></strong></div>
             <div style="font-size:12px;text-align:right;width:33%;">&nbsp;</div>
-            <div style="font-size:12px;text-align:center;width:20%;"><span id="printTotalKarat"></span></div>
+            <div style="font-size:18px;text-align:left;width:23%;"><strong><span id="printTotalKarat"></span></strong></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top: 16px;">
             <div style="float:right;font-size:12px;width:33%;">
@@ -392,7 +392,7 @@ $conn->close();
                 <div style="font-size:12px;text-align:right;width:100%;">0</div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printPalladium"></span></div>
             </div>
-            <div style="float:right;font-size:12px;width:33%;">
+            <div style="float:right;font-size:12px;width:33%;margin-right: 20px;">
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printRuthenium"></span></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printRhodium"></span></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printLead"></span></div>
@@ -406,7 +406,7 @@ $conn->close();
 <script>
 document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Collect form data
-    var srNo = document.getElementById('sr_no').value;
+    var srNo = document.getElementById('sr_no').value.toUpperCase();
      // Get today's date
      var today = new Date();
        // Format date and time
@@ -415,7 +415,7 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     
     // Combine date and time into a single string
     var dateTimeString = dateString + ' ' + timeString;
-    var name = document.getElementById('name').value || '';
+    var name = document.getElementById('name').value.toUpperCase() || '';
     var mobile = document.getElementById('mobile').value  || '';
     var sample = document.getElementById('sample').value || '';
     var weight = document.getElementById('weight').value || '0';
