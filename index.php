@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "user";  // Use appropriate MySQL credentials
-$password = "password";
+$username = "root";  // Use appropriate MySQL credentials
+$password = "";
 $dbname = "metal_store";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -93,12 +93,12 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
         <div id="receipt">         
             <div style="display:flex;width:80%;">
                 <div style="text-align:center;width:33.33%;">
-                    <div style="margin-top:85px;margin-left:30px;">
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;font-weight: bold;">
+                    <div style="margin-top:75px;margin-left:25px;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
                             <div>&nbsp;</div>
                             <div><?php echo $receipt['sr_no']; ?></div>
                         </div>
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;font-weight: bold;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
                             <div>&nbsp;</div>
                             <div> <?php echo $receipt['name']; ?></div>
                         </div>
@@ -110,9 +110,9 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                             <div>&nbsp;</div>
                             <div> <?php echo $receipt['weight']; ?> grams</div>
                         </div>
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;margin-left: -13px;font-size:x-small;">
                             <div>&nbsp;</div>
-                            <div> <?php echo $receipt['mobile']; ?></div>
+                           <div> <?php echo $receipt['mobile']; ?> <br> <?php echo $receipt['mobile']; ?></div>  <!--  It'll contain both mobile and alt-mobile -->
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                                 </div>
                                 <div>&nbsp;</div>
                                 <div style="">
-                                    <div style="align-items:center;display:flex;gap:20px;justify-content:center;font-size:x-small;font-weight: bold;">
+                                    <div style="align-items:center;display:flex;gap:20px;justify-content:center;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
                                         <div>&nbsp;</div>
                                         <div><?php echo $receipt['sr_no']; ?></div>
                                     </div>
@@ -141,7 +141,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                             <div style="display:flex;justify-content:space-between;">
                                 <div>&nbsp;</div>
                                 <div style="">
-                                    <div style="align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;font-weight: bold;">
+                                    <div style="align-items:center;display:flex;gap:10px;justify-content:center;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
                                         <div>&nbsp;</div>
                                         <div><?php echo $receipt['name']; ?></div>
                                     </div>
@@ -156,13 +156,13 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                                 <div>&nbsp;</div>
                             </div>
                         </div>
-                        <div style="margin-top:18px;">
+                        <div style="margin-top:14px;margin-bottom:4px;">
                             <div style="display:flex;justify-content:space-between;">
                                 <div>&nbsp;</div>
                                 <div style="">
-                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;margin-bottom:25px;">
+                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;margin-bottom:25px;font-size:x-small;">
                                         <div>&nbsp;</div>
-                                        <div></div>
+                                        <div><?php echo $receipt['weight']; ?></div>
                                     </div>
                                 </div>
                                 <div>&nbsp;</div>
@@ -176,7 +176,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                             </div>
                         </div>
                         <div style="margin-top:40px;">
-                            <div style="display:flex;justify-content:space-between; margin-top: -15px;">
+                            <div style="display:flex;justify-content:space-between; margin-top: -12px;margin-left: 10px;">
                                 <div>&nbsp;</div>
                                 <div style="">
                                     <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
