@@ -88,6 +88,37 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                     display: none;
                 }
             </style>
+            <script>
+    // Function to move focus to the next input element when "Enter" is pressed
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            // Find the currently focused input element
+            let currentElement = document.activeElement;
+
+            // Check if the current element is an input or textarea
+            if (currentElement.tagName === 'INPUT' || currentElement.tagName === 'TEXTAREA') {
+                // Find the next input element
+                let nextElement = getNextInput(currentElement);
+
+                // If there is a next input element, focus on it
+                if (nextElement) {
+                    nextElement.focus();
+                    e.preventDefault(); // Prevent form submission on Enter
+                }
+            }
+        }
+    });
+
+    // Function to get the next input element in the form
+    function getNextInput(currentElement) {
+        let formElements = Array.from(currentElement.form.elements);
+        let currentIndex = formElements.indexOf(currentElement);
+
+        // Return the next input element if available, otherwise null
+        return formElements[currentIndex + 1] || null;
+    }
+</script>
+
         </head>
         <body>
         <div id="receipt">         
@@ -266,6 +297,29 @@ $conn->close();
 </head>
 
 <body>
+    <!-- Top Nav Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">Metal Store</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="home.php">Home Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="testreportform.php">Test Report Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logs.php">Logs Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="exit.php" onclick="window.close(); return false;">Exit</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 <div class="form-container">
     <div class="form-header">
         <h4>Receipt Form</h4>
