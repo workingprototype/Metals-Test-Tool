@@ -1,11 +1,14 @@
 <?php
+// ini_set('display_errors', 1);
+// error_reporting(E_ALL);
+
 // Twilio API setup
 require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
 
 use Twilio\Rest\Client;
 
 // Toggle to enable or disable Twilio usage
-$use_twilio = false; // Set to false to disable Twilio functionality
+$use_twilio = true; // Set to false to disable Twilio functionality
 
 // Twilio credentials
 
@@ -19,11 +22,11 @@ $twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) 
 // Twilio Client initialization (only if credentials are available and toggle is enabled)
 if ($twilio_available) {
     $client = new Client($twilio_sid, $twilio_token);
-    echo "Twilio functionality is enabled.<br>";
+    // echo "Twilio functionality is enabled.<br>";
 } elseif ($use_twilio) {
     echo "Twilio credentials are missing. SMS/WhatsApp features will not work.<br>";
 } else {
-    echo "Twilio functionality is disabled.<br>";
+   // echo "Twilio functionality is disabled.<br>";
 }
 
 $servername = "localhost";
@@ -71,51 +74,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($_POST['submit_report'])) {
         // Retrieve form data safely with default values for missing fields
-        $sr_no = $_POST['sr_no'];
-        $name = $_POST['name'];
-        $sample = $_POST['sample'];
-        $metal_type = $_POST['metal_type'];
-        $count = isset($_POST['count']) ? $_POST['count'] : 0;
-        $mobile = $_POST['mobile'];
-        $weight = $_POST['weight'];
-        $gold_percent = isset($_POST['gold_percent']) ? $_POST['gold_percent'] : 0.00;
+    $sr_no = mysqli_real_escape_string($conn, $_POST['sr_no']);
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $sample = mysqli_real_escape_string($conn, $_POST['sample']);
+    $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
+    $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
+    $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
+    $weight = mysqli_real_escape_string($conn, $_POST['weight']);
+    $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
         
         // Handle optional metals with default values
-        $silver = isset($_POST['silver']) ? $_POST['silver'] : 0.00;
-        $platinum = isset($_POST['platinum']) ? $_POST['platinum'] : 0.00;
-
-        $zinc = isset($_POST['zinc']) ? $_POST['zinc'] : 0.00;
-        $copper = isset($_POST['copper']) ? $_POST['copper'] : 0.00;
-        $others = isset($_POST['others']) ? $_POST['others'] : 0.00;
-        $rhodium = isset($_POST['rhodium']) ? $_POST['rhodium'] : 0.00;
-        $iridium = isset($_POST['iridium']) ? $_POST['iridium'] : 0.00;
-        $ruthenium = isset($_POST['ruthenium']) ? $_POST['ruthenium'] : 0.00;
-        $palladium = isset($_POST['palladium']) ? $_POST['palladium'] : 0.00;
-        $lead = isset($_POST['lead']) ? $_POST['lead'] : 0.00;
-
-        $total_karat = isset($_POST['total_karat']) ? $_POST['total_karat'] : 0.00;
+    $silver = isset($_POST['silver']) && $_POST['silver'] !== '' ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
+    $platinum = isset($_POST['platinum']) && $_POST['platinum'] !== '' ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
+    $zinc = isset($_POST['zinc']) && $_POST['zinc'] !== '' ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
+    $copper = isset($_POST['copper']) && $_POST['copper'] !== '' ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
+    $others = isset($_POST['others']) && $_POST['others'] !== '' ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
+    $rhodium = isset($_POST['rhodium']) && $_POST['rhodium'] !== '' ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
+    $iridium = isset($_POST['iridium']) && $_POST['iridium'] !== '' ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
+    $ruthenium = isset($_POST['ruthenium']) && $_POST['ruthenium'] !== '' ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
+    $palladium = isset($_POST['palladium']) && $_POST['palladium'] !== '' ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
+    $lead = isset($_POST['lead']) && $_POST['lead'] !== '' ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
+    
+    $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
 
         // SQL query to insert into the database
-        $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
-        VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
+    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
+    VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
         
+        // Output the SQL query for debugging purposes
+       // var_dump($sql);
+
         if (mysqli_query($conn, $sql)) {
             echo "Test report saved successfully!";
 
+            // Get the current date
+        $current_date = date('d-m-Y');
             // Send SMS and WhatsApp
             if ($twilio_available) {
-            $message = "Hi $name, 
-                Here's the test report result for your $metal_type. 
-                Weight: $weight, Gold Percentage: $gold_percent%, Silver: $silver, Platinum: $platinum, 
-                Zinc: $zinc, 
-                Copper: $copper, 
-                Others: $others, 
-                Rhodium: $rhodium, 
-                Iridium: $iridium, 
-                Ruthenium: $ruthenium, 
-                Palladium: $palladium, 
-                Lead: $lead, 
-                Total Carat: $total_karat.";
+            $message = "
+            Dear $name, 
+            Here's the test report result for your $metal_type.
+            Token: $sr_no
+            Date: $current_date
+            Weight: $weight
+            Silver: $silver
+            Platinum: $platinum
+            Zinc: $zinc
+            Copper: $copper
+            Rhodium: $rhodium
+            Iridium: $iridium
+            Ruthenium: $ruthenium
+            Palladium: $palladium
+            Lead: $lead
+            Others: $others
+
+            Result: $gold_percent%
+            Total Carat: $total_karat.
+            
+            Thank you! - Kovai Classic Gold Testings, Thrissur. 
+            For any doubt/Clarification please call our office 0487 2426495";
 
             // Send SMS
             try {
@@ -184,7 +201,7 @@ $conn->close();
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
         .form-container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 50px auto;
             background-color: #f4f4f4;
             padding: 20px;
@@ -224,6 +241,15 @@ $conn->close();
         .receipt-layout {
             display: none; /* Hidden initially */
         }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            height: 35px;
+        }
+        .btn-block {
+            margin-top: 10px;
+        }
     </style>
 
 
@@ -247,110 +273,179 @@ $conn->close();
 </head>
 
 <body>
-<div class="form-container">
-    <div class="form-header">
-        <h4>Test Report Form</h4>
-    </div>
-    <form method="post">
-          <!-- Count field (readonly) -->
-          <div class="form-group">
-            <label for="count">(Total Reports Today)</label>
-            <input type="number" class="form-control" id="count" name="count" value="<?php echo $count; ?>" readonly>
+    <!-- Top Nav Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">National Gold Testing</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Home Page</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="testreportform.php">Test Report Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logs.php">Logs Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="exit.php" onclick="window.close(); return false;">Exit</a>
+                </li>
+            </ul>
         </div>
+    </nav>
 
-        <div class="form-group">
-            <label for="sr_no">Sr. No</label>
-            <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required>
+    <div class="form-container">
+        <div class="form-header">
+            <h4>Test Report Form</h4>
         </div>
-        
-        <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button>
+        <form method="post">
+            <!-- Row for Count and Sr. No -->
+            <div class="form-row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="count">(Total Reports Today)</label>
+                        <input type="number" class="form-control" id="count" name="count" value="<?php echo $count; ?>" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="sr_no">Sr. No</label>
+                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Pre-filled fields -->
-        <div class="form-group mt-4">
-            <label for="metal_type">Metal Type</label>
-            <input type="text" class="form-control" id="metal_type" name="metal_type" value="<?php echo $metal_type; ?>" readonly>
-        </div>
+            <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button>
 
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" value="<?php echo $name; ?>" readonly>
-        </div>
+            <!-- Row for Pre-filled fields (Metal Type, Name, Mobile, Sample) -->
+            <div class="form-row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="metal_type">Metal Type</label>
+                        <input type="text" class="form-control" id="metal_type" name="metal_type" value="<?php echo $metal_type; ?>" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo $name; ?>" readonly>
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="mobile">Mobile</label>
-            <input type="text" class="form-control" id="mobile" name="mobile" value="<?php echo $mobile; ?>" readonly>
-        </div>
+            <div class="form-row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="mobile">Mobile</label>
+                        <input type="text" class="form-control" id="mobile" name="mobile" value="<?php echo $mobile; ?>" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="sample">Sample</label>
+                        <input type="text" class="form-control" id="sample" name="sample" value="<?php echo $sample; ?>" readonly>
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="sample">Sample</label>
-            <input type="text" class="form-control" id="sample" name="sample" value="<?php echo $sample; ?>" readonly>
-        </div>
+            <!-- Row for Weight, Gold %, and Total Karat -->
+            <div class="form-row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="weight">Weight</label>
+                        <input type="number" step="0.01" class="form-control" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="gold_percent">Gold %</label>
+                        <input type="number" step="0.01" class="form-control" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="total_karat">Total Karat</label>
+                        <input type="text" class="form-control" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="weight">Weight</label>
-            <input type="number" step="0.01" class="form-control" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
-        </div>
+            <!-- Row for Optional Metal Fields -->
+            <div class="form-row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="silver">Silver</label>
+                        <input type="number" step="0.01" class="form-control" id="silver" name="silver">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="platinum">Platinum</label>
+                        <input type="number" step="0.01" class="form-control" id="platinum" name="platinum">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="zinc">Zinc</label>
+                        <input type="number" step="0.01" class="form-control" id="zinc" name="zinc">
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="gold_percent">Gold %</label>
-            <input type="number" step="0.01" class="form-control" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
-        </div>
+            <!-- Row for More Optional Metals -->
+            <div class="form-row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="copper">Copper</label>
+                        <input type="number" step="0.01" class="form-control" id="copper" name="copper">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="lead">Lead</label>
+                        <input type="number" step="0.01" class="form-control" id="lead" name="lead">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="rhodium">Rhodium</label>
+                        <input type="number" step="0.01" class="form-control" id="rhodium" name="rhodium">
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="silver">Silver</label>
-            <input type="number" step="0.01" class="form-control" id="silver" name="silver">
-        </div>
-
-        <div class="form-group">
-            <label for="platinum">Platinum</label>
-            <input type="number" step="0.01" class="form-control" id="platinum" name="platinum">
-        </div>
-
-        <div class="form-group">
-            <label for="zinc">Zinc</label>
-            <input type="number" step="0.01" class="form-control" id="zinc" name="zinc">
-        </div>
-
-        <div class="form-group">
-            <label for="copper">Copper</label>
-            <input type="number" step="0.01" class="form-control" id="copper" name="copper">
-        </div>
+            <!-- Row for Final Metals -->
+            <div class="form-row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="iridium">Iridium</label>
+                        <input type="number" step="0.01" class="form-control" id="iridium" name="iridium">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ruthenium">Ruthenium</label>
+                        <input type="number" step="0.01" class="form-control" id="ruthenium" name="ruthenium">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="palladium">Palladium</label>
+                        <input type="number" step="0.01" class="form-control" id="palladium" name="palladium">
+                    </div>
+                </div>
+            </div>
 
         <div class="form-group">
             <label for="others">Others</label>
             <input type="number" step="0.01" class="form-control" id="others" name="others">
         </div>
 
-        <div class="form-group">
-            <label for="rhodium">Rhodium</label>
-            <input type="number" step="0.01" class="form-control" id="rhodium" name="rhodium">
-        </div>
 
-        <div class="form-group">
-            <label for="iridium">Iridium</label>
-            <input type="number" step="0.01" class="form-control" id="iridium" name="iridium">
-        </div>
-
-        <div class="form-group">
-            <label for="ruthenium">Ruthenium</label>
-            <input type="number" step="0.01" class="form-control" id="ruthenium" name="ruthenium">
-        </div>
-
-        <div class="form-group">
-            <label for="palladium">Palladium</label>
-            <input type="number" step="0.01" class="form-control" id="palladium" name="palladium">
-        </div>
-
-        <div class="form-group">
-            <label for="lead">Lead</label>
-            <input type="number" step="0.01" class="form-control" id="lead" name="lead">
-        </div>
-
-
-        <div class="form-group">
-            <label for="total_karat">Total Karat</label>
-            <input type="text" class="form-control" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
-        </div>
+        
 
         <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save & Send Report</button>
         <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt</button>
@@ -469,6 +564,36 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     printWindow.close();
 });
 
+</script>
+<script>
+    // Function to move focus to the next input element when "Enter" is pressed
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            // Find the currently focused input element
+            let currentElement = document.activeElement;
+
+            // Check if the current element is an input or textarea
+            if (currentElement.tagName === 'INPUT' || currentElement.tagName === 'TEXTAREA') {
+                // Find the next input element
+                let nextElement = getNextInput(currentElement);
+
+                // If there is a next input element, focus on it
+                if (nextElement) {
+                    nextElement.focus();
+                    e.preventDefault(); // Prevent form submission on Enter
+                }
+            }
+        }
+    });
+
+    // Function to get the next input element in the form
+    function getNextInput(currentElement) {
+        let formElements = Array.from(currentElement.form.elements);
+        let currentIndex = formElements.indexOf(currentElement);
+
+        // Return the next input element if available, otherwise null
+        return formElements[currentIndex + 1] || null;
+    }
 </script>
 
 <!-- jQuery and Bootstrap Bundle (includes Popper) Todo: Download it locally and make it run offline. --> 
