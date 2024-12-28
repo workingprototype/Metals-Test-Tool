@@ -1,8 +1,15 @@
 <?php
-$servername = "localhost";
-$username = "root";  // Use appropriate MySQL credentials
-$password = "";
-$dbname = "metal_store";
+// Path to the config file
+$configFile = 'config.json';
+
+// Load configuration from the JSON file
+$configs = json_decode(file_get_contents($configFile), true);
+
+// Extract database settings from the config file
+$servername = $configs['Database']['db_host'];
+$username = $configs['Database']['db_user'];
+$password = $configs['Database']['db_password'];
+$dbname = $configs['Database']['db_name'];
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -299,20 +306,29 @@ $conn->close();
 <body>
     <!-- Top Nav Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Metal Store</a>
+    <a class="navbar-brand" href="index.php">National Gold Testing</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="home.php">Home Page</a>
+                    <a class="nav-link" href="index.php">Home Page</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="testreportform.php">Test Report Page</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="reports.php">Reports Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="receipts.php">Receipts Page</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="logs.php">Logs Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="config.php">Config Page</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="exit.php" onclick="window.close(); return false;">Exit</a>
@@ -348,7 +364,7 @@ $conn->close();
 
         <div class="form-group">
             <label for="date">Date</label>
-            <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
+            <input type="date" class="form-control" name="report_date" value="<?php echo date('d-m-Y'); ?>" required>
         </div>
 
         <div class="form-group">

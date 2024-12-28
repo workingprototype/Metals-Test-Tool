@@ -7,14 +7,19 @@ require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
 
 use Twilio\Rest\Client;
 
+// Path to the config file
+$configFile = 'config.json';
+
+// Load configuration from the JSON file
+$configs = json_decode(file_get_contents($configFile), true);
+
 // Toggle to enable or disable Twilio usage
 $use_twilio = true; // Set to false to disable Twilio functionality
 
-// Twilio credentials
-
-$twilio_sid = '';
-$twilio_token = '';
-$twilio_phone_number = ''; // Your Twilio phone number (for SMS & Whatsapp)
+// Load Twilio credentials from the config file
+$twilio_sid = $configs['Twilio']['twilio_sid'];
+$twilio_token = $configs['Twilio']['twilio_token'];
+$twilio_phone_number = $configs['Twilio']['twilio_phone_number']; // Your Twilio phone number (for SMS & WhatsApp)
 
 // Check if Twilio credentials are available and usage is enabled
 $twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) && !empty($twilio_phone_number);
@@ -29,10 +34,15 @@ if ($twilio_available) {
    // echo "Twilio functionality is disabled.<br>";
 }
 
-$servername = "localhost";
-$username = "root";  // Use appropriate MySQL credentials
-$password = "";
-$dbname = "metal_store";
+
+// Load configuration from the JSON file
+$configs = json_decode(file_get_contents($configFile), true);
+
+// Extract database settings from the config file
+$servername = $configs['Database']['db_host'];
+$username = $configs['Database']['db_user'];
+$password = $configs['Database']['db_password'];
+$dbname = $configs['Database']['db_name'];
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -131,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Result: $gold_percent%
             Total Carat: $total_karat.
             
-            Thank you! - Kovai Classic Gold Testings, Thrissur. 
+            Thank you! - Kovai Classic Gold Testings*, Thrissur. 
             For any doubt/Clarification please call our office 0487 2426495";
 
             // Send SMS
@@ -149,8 +159,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
         // Send WhatsApp message via the WhatsApp Business API
-        $whatsapp_url = 'https://graph.facebook.com/v14.0/' . $twilio_phone_number . '/messages'; // WhatsApp Business API endpoint
-        $access_token = 'your_facebook_access_token'; // Facebook access token for WhatsApp API
+        $whatsapp_url_base = $configs['WhatsApp']['whatsapp_url'];
+        $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
+        $twilio_phone_number = $configs['Twilio']['twilio_phone_number'];
+        $whatsapp_url = $whatsapp_url_base . $twilio_phone_number . '/messages'; // WhatsApp Business API endpoint
 
         $whatsapp_data = [
             'messaging_product' => 'whatsapp',
@@ -275,7 +287,7 @@ $conn->close();
 <body>
     <!-- Top Nav Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">National Gold Testing</a>
+    <a class="navbar-brand" href="index.php">National Gold Testing</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -288,7 +300,16 @@ $conn->close();
                     <a class="nav-link" href="testreportform.php">Test Report Page</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="reports.php">Reports Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="receipts.php">Receipts Page</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="logs.php">Logs Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="config.php">Config Page</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="exit.php" onclick="window.close(); return false;">Exit</a>

@@ -1,9 +1,20 @@
 <?php
-// DB connection
-$mysqli = new mysqli("localhost", "root", "", "metal_store");
+// Path to the config file
+$configFile = 'config.json';
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+// Load configuration from the JSON file
+$configs = json_decode(file_get_contents($configFile), true);
+
+// Extract database settings from the config file
+$servername = $configs['Database']['db_host'];
+$username = $configs['Database']['db_user'];
+$password = $configs['Database']['db_password'];
+$dbname = $configs['Database']['db_name'];
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
 // Include libraries for PDF and Excel export
@@ -21,6 +32,12 @@ $start = ($page > 1) ? ($page * $limit) - $limit : 0;
 // Search parameters
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_date = isset($_GET['search_date']) ? $_GET['search_date'] : '';
+
+// If no search date is provided, set it to today's date by default
+if (empty($search_date)) {
+    $search_date = date('Y-m-d'); // Today's date in Y-m-d format
+}
+
 $search_query = "";
 
 // Build search query if search is active
@@ -32,12 +49,12 @@ if ($search || $search_date) {
 }
 
 // Fetch total number of records for pagination
-$total_result = $mysqli->query("SELECT COUNT(*) AS total FROM test_reports $search_query");
+$total_result = $conn->query("SELECT COUNT(*) AS total FROM test_reports $search_query");
 $total_rows = $total_result->fetch_assoc()['total'];
 
 // Fetch reports with pagination
 $query = "SELECT * FROM test_reports $search_query ORDER BY report_date DESC LIMIT $start, $limit";
-$result = $mysqli->query($query);
+$result = $conn->query($query);
 
 // Handle Export to Excel
 if (isset($_GET['export']) && $_GET['export'] == 'excel') {
@@ -53,7 +70,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
 
     // Fetch and populate data
     $export_query = "SELECT * FROM test_reports $search_query";
-    $export_result = $mysqli->query($export_query);
+    $export_result = $conn->query($export_query);
 
     $rowCount = 2; // Start from row 2
     while ($row = $export_result->fetch_assoc()) {
@@ -88,7 +105,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
 
     // Fetch and populate data
     $export_query = "SELECT * FROM test_reports $search_query";
-    $export_result = $mysqli->query($export_query);
+    $export_result = $conn->query($export_query);
 
     while ($row = $export_result->fetch_assoc()) {
         $pdf->Cell(20, 10, $row['sr_no'], 1);
@@ -112,9 +129,41 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Reports</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Top Nav Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="index.php">National Gold Testing</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Home Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="testreportform.php">Test Report Page</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="reports.php">Reports Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="receipts.php">Receipts Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logs.php">Logs Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="config.php">Config Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="window.close(); return false;">Exit</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 <div class="container mt-5">
     <h2 class="mb-4">Search Reports</h2>
     <form method="GET" action="" class="row g-3">
@@ -146,7 +195,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
                         <td><?php echo $row['sr_no']; ?></td>
-                        <td><?php echo $row['report_date']; ?></td>
+                        <td><?php echo date('d-m-Y', strtotime($row['report_date'])); ?></td>
                         <td><?php echo $row['name']; ?></td>
                         <td><?php echo $row['sample']; ?></td>
                         <!-- Add other fields as needed -->
