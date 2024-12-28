@@ -141,8 +141,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Result: $gold_percent%
             Total Carat: $total_karat.
             
-            Thank you! - Kovai Classic Gold Testings*, Thrissur. 
-            For any doubt/Clarification please call our office 0487 2426495";
+            Thank you! - National Gold Testing, Thrissur. 
+            For any doubt/Clarification please call our office 8921243476,6282479875";
 
             // Send SMS
             try {
