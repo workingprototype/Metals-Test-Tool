@@ -58,14 +58,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $report_date = $_POST['report_date'];
         $name = $_POST['name'];
         $mobile = $_POST['mobile'];
+        $alt_mobile = isset($_POST['alt_mobile']) ? $_POST['alt_mobile'] : NULL; // Capture alt_mobile (optional)
         $sample = $_POST['sample'];
         $weight = $_POST['weight'];
 
         // Always prepend +91 to the mobile number
         $mobile = "+91" . $mobile;
+        if ($alt_mobile) {
+            $alt_mobile = "+91" . $alt_mobile;
+        }
 
-        $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, sample, weight) 
-                VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$sample', '$weight')";
+        $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, alt_mobile, sample, weight) 
+        VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$alt_mobile', '$sample', '$weight')";
 
         if ($conn->query($sql) === TRUE) {
             // Receipt saved successfully, now show the receipt and print option
@@ -150,7 +154,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                         </div>
                         <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;margin-left: -13px;font-size:x-small;">
                             <div>&nbsp;</div>
-                           <div> <?php echo $receipt['mobile']; ?> <br> <?php echo $receipt['mobile']; ?></div>  <!--  It'll contain both mobile and alt-mobile -->
+                           <div> <?php echo $receipt['mobile']; ?> <br> <?php echo $receipt['alt_mobile'] ? $receipt['alt_mobile'] : ''; ?> </div>  <!--  It'll contain both mobile and alt-mobile -->
                         </div>
                     </div>
                 </div>
@@ -379,6 +383,13 @@ $conn->close();
                 <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
             </div>
         </div>
+            <div class="form-group">
+            <label for="alt_mobile">Alt-Mobile (Optional)</label>
+            <div class="input-group">
+            <span class="input-group-text">+91</span>
+            <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number">
+            </div>
+            </div>
 
         <div class="form-group">
             <label for="sample">Sample</label>

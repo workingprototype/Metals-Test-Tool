@@ -67,13 +67,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sr_no = $_POST['sr_no'];
         
         // Fetch receipt data based on sr_no
-        $sql = "SELECT name, mobile, sample, metal_type, weight FROM receipts WHERE sr_no = '$sr_no'";
+        $sql = "SELECT name, mobile, alt_mobile, sample, metal_type, weight FROM receipts WHERE sr_no = '$sr_no'";
         $result = $conn->query($sql);
         
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $name = $row['name'];
             $mobile = $row['mobile'];
+            $alt_mobile = $row['alt_mobile'];
             $sample = $row['sample'];
             $metal_type = $row['metal_type'];
             $weight = $row['weight'];
@@ -90,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
     $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
     $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
+    $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
     $weight = mysqli_real_escape_string($conn, $_POST['weight']);
     $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
         
@@ -108,35 +110,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
 
         // SQL query to insert into the database
-    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
-    VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
+    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
+    VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$alt_mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
         
         // Output the SQL query for debugging purposes
        // var_dump($sql);
 
-        if (mysqli_query($conn, $sql)) {
-            echo "Test report saved successfully!";
+    if (mysqli_query($conn, $sql)) {
+        echo "Test report saved successfully!";
 
-    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
+            $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
+
             // Get the current date
-        $current_date = date('d-m-Y');
+
+            $current_date = date('d-m-Y');
+
             // Send SMS and WhatsApp
+
+            // Combine both mobile numbers into an array
+            $phone_numbers = [$mobile, $alt_mobile];
+
             if ($twilio_available) {
             $message = "Your Test Results:\n\nName: $name\nToken. No: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\nThank You.\n\n- National Gold Testing, Thrissur. \nFor any doubt/Clarification please call our office 8921243476,6282479875";
 
            // Send SMS
-            try {
-                $client->messages->create(
-                    $mobile,
-                    [
-                        'from' => $twilio_phone_number,
-                        'body' => $message
-                    ]
-                );
-                echo "SMS sent successfully!";
-            } catch (Exception $e) {
-                echo "Error sending SMS: " . $e->getMessage();
+           foreach ($phone_numbers as $phone_number) {
+            if (!empty($phone_number)) {
+                // Send SMS
+                try {
+                    $client->messages->create(
+                        $phone_number,
+                        [
+                            'from' => $twilio_phone_number,
+                            'body' => $message
+                        ]
+                    );
+                    echo "SMS sent successfully to $phone_number!<br>";
+                } catch (Exception $e) {
+                    echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
+                }
             }
+        }
          // Determine the karat value based on metal type
     $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A';       
         // Send WhatsApp message via the WhatsApp Business API
@@ -365,13 +379,19 @@ $conn->close();
             </div>
 
             <div class="form-row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="mobile">Mobile</label>
                         <input type="text" class="form-control" id="mobile" name="mobile" value="<?php echo $mobile; ?>" readonly>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="mobile">Alternative Mobile Number</label>
+                        <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" value="<?php echo $alt_mobile; ?>" readonly>
+                    </div>
+                </div>
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="sample">Sample</label>
                         <input type="text" class="form-control" id="sample" name="sample" value="<?php echo $sample; ?>" readonly>
@@ -389,7 +409,7 @@ $conn->close();
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="gold_percent">Gold %</label>
+                        <label for="gold_percent">Gold % or Purity</label>
                         <input type="number" step="0.01" class="form-control" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
                     </div>
                 </div>
