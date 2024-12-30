@@ -129,7 +129,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Reports</title>
     <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <!-- Top Nav Menu -->
@@ -224,6 +224,6 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
 </div>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/assets/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -227,7 +227,7 @@ $conn->close();
 <html lang="en">
 <head>
     <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #e0e0e0;
@@ -644,9 +644,9 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     }
 </script>
 
-<!-- jQuery and Bootstrap Bundle (includes Popper) Todo: Download it locally and make it run offline. --> 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery and Bootstrap Bundle (includes Popper) --> 
+<script src="vendor/assets/jquery-3.5.1.slim.min.js"></script>
+<script src="vendor/assets/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
