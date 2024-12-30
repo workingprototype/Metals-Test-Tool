@@ -117,34 +117,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (mysqli_query($conn, $sql)) {
             echo "Test report saved successfully!";
 
+    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
             // Get the current date
         $current_date = date('d-m-Y');
             // Send SMS and WhatsApp
             if ($twilio_available) {
-            $message = "
-            Dear $name, 
-            Here's the test report result for your $metal_type.
-            Token: $sr_no
-            Date: $current_date
-            Weight: $weight
-            Silver: $silver
-            Platinum: $platinum
-            Zinc: $zinc
-            Copper: $copper
-            Rhodium: $rhodium
-            Iridium: $iridium
-            Ruthenium: $ruthenium
-            Palladium: $palladium
-            Lead: $lead
-            Others: $others
+            $message = "Your Test Results:\n\nName: $name\nToken. No: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\nThank You.\n\n- National Gold Testing, Thrissur. \nFor any doubt/Clarification please call our office 8921243476,6282479875";
 
-            Result: $gold_percent%
-            Total Carat: $total_karat.
-            
-            Thank you! - National Gold Testing, Thrissur. 
-            For any doubt/Clarification please call our office 8921243476,6282479875";
-
-            // Send SMS
+           // Send SMS
             try {
                 $client->messages->create(
                     $mobile,
@@ -157,38 +137,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } catch (Exception $e) {
                 echo "Error sending SMS: " . $e->getMessage();
             }
-
+         // Determine the karat value based on metal type
+    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A';       
         // Send WhatsApp message via the WhatsApp Business API
-        $whatsapp_url_base = $configs['WhatsApp']['whatsapp_url'];
+        $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
+        $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
         $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
-        $twilio_phone_number = $configs['Twilio']['twilio_phone_number'];
-        $whatsapp_url = $whatsapp_url_base . $twilio_phone_number . '/messages'; // WhatsApp Business API endpoint
+        $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
+        // Format the phone number into E.164 format
+    $formatted_mobile = preg_replace('/\D/', '', $mobile);  // Remove non-digits
+    if (strlen($formatted_mobile) == 10) {
+        $formatted_mobile = '+91' . $formatted_mobile; // Adjust according to your country code
+    }
 
-        $whatsapp_data = [
-            'messaging_product' => 'whatsapp',
-            'to' => $mobile,
-            'type' => 'text',
-            'text' => ['body' => $message]
-        ];
+    // Prepare the message data for the WhatsApp template
+    $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
+    $whatsapp_data = [
+        'messaging_product' => 'whatsapp',
+        'to' => $formatted_mobile,
+        'type' => 'template',
+        'template' => [
+            'name' => 'testreportssoftware',  // Your template name
+            'language' => ['code' => 'en_US'],  // Language code for the template
+            'components' => [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        ['type' => 'text', 'text' => $name],           // {{1}} - Name
+                        ['type' => 'text', 'text' => $sr_no],          // {{2}} - Token Number
+                        ['type' => 'text', 'text' => $current_date],    // {{3}} - Date
+                        ['type' => 'text', 'text' => $sample],          // {{4}} - Sample
+                        ['type' => 'text', 'text' => $metal_type],      // {{5}} - Metal Type
+                        ['type' => 'text', 'text' => $gold_percent],    // {{6}} - Result (Gold %)
+                        ['type' => 'text', 'text' => $karat_value]      // {{7}} - Total Karat
+                    ]
+                ]
+            ]
+        ]
+    ];
 
-        // Make the HTTP POST request to WhatsApp API
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $access_token,
-            'Content-Type: application/json'
-        ]);
+    // Make the HTTP POST request to WhatsApp API using cURL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $access_token,
+        'Content-Type: application/json'
+    ]);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);  // Get the HTTP response code
+    curl_close($ch);
 
-        if ($response) {
-            echo "WhatsApp message sent successfully!";
+    // Check the response from WhatsApp API
+    if ($http_code == 200) {
+        echo "WhatsApp message sent successfully!";
         } else {
-            echo "Error sending WhatsApp message.";
+            echo "Error sending WhatsApp message. Response: " . $response;
         }
     } else {
         echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
