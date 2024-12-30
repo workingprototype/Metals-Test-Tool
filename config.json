@@ -1,13 +1,14 @@
 {
     "Twilio": {
         "use_twilio": true,
-        "twilio_sid": "test",
+        "twilio_sid": "your_twilio_sid",
         "twilio_token": "your_twilio_token",
         "twilio_phone_number": "your_twilio_phone_number"
     },
     "WhatsApp": {
-        "access_token": "your_facebook_access_token",
-        "whatsapp_url": "https:\/\/graph.facebook.com\/v14.0\/"
+        "access_token": "your_whatsapp_access_token",
+        "whatsapp_api_url": "https:\/\/graph.facebook.com\/v21.0\/",
+        "whatsapp_number": "your_whatsapp_phone_number_id_e_g_53xxxxxxxxxx115"
     },
     "Database": {
         "db_host": "localhost",
