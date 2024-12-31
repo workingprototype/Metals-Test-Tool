@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $row = $result->fetch_assoc();
             $name = $row['name'];
             $mobile = $row['mobile'];
-            $alt_mobile = $row['alt_mobile'];
+            $alt_mobile = isset($row['alt_mobile']) ? $row['alt_mobile'] : '';
             $sample = $row['sample'];
             $metal_type = $row['metal_type'];
             $weight = $row['weight'];
