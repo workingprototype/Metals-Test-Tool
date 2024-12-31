@@ -70,6 +70,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     $sheet->setCellValue('D1', 'Sample');
     $sheet->setCellValue('E1', 'Mobile');
     $sheet->setCellValue('F1', 'Alt-Mobile');
+    $sheet->setCellValue('G1', 'Metal Type');
+    $sheet->setCellValue('H1', 'Weight');
     // Add other headers...
 
     // Fetch and populate data
@@ -84,6 +86,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         $sheet->setCellValue('D'.$rowCount, $row['sample']);
         $sheet->setCellValueExplicit('E'.$rowCount, $row['mobile'], DataType::TYPE_STRING);
         $sheet->setCellValueExplicit('F'.$rowCount, $row['alt_mobile'], DataType::TYPE_STRING);
+        $sheet->setCellValue('G'.$rowCount, $row['metal_type']);
+        $sheet->setCellValue('H'.$rowCount, $row['weight']);
         // Populate other fields...
         $rowCount++;
     }
@@ -108,6 +112,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     $pdf->Cell(40, 10, 'Sample', 1);
     $pdf->Cell(40, 10, 'Mobile', 1);
     $pdf->Cell(40, 10, 'Alt Mobile', 1);
+    $pdf->Cell(40, 10, 'Metal Type', 1);
+    $pdf->Cell(40, 10, 'Weight (gm)', 1);
     // Add other headers...
     $pdf->Ln();
 
@@ -122,6 +128,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
         $pdf->Cell(40, 10, $row['sample'], 1);
         $pdf->Cell(40, 10, $row['mobile'], 1);
         $pdf->Cell(40, 10, $row['alt_mobile'], 1);
+        $pdf->Cell(40, 10, $row['metal_type'], 1);
+        $pdf->Cell(40, 10, $row['weight'], 1);
         // Populate other fields...
         $pdf->Ln();
     }
@@ -199,6 +207,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                 <th>Sample</th>
                 <th>Mobile</th>
                 <th>Alt Mobile</th>
+                <th>Metal Type</th>
+                <th>Weight</th>
                 <!-- Add other headers as needed -->
             </tr>
         </thead>
@@ -212,6 +222,8 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                         <td><?php echo $row['sample']; ?></td>
                         <td><?php echo $row['mobile']; ?></td>
                         <td><?php echo $row['alt_mobile']; ?></td>
+                        <td><?php echo $row['metal_type']; ?></td>
+                        <td><?php echo $row['weight']; ?></td>
                         <!-- Add other fields as needed -->
                     </tr>
                 <?php endwhile; ?>
