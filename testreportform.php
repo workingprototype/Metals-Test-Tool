@@ -35,9 +35,6 @@ if ($twilio_available) {
 }
 
 
-// Load configuration from the JSON file
-$configs = json_decode(file_get_contents($configFile), true);
-
 // Extract database settings from the config file
 $servername = $configs['Database']['db_host'];
 $username = $configs['Database']['db_user'];
@@ -50,7 +47,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$name = $sample = $metal_type = $sr_no = $mobile = $weight = "";
+$name = $sample = $metal_type = $sr_no = $mobile = $alt_mobile = $weight = "";
 $total_karat = 0;
 $count = 0; // Initialize count variable
 
@@ -495,8 +492,8 @@ $conn->close();
 
         
 
-        <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save & Send Report</button>
-        <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt</button>
+        <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
+        <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
     </form>
 </div>
 <!-- Hidden receipt layout for printing -->
