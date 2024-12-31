@@ -16,12 +16,16 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
 // Include libraries for PDF and Excel export
 require 'vendor/autoload.php'; // For PhpSpreadsheet
 require('vendor/setasign/fpdf/fpdf.php'); // For FPDF
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+
 // Pagination variables
 $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -30,11 +34,17 @@ $start = ($page > 1) ? ($page * $limit) - $limit : 0;
 // Search parameters
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_date = isset($_GET['search_date']) ? $_GET['search_date'] : '';
+
+// If no search date is provided, set it to today's date by default
+if (empty($search_date)) {
+    $search_date = date('Y-m-d'); // Today's date in Y-m-d format
+}
+
 $search_query = "";
 
 // Build search query if search is active
 if ($search || $search_date) {
-    $search_query = "WHERE (sr_no LIKE '%$search%' OR name LIKE '%$search%' OR mobile LIKE '%$search%')";
+    $search_query = "WHERE (sr_no LIKE '%$search%' OR name LIKE '%$search%' OR mobile LIKE '%$search%' OR alt_mobile LIKE '%$search%')";
     if ($search_date) {
         $search_query .= " AND report_date = '$search_date'";
     }
@@ -44,13 +54,8 @@ if ($search || $search_date) {
 $total_result = $conn->query("SELECT COUNT(*) AS total FROM receipts $search_query");
 $total_rows = $total_result->fetch_assoc()['total'];
 
-// Default to today's date if no search date is provided
-if (!$search_date) {
-    $search_date = date('Y-m-d');
-}
-
-// Fetch today's receipts with pagination
-$query = "SELECT * FROM receipts WHERE report_date = '$search_date' $search_query ORDER BY report_date DESC LIMIT $start, $limit";
+// Fetch reports with pagination
+$query = "SELECT * FROM receipts $search_query ORDER BY report_date DESC LIMIT $start, $limit";
 $result = $conn->query($query);
 
 // Handle Export to Excel
@@ -63,11 +68,12 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     $sheet->setCellValue('B1', 'Report Date');
     $sheet->setCellValue('C1', 'Name');
     $sheet->setCellValue('D1', 'Sample');
-    $sheet->setCellValue('E1', 'Weight');
+    $sheet->setCellValue('E1', 'Mobile');
+    $sheet->setCellValue('F1', 'Alt-Mobile');
     // Add other headers...
 
     // Fetch and populate data
-    $export_query = "SELECT * FROM receipts WHERE report_date = '$search_date' $search_query";
+    $export_query = "SELECT * FROM receipts $search_query";
     $export_result = $conn->query($export_query);
 
     $rowCount = 2; // Start from row 2
@@ -76,15 +82,16 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         $sheet->setCellValue('B'.$rowCount, $row['report_date']);
         $sheet->setCellValue('C'.$rowCount, $row['name']);
         $sheet->setCellValue('D'.$rowCount, $row['sample']);
-        $sheet->setCellValue('E'.$rowCount, $row['weight']);
+        $sheet->setCellValueExplicit('E'.$rowCount, $row['mobile'], DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit('F'.$rowCount, $row['alt_mobile'], DataType::TYPE_STRING);
         // Populate other fields...
         $rowCount++;
     }
 
     // Export to Excel file
     $writer = new Xlsx($spreadsheet);
-    $writer->save('receipts.xlsx');
-    header('Location: receipts.xlsx');
+    $writer->save('test_report.xlsx');
+    header('Location: test_report.xlsx');
     exit;
 }
 
@@ -99,12 +106,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     $pdf->Cell(30, 10, 'Report Date', 1);
     $pdf->Cell(50, 10, 'Name', 1);
     $pdf->Cell(40, 10, 'Sample', 1);
-    $pdf->Cell(30, 10, 'Weight', 1);
+    $pdf->Cell(40, 10, 'Mobile', 1);
+    $pdf->Cell(40, 10, 'Alt Mobile', 1);
     // Add other headers...
     $pdf->Ln();
 
     // Fetch and populate data
-    $export_query = "SELECT * FROM receipts WHERE report_date = '$search_date' $search_query";
+    $export_query = "SELECT * FROM receipts $search_query";
     $export_result = $conn->query($export_query);
 
     while ($row = $export_result->fetch_assoc()) {
@@ -112,13 +120,14 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
         $pdf->Cell(30, 10, $row['report_date'], 1);
         $pdf->Cell(50, 10, $row['name'], 1);
         $pdf->Cell(40, 10, $row['sample'], 1);
-        $pdf->Cell(30, 10, $row['weight'], 1);
+        $pdf->Cell(40, 10, $row['mobile'], 1);
+        $pdf->Cell(40, 10, $row['alt_mobile'], 1);
         // Populate other fields...
         $pdf->Ln();
     }
 
     // Output to PDF file
-    $pdf->Output('D', 'receipts.pdf');
+    $pdf->Output('D', 'test_report.pdf');
     exit;
 }
 ?>
@@ -128,7 +137,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipts</title>
+    <title>Test Reports</title>
     <!-- Bootstrap CSS -->
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -166,7 +175,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
         </div>
     </nav>
 <div class="container mt-5">
-    <h2 class="mb-4">Search Receipts</h2>
+    <h2 class="mb-4">Search Reports</h2>
     <form method="GET" action="" class="row g-3">
         <div class="col-md-4">
             <input type="text" class="form-control" name="search" placeholder="Search by Sr No, Name, Mobile" value="<?php echo htmlspecialchars($search); ?>">
@@ -188,7 +197,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                 <th>Report Date</th>
                 <th>Name</th>
                 <th>Sample</th>
-                <th>Weight</th>
+                <th>Mobile</th>
+                <th>Alt Mobile</th>
+                <!-- Add other headers as needed -->
             </tr>
         </thead>
         <tbody>
@@ -199,11 +210,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                         <td><?php echo date('d-m-Y', strtotime($row['report_date'])); ?></td>
                         <td><?php echo $row['name']; ?></td>
                         <td><?php echo $row['sample']; ?></td>
-                        <td><?php echo $row['weight']; ?></td>
+                        <td><?php echo $row['mobile']; ?></td>
+                        <td><?php echo $row['alt_mobile']; ?></td>
+                        <!-- Add other fields as needed -->
                     </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr><td colspan="5">No records found</td></tr>
+                <tr><td colspan="4">No records found</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
