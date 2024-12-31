@@ -16,7 +16,12 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+// Include libraries for PDF and Excel export
+require 'vendor/autoload.php'; // For PhpSpreadsheet
+require('vendor/setasign/fpdf/fpdf.php'); // For FPDF
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // Pagination variables
 $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
