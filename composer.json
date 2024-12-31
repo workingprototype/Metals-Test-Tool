@@ -1,6 +1,7 @@
 {
     "require": {
         "twilio/sdk": "^8.3",
-        "setasign/fpdf": "^1.8"
+        "setasign/fpdf": "^1.8",
+        "phpoffice/phpspreadsheet": "^3.7"
     }
 }
