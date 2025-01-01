@@ -141,8 +141,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $palladium = isset($_POST['palladium']) && $_POST['palladium'] !== '' ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
     $lead = isset($_POST['lead']) && $_POST['lead'] !== '' ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
     $tin = isset($_POST['tin']) && $_POST['tin'] !== '' ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
-    $lead = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
-    $lead = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+    $cadmium = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+    $nickel = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
     
     $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
 
@@ -375,13 +375,13 @@ $conn->close();
         <form method="post">
             <!-- Row for Count and Sr. No -->
             <div class="form-row">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <div class="form-group">
                         <label for="count">(Total Reports Today)</label>
                         <input type="number" class="form-control" id="count" name="count" value="<?php echo $count; ?>" readonly>
                     </div>
-                </div>
-                <div class="col-md-6">
+                </div>  
+                <div class="col-sm-6">
                     <div class="form-group">
                         <label for="sr_no">Sr. No</label>
                         <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required>
@@ -393,13 +393,13 @@ $conn->close();
 
             <!-- Row for Pre-filled fields (Metal Type, Name, Mobile, Sample) -->
             <div class="form-row">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <div class="form-group">
                         <label for="metal_type">Metal Type</label>
                         <input type="text" class="form-control" id="metal_type" name="metal_type" value="<?php echo $metal_type; ?>" readonly>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" class="form-control" id="name" name="name" value="<?php echo $name; ?>" readonly>
@@ -408,19 +408,19 @@ $conn->close();
             </div>
 
             <div class="form-row">
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <div class="form-group">
                         <label for="mobile">Mobile</label>
                         <input type="text" class="form-control" id="mobile" name="mobile" value="<?php echo $mobile; ?>" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <div class="form-group">
                         <label for="mobile">Alternative Mobile Number</label>
                         <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" value="<?php echo $alt_mobile; ?>" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <div class="form-group">
                         <label for="sample">Sample</label>
                         <input type="text" class="form-control" id="sample" name="sample" value="<?php echo $sample; ?>" readonly>
@@ -430,13 +430,13 @@ $conn->close();
 
             <!-- Row for Weight, Gold %, and Total Karat -->
             <div class="form-row">
-    <div class="col-md-4">
+    <div class="col-sm-4">
         <div class="form-group">
             <label for="weight">Weight</label>
             <input type="number" step="0.01" class="form-control compact-input" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-4">
         <div class="form-group">
             <label for="gold_percent">Gold % or Purity</label>
             <input type="number" step="0.01" class="form-control compact-input" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
