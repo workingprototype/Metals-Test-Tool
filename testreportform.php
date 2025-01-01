@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $name = $row['name'];
-            $mobile = $row['mobile'];
+            $mobile = isset($row['mobile']) ? $row['mobile'] : '';
             $alt_mobile = isset($row['alt_mobile']) ? $row['alt_mobile'] : '';
             $sample = $row['sample'];
             $metal_type = $row['metal_type'];
@@ -140,12 +140,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $ruthenium = isset($_POST['ruthenium']) && $_POST['ruthenium'] !== '' ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
     $palladium = isset($_POST['palladium']) && $_POST['palladium'] !== '' ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
     $lead = isset($_POST['lead']) && $_POST['lead'] !== '' ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
+    $tin = isset($_POST['tin']) && $_POST['tin'] !== '' ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
+    $lead = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+    $lead = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
     
     $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
 
         // SQL query to insert into the database
-    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) 
-    VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$alt_mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$total_karat')";
+    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`) 
+    VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$alt_mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$tin', '$cadmium', '$nickel', '$total_karat')";
         
         // Output the SQL query for debugging purposes
        // var_dump($sql);
@@ -439,12 +442,7 @@ $conn->close();
             <input type="number" step="0.01" class="form-control compact-input" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="total_karat">Total Karat</label>
-            <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
-        </div>
-    </div>
+    
 </div>
 
 <!-- Grid for Optional Metal Fields -->
@@ -452,6 +450,10 @@ $conn->close();
     <div class="form-group">
         <label for="silver">Silver</label>
         <input type="number" step="0.01" class="form-control compact-input" id="silver" name="silver">
+    </div>
+    <div class="form-group">
+        <label for="iridium">Iridium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="iridium" name="iridium">
     </div>
     <div class="form-group">
         <label for="platinum">Platinum</label>
@@ -462,35 +464,53 @@ $conn->close();
         <input type="number" step="0.01" class="form-control compact-input" id="zinc" name="zinc">
     </div>
     <div class="form-group">
-        <label for="copper">Copper</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="copper" name="copper">
+        <label for="tin">Tin</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="tin" name="tin">
     </div>
-    <div class="form-group">
-        <label for="lead">Lead</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="lead" name="lead">
-    </div>
+    
     <div class="form-group">
         <label for="rhodium">Rhodium</label>
         <input type="number" step="0.01" class="form-control compact-input" id="rhodium" name="rhodium">
     </div>
+    
     <div class="form-group">
-        <label for="iridium">Iridium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="iridium" name="iridium">
+        <label for="cadmium">Cadmium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="cadmium" name="cadmium">
     </div>
+    
     <div class="form-group">
-        <label for="ruthenium">Ruthenium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="ruthenium" name="ruthenium">
+        <label for="nickel">Nickel</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="nickel" name="nickel">
     </div>
     <div class="form-group">
         <label for="palladium">Palladium</label>
         <input type="number" step="0.01" class="form-control compact-input" id="palladium" name="palladium">
     </div>
-</div>
-
+    
 <div class="form-group">
     <label for="others">Others</label>
     <input type="number" step="0.01" class="form-control compact-input" id="others" name="others">
 </div>
+
+<div class="form-group">
+        <label for="lead">Lead</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="lead" name="lead">
+    </div>
+    <br>
+    <div class="form-group">
+        <label for="copper">Copper</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="copper" name="copper">
+    </div>
+    <div class="form-group">
+        <label for="ruthenium">Ruthenium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="ruthenium" name="ruthenium">
+    </div>
+        <div class="form-group">
+            <label for="total_karat">Total Karat</label>
+            <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
+        </div>
+</div>
+
 
             <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
             <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
@@ -523,15 +543,15 @@ $conn->close();
         </div>
         <div style="display:flex;justify-content:space-between;margin-top: 16px;">
             <div style="float:right;font-size:12px;width:33%;">
-                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printSilver"></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printCopper"></span></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printZinc"></span></div>
-                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printCadmium"></div>
             </div>
             <div style="float:right;font-size:12px;width:33%;">
-                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printNickel"></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printIridium"></span></div>
-                <div style="font-size:12px;text-align:right;width:100%;">0</div>
+                <div style="font-size:12px;text-align:right;width:100%;"><span id="printTin"></div>
                 <div style="font-size:12px;text-align:right;width:100%;"><span id="printPalladium"></span></div>
             </div>
             <div style="float:right;font-size:12px;width:33%;margin-right: 20px;">
@@ -573,6 +593,9 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     var ruthenium = document.getElementById('ruthenium').value || '0';
     var palladium = document.getElementById('palladium').value || '0';
     var lead = document.getElementById('lead').value || '0';
+    var tin = document.getElementById('tin').value || '0';
+    var cadmium = document.getElementById('cadmium').value || '0';
+    var nickel = document.getElementById('nickel').value || '0';
     var totalKarat = document.getElementById('total_karat').value || '0';
 
     // Populate the receipt layout
@@ -584,7 +607,7 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     document.getElementById('printWeight').textContent = weight;
     // document.getElementById('printMetalType').textContent = metalType;
     document.getElementById('printGoldPercent').textContent = goldPercent;
-    // document.getElementById('printSilver').textContent = silver;
+     document.getElementById('printSilver').textContent = silver;
     document.getElementById('printPlatinum').textContent = platinum;
     document.getElementById('printZinc').textContent = zinc;
     document.getElementById('printCopper').textContent = copper;
@@ -594,6 +617,9 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     document.getElementById('printRuthenium').textContent = ruthenium;
     document.getElementById('printPalladium').textContent = palladium;
     document.getElementById('printLead').textContent = lead;
+    document.getElementById('printTin').textContent = tin;
+    document.getElementById('printCadmium').textContent = cadmium;
+    document.getElementById('printNickel').textContent = nickel;
     document.getElementById('printTotalKarat').textContent = totalKarat;
 
     // Show the receipt layout for printing
