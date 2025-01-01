@@ -2,9 +2,6 @@
 // Path to the config file
 $configFile = 'config.json';
 
-require 'vendor/autoload.php';
-
-
 // Load configuration from the JSON file
 $configs = json_decode(file_get_contents($configFile), true);
 
