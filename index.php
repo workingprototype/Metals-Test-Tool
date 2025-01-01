@@ -2,6 +2,9 @@
 // Path to the config file
 $configFile = 'config.json';
 
+require 'vendor/autoload.php';  // If you installed using Composer, otherwise adjust the path accordingly
+
+
 // Load configuration from the JSON file
 $configs = json_decode(file_get_contents($configFile), true);
 
@@ -63,10 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $weight = $_POST['weight'];
 
         // Always prepend +91 to the mobile number
-        $mobile = "+91" . $mobile;
-        if ($alt_mobile) {
+        if (!empty($mobile)) {
+            $mobile = "+91" . $mobile;
+        }
+        
+        if (!empty($alt_mobile)) {
             $alt_mobile = "+91" . $alt_mobile;
         }
+        
 
         $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, alt_mobile, sample, weight) 
         VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$alt_mobile', '$sample', '$weight')";
@@ -99,37 +106,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                     display: none;
                 }
             </style>
-            <script>
-    // Function to move focus to the next input element when "Enter" is pressed
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            // Find the currently focused input element
-            let currentElement = document.activeElement;
-
-            // Check if the current element is an input or textarea
-            if (currentElement.tagName === 'INPUT' || currentElement.tagName === 'TEXTAREA') {
-                // Find the next input element
-                let nextElement = getNextInput(currentElement);
-
-                // If there is a next input element, focus on it
-                if (nextElement) {
-                    nextElement.focus();
-                    e.preventDefault(); // Prevent form submission on Enter
-                }
-            }
-        }
-    });
-
-    // Function to get the next input element in the form
-    function getNextInput(currentElement) {
-        let formElements = Array.from(currentElement.form.elements);
-        let currentIndex = formElements.indexOf(currentElement);
-
-        // Return the next input element if available, otherwise null
-        return formElements[currentIndex + 1] || null;
-    }
-</script>
-
+            
         </head>
         <body>
         <div id="receipt">         
@@ -154,7 +131,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                         </div>
                         <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;margin-left: -13px;font-size:x-small;">
                             <div>&nbsp;</div>
-                           <div> <?php echo $receipt['mobile']; ?> <br> <?php echo $receipt['alt_mobile'] ? $receipt['alt_mobile'] : ''; ?> </div>  <!--  It'll contain both mobile and alt-mobile -->
+                           <div> <?php echo $receipt['mobile']; ?> <br> <?php echo $receipt['alt_mobile'] ? $receipt['alt_mobile'] : ''; ?> </div>
                         </div>
                     </div>
                 </div>
@@ -306,6 +283,36 @@ $conn->close();
         }
     </style>
 </head>
+<script>
+    // Function to move focus to the next input element when "Enter" is pressed
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            // Find the currently focused input element
+            let currentElement = document.activeElement;
+
+            // Check if the current element is an input or textarea
+            if (currentElement.tagName === 'INPUT' || currentElement.tagName === 'TEXTAREA') {
+                // Find the next input element
+                let nextElement = getNextInput(currentElement);
+
+                // If there is a next input element, focus on it
+                if (nextElement) {
+                    nextElement.focus();
+                    e.preventDefault(); // Prevent form submission on Enter
+                }
+            }
+        }
+    });
+
+    // Function to get the next input element in the form
+    function getNextInput(currentElement) {
+        let formElements = Array.from(currentElement.form.elements);
+        let currentIndex = formElements.indexOf(currentElement);
+
+        // Return the next input element if available, otherwise null
+        return formElements[currentIndex + 1] || null;
+    }
+</script>
 
 <body>
     <!-- Top Nav Menu -->
@@ -368,8 +375,9 @@ $conn->close();
 
         <div class="form-group">
             <label for="date">Date</label>
-            <input type="date" class="form-control" name="report_date" value="<?php echo date('d-m-Y'); ?>" required>
+            <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
+
 
         <div class="form-group">
             <label for="name">Name</label>
@@ -380,7 +388,7 @@ $conn->close();
             <label for="mobile">Mobile</label>
             <div class="input-group">
                 <span class="input-group-text">+91</span>
-                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number">
             </div>
         </div>
             <div class="form-group">
