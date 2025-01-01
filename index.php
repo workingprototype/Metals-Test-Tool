@@ -2,7 +2,7 @@
 // Path to the config file
 $configFile = 'config.json';
 
-require 'vendor/autoload.php';  // If you installed using Composer, otherwise adjust the path accordingly
+require 'vendor/autoload.php';
 
 
 // Load configuration from the JSON file
@@ -117,15 +117,15 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                             <div>&nbsp;</div>
                             <div><?php echo $receipt['sr_no']; ?></div>
                         </div>
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
+                        <div style="align-items:center;display:flex;gap:100px;justify-content:center;margin-bottom:15px;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
                             <div>&nbsp;</div>
                             <div> <?php echo $receipt['name']; ?></div>
                         </div>
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:17px;font-size:x-small;">
                             <div>&nbsp;</div>
                             <div> <?php echo $receipt['report_date']; ?></div>
                         </div>
-                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:15px;font-size:x-small;">
+                        <div style="align-items:center;display:flex;gap:100px;margin-bottom:17px;font-size:x-small;">
                             <div>&nbsp;</div>
                             <div> <?php echo $receipt['weight']; ?> grams</div>
                         </div>
@@ -135,27 +135,27 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                         </div>
                     </div>
                 </div>
-                <div style="text-align:center;width:66.67%;margin-right:170px;">
-                    <div style="margin-top:72px;margin-right:190px;">
-                        <div style="margin-top:20px;margin-bottom: -31px;">
-                            <div style="display:flex;justify-content:space-between;">
-                                <div>&nbsp;</div>
-                                <div style="">
-                                    <div style="align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;">
-                                        <div>&nbsp;</div>
-                                        <div><?php echo $receipt['report_date']; ?></div>
-                                    </div>
-                                </div>
-                                <div>&nbsp;</div>
-                                <div style="">
-                                    <div style="align-items:center;display:flex;gap:20px;justify-content:center;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
-                                        <div>&nbsp;</div>
-                                        <div><?php echo $receipt['sr_no']; ?></div>
-                                    </div>
-                                </div>
-                                <div>&nbsp;</div>
-                            </div>
-                        </div>
+                <div style="text-align:center;width:66.67%;margin-right:170px;margin-left: 50px;">
+                    <div style="margin-top:68px;margin-right:190px;">
+                        <div style="margin-top:20px;margin-bottom: -29px;">
+    <div style="display:flex;justify-content:space-between;">
+        <div>&nbsp;</div>
+        <div style="">
+            <div style="margin-left: 10px;white-space: nowrap;align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;">
+                <div>&nbsp;</div>
+                <div><?php echo $receipt['report_date']; ?></div>
+            </div>
+        </div>
+        <div>&nbsp;</div>
+        <div style="">
+            <div style="margin-left: 50px; white-space: nowrap;align-items:center;display:flex;gap:20px;justify-content:center;font-size:15px;font-weight: bold;text-transform: uppercase;font-size:small;">
+                <div>&nbsp;</div>
+                <div style="margin-left: 30px;"><?php echo $receipt['sr_no']; ?></div>
+            </div>
+        </div>
+        <div>&nbsp;</div>
+    </div>
+</div>
                         <div style="margin-top:20px;">
                             <div style="display:flex;justify-content:space-between;">
                                 <div>&nbsp;</div>
@@ -175,7 +175,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                                 <div>&nbsp;</div>
                             </div>
                         </div>
-                        <div style="margin-top:14px;margin-bottom:4px;">
+                        <div style="margin-left: 30px; margin-top:14px;margin-bottom:4px;">
                             <div style="display:flex;justify-content:space-between;">
                                 <div>&nbsp;</div>
                                 <div style="">
@@ -186,7 +186,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                                 </div>
                                 <div>&nbsp;</div>
                                 <div style="">
-                                    <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
+                                    <div style="margin-left: 30px;align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
                                         <div>&nbsp;</div>
                                         <div><?php echo $receipt['sample']; ?></div>
                                     </div>
@@ -195,12 +195,12 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                             </div>
                         </div>
                         <div style="margin-top:40px;">
-                            <div style="display:flex;justify-content:space-between; margin-top: -12px;margin-left: 10px;">
+                            <div style="display:flex;justify-content:space-between; margin-top: -5px;margin-left: 10px;">
                                 <div>&nbsp;</div>
                                 <div style="">
                                     <div style="align-items:center;display:flex;gap:50px;justify-content:center;font-size:x-small;">
                                         <div>&nbsp;</div>
-                                        <div><?php echo $receipt['mobile']; ?></div>
+                                        <div><?php echo $receipt['mobile'] . "</br>" . $receipt['alt_mobile']; ?></div>
                                     </div>
                                 </div>
                                 <div  style="font-size:x-small;">&nbsp;</div>
@@ -218,12 +218,18 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
             </div>
         </div>
         <script>
-            window.onload = function() {
-                window.print();  // Automatically trigger the print dialog when page loads
-                window.onafterprint = function() {
-                    window.close();  // Close the window after printing
-                }
-            }
+            // Show the receipt layout for printing
+    var receiptContent = document.getElementById('receipt').innerHTML;
+
+// Open the print window
+var printWindow = window.open('', '_blank', 'width=600,height=400');
+printWindow.document.write('<html><head><title>Receipt</title>');
+printWindow.document.write('</head><body>');
+printWindow.document.write(receiptContent);
+printWindow.document.write('</body></html>');
+printWindow.document.close();
+printWindow.focus();
+printWindow.print();
         </script>
         </body>
         </html>
