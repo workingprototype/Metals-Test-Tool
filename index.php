@@ -348,7 +348,7 @@ $conn->close();
         <div class="form-group">
             <label>Metal Type</label>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="metal_type" value="Gold" id="gold" required>
+                <input class="form-check-input" type="radio" name="metal_type" value="Gold" id="gold" required checked>
                 <label class="form-check-label" for="gold">Gold</label>
             </div>
             <div class="form-check form-check-inline">
