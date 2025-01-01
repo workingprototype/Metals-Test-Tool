@@ -268,7 +268,7 @@ $conn->close();
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
         .form-container {
-            max-width: 600px;
+            max-width: 500px;
             margin: 50px auto;
             background-color: #f4f4f4;
             padding: 20px;

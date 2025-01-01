@@ -59,6 +59,43 @@ if ($result_count->num_rows > 0) {
     $count = $row_count['today_count']; // Get the total reports made today
 }
 
+// Calculate the current month and determine the Sr. No. prefix
+$current_month = date('n');  // 1 = January, 12 = December
+$current_letter = chr(64 + $current_month);  // Convert month number to letter (A = 1, B = 2, ..., L = 12)
+
+// Get the last used Sr. No. for the previous month
+$prev_month = $current_month == 1 ? 12 : $current_month - 1;  // Previous month logic
+$sql = "SELECT sr_no FROM receipts WHERE MONTH(report_date) = $prev_month ORDER BY sr_no DESC LIMIT 1";
+$result = $conn->query($sql);
+
+// Initialize the last_letter variable to a default value of the current letter for this month
+$last_letter = $current_letter;
+
+if ($result->num_rows > 0) {
+    $last_sr_no = $result->fetch_assoc()['sr_no'];
+    $last_letter = substr($last_sr_no, 0, 1);  // Extract the letter from the Sr. No.
+}
+
+// Check if we need to reset or continue the letter sequence
+if ($last_letter == 'Z') {
+    $current_letter = 'A';  // Reset to 'A' if the last letter was 'Z'
+} else {
+    // Otherwise, continue to the next letter only if we move from previous month
+    if ($prev_month != $current_month) {
+        $current_letter = chr(ord($last_letter) + 1);
+    }
+}
+
+// Get the total number of receipts for the current month to determine the count for this month
+$sql = "SELECT COUNT(*) AS total FROM receipts WHERE MONTH(report_date) = $current_month";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$customer_count = $row['total']; // Increment the count for the new customer
+
+// Generate the Sr. No.
+$sr_no = $current_letter . " " . $customer_count;
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['fetch_report'])) {
         $sr_no = $_POST['sr_no'];
@@ -229,12 +266,13 @@ $conn->close();
         body {
             background-color: #e0e0e0;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
         }
         .form-container {
-            max-width: 100%;
-            margin: 50px auto;
+            max-width: 600px;
+            margin: 20px auto;
             background-color: #f4f4f4;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid #ccc;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
@@ -242,70 +280,61 @@ $conn->close();
         .form-header {
             background-color: #0078d7;
             color: white;
-            padding: 10px;
+            padding: 8px;
             border-radius: 5px 5px 0 0;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .form-group label {
             font-weight: bold;
             color: #333;
-        }
-        .btn-primary, .btn-success {
-            background-color: #0078d7;
-            border-color: #0078d7;
-        }
-        .btn-primary:hover, .btn-success:hover {
-            background-color: #005fa3;
-            border-color: #005fa3;
-        }
-        .btn-secondary {
-            background-color: #f0f0f0;
-            color: #333;
-            border-color: #ccc;
-        }
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
-        /* Style for print layout */
-        .receipt-layout {
-            display: none; /* Hidden initially */
-        }
-        .form-row {
-            margin-bottom: 15px;
+            font-size: 13px;
         }
         .form-control {
-            height: 35px;
+            height: 30px;
+            font-size: 13px;
         }
         .btn-block {
-            margin-top: 10px;
+            margin-top: 8px;
         }
-    </style>
-
-
-    <!-- JavaScript for calculating Karat Purity -->
-<script>
-    function calculateKarat() {
-        var weight = parseFloat(document.getElementById("weight").value);
-        var gold_percent = parseFloat(document.getElementById("gold_percent").value);
         
-        // Ensure the inputs are valid numbers
-        if (!isNaN(weight) && !isNaN(gold_percent) && weight > 0 && gold_percent > 0) {
-            var total_karat = gold_percent * (24 / 100);  // Calculate total karat based on gold percent
-            document.getElementById("total_karat").value = total_karat.toFixed(2); // Display result with 2 decimals
-        } else {
-            document.getElementById("total_karat").value = "0.00"; // Default value if inputs are not valid
+                .compact-input {
+    width: 100px; /* Adjust the width as needed */
+    height: 30px; /* Adjust the height as needed */
+    font-size: 12px; /* Adjust the font size as needed */
+    padding: 5px; /* Adjust the padding as needed */
+}
+
+.metal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.metal-grid .form-group {
+    margin-bottom: 0;
+}
+    </style>
+    <!-- JavaScript for calculating Karat Purity -->
+    <script>
+        function calculateKarat() {
+            var weight = parseFloat(document.getElementById("weight").value);
+            var gold_percent = parseFloat(document.getElementById("gold_percent").value);
+            
+            if (!isNaN(weight) && !isNaN(gold_percent) && weight > 0 && gold_percent > 0) {
+                var total_karat = gold_percent * (24 / 100);
+                document.getElementById("total_karat").value = total_karat.toFixed(2);
+            } else {
+                document.getElementById("total_karat").value = "0.00";
+            }
         }
-    }
-</script>
-
-
+    </script>
 </head>
-
 <body>
     <!-- Top Nav Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="index.php">National Gold Testing</a>
+        <a class="navbar-brand" href="index.php">National Gold Testing</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -398,104 +427,77 @@ $conn->close();
 
             <!-- Row for Weight, Gold %, and Total Karat -->
             <div class="form-row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="weight">Weight</label>
-                        <input type="number" step="0.01" class="form-control" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="gold_percent">Gold % or Purity</label>
-                        <input type="number" step="0.01" class="form-control" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="total_karat">Total Karat</label>
-                        <input type="text" class="form-control" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row for Optional Metal Fields -->
-            <div class="form-row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="silver">Silver</label>
-                        <input type="number" step="0.01" class="form-control" id="silver" name="silver">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="platinum">Platinum</label>
-                        <input type="number" step="0.01" class="form-control" id="platinum" name="platinum">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="zinc">Zinc</label>
-                        <input type="number" step="0.01" class="form-control" id="zinc" name="zinc">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row for More Optional Metals -->
-            <div class="form-row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="copper">Copper</label>
-                        <input type="number" step="0.01" class="form-control" id="copper" name="copper">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="lead">Lead</label>
-                        <input type="number" step="0.01" class="form-control" id="lead" name="lead">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="rhodium">Rhodium</label>
-                        <input type="number" step="0.01" class="form-control" id="rhodium" name="rhodium">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row for Final Metals -->
-            <div class="form-row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="iridium">Iridium</label>
-                        <input type="number" step="0.01" class="form-control" id="iridium" name="iridium">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="ruthenium">Ruthenium</label>
-                        <input type="number" step="0.01" class="form-control" id="ruthenium" name="ruthenium">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="palladium">Palladium</label>
-                        <input type="number" step="0.01" class="form-control" id="palladium" name="palladium">
-                    </div>
-                </div>
-            </div>
-
+    <div class="col-md-4">
         <div class="form-group">
-            <label for="others">Others</label>
-            <input type="number" step="0.01" class="form-control" id="others" name="others">
+            <label for="weight">Weight</label>
+            <input type="number" step="0.01" class="form-control compact-input" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
         </div>
-
-
-        
-
-        <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
-        <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
-    </form>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="gold_percent">Gold % or Purity</label>
+            <input type="number" step="0.01" class="form-control compact-input" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="total_karat">Total Karat</label>
+            <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
+        </div>
+    </div>
 </div>
+
+<!-- Grid for Optional Metal Fields -->
+<div class="metal-grid">
+    <div class="form-group">
+        <label for="silver">Silver</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="silver" name="silver">
+    </div>
+    <div class="form-group">
+        <label for="platinum">Platinum</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="platinum" name="platinum">
+    </div>
+    <div class="form-group">
+        <label for="zinc">Zinc</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="zinc" name="zinc">
+    </div>
+    <div class="form-group">
+        <label for="copper">Copper</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="copper" name="copper">
+    </div>
+    <div class="form-group">
+        <label for="lead">Lead</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="lead" name="lead">
+    </div>
+    <div class="form-group">
+        <label for="rhodium">Rhodium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="rhodium" name="rhodium">
+    </div>
+    <div class="form-group">
+        <label for="iridium">Iridium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="iridium" name="iridium">
+    </div>
+    <div class="form-group">
+        <label for="ruthenium">Ruthenium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="ruthenium" name="ruthenium">
+    </div>
+    <div class="form-group">
+        <label for="palladium">Palladium</label>
+        <input type="number" step="0.01" class="form-control compact-input" id="palladium" name="palladium">
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="others">Others</label>
+    <input type="number" step="0.01" class="form-control compact-input" id="others" name="others">
+</div>
+
+            <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
+            <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
+        </form>
+    </div>
+</body>
+</html>
 <!-- Hidden receipt layout for printing -->
 <div id="receipt" class="receipt-layout"  style="margin: 0; padding: 0; display: flex; align-items: center; justify-content: center;">
 <div style="margin-top:12.5%;width:88%;transform:skewY(-1deg);font-family: Arial, sans-serif;">
