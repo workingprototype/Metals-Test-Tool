@@ -1,6 +1,6 @@
 <?php
-// ini_set('display_errors', 1);
-// error_reporting(E_ALL);
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 // Twilio API setup
 require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
@@ -98,7 +98,10 @@ $sr_no = $current_letter . " " . $customer_count;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['fetch_report'])) {
-        $sr_no = $_POST['sr_no'];
+        $sr_no_letter = $_POST['sr_no_letter'];
+        $sr_no_count = $_POST['sr_no_count'];
+        $sr_no = $sr_no_letter . " " . $sr_no_count;
+       // $sr_no = $_POST['sr_no'];
         
         // Fetch receipt data based on sr_no
         $sql = "SELECT name, mobile, alt_mobile, sample, metal_type, weight FROM receipts WHERE sr_no = '$sr_no'";
@@ -119,7 +122,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($_POST['submit_report'])) {
         // Retrieve form data safely with default values for missing fields
-    $sr_no = mysqli_real_escape_string($conn, $_POST['sr_no']);
+    $current_letter = mysqli_real_escape_string($conn, $_POST['sr_no_letter']);
+    $customer_count = mysqli_real_escape_string($conn, $_POST['sr_no_count']);
+
+    $sr_no = $current_letter . " " . $customer_count;
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $sample = mysqli_real_escape_string($conn, $_POST['sample']);
     $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
@@ -141,8 +147,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $palladium = isset($_POST['palladium']) && $_POST['palladium'] !== '' ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
     $lead = isset($_POST['lead']) && $_POST['lead'] !== '' ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
     $tin = isset($_POST['tin']) && $_POST['tin'] !== '' ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
-    $lead = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
-    $lead = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+    $cadmium = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+    $nickel = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
     
     $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
 
@@ -383,13 +389,18 @@ $conn->close();
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="sr_no">Sr. No</label>
-                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required>
+                    <label for="sr_no_letter">Month Letter:</label>
+    <input type="text" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>">
+
+    <label for="sr_no_count">Sr. No. Count:</label>
+    <input type="number" id="sr_no_count" name="sr_no_count" placeholder="Enter count number">
+                        <!-- <label for="sr_no">Sr. No</label>
+                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required> -->
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button>
+            <!-- <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button> -->
 
             <!-- Row for Pre-filled fields (Metal Type, Name, Mobile, Sample) -->
             <div class="form-row">
@@ -445,6 +456,50 @@ $conn->close();
     
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const srNoCountInput = document.getElementById('sr_no_count');
+    const srNoLetterInput = document.getElementById('sr_no_letter');
+
+    srNoCountInput.addEventListener('keyup', function() {
+        const srNoLetter = srNoLetterInput.value;
+        const srNoCount = srNoCountInput.value;
+
+        if (srNoCount) {
+            fetchReportData(srNoLetter, srNoCount);
+        }
+    });
+
+    function fetchReportData(srNoLetter, srNoCount) {
+        const srNo = srNoLetter + " " + srNoCount;
+
+        fetch('fetch_report.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `sr_no=${encodeURIComponent(srNo)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the form fields with the fetched data
+                document.getElementById('metal_type').value = data.metal_type || '';
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('mobile').value = data.mobile || '';
+                document.getElementById('alt_mobile').value = data.alt_mobile || '';
+                document.getElementById('sample').value = data.sample || '';
+                document.getElementById('weight').value = data.weight || '';
+            } else {
+                alert('No receipt found with this Sr. No.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+        });
+    }
+});
+</script>
 <!-- Grid for Optional Metal Fields -->
 <div class="metal-grid">
     <div class="form-group">
