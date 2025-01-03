@@ -623,7 +623,12 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Collect form data
-    var srNo = document.getElementById('sr_no').value.toUpperCase();
+    var current_letter = document.getElementById('sr_no_letter').value.toUpperCase();
+    var customer_count = document.getElementById('sr_no_count').value.toUpperCase();
+
+    var srNo = current_letter + " " + customer_count;
+
+    // var srNo = document.getElementById('sr_no').value.toUpperCase();
      // Get today's date
      var today = new Date();
        // Format date and time
