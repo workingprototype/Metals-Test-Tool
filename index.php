@@ -292,25 +292,26 @@ $conn->close();
         }
         
         .suggestions-dropdown {
-            position: absolute;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 1000;
-            width: 300px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 1000;
+        width: 300px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none; /* Hide dropdown by default */
+    }
 
-        .suggestions-dropdown div {
-            padding: 8px;
-            cursor: pointer;
-        }
+    .suggestions-dropdown div {
+        padding: 8px;
+        cursor: pointer;
+    }
 
-        .suggestions-dropdown div:hover,
-        .suggestions-dropdown div.selected {
-            background-color: #f0f0f0;
-        }
+    .suggestions-dropdown div:hover,
+    .suggestions-dropdown div.selected {
+        background-color: #f0f0f0;
+    }
 </style>
 </head>
 <script>
@@ -473,9 +474,10 @@ $conn->close();
                 });
                 dropdown.appendChild(div);
             });
+            dropdown.style.display = 'block'; // Show the dropdown
         } else {
-            console.log("No suggestions found", error);
-            //dropdown.innerHTML = '<div>No suggestions found</div>';
+           // dropdown.innerHTML = '<div>No suggestions found</div>';
+            dropdown.style.display = 'block'; // Show the dropdown even if no suggestions
         }
     }
 
@@ -544,6 +546,17 @@ $conn->close();
         });
     }
 
+    // Function to close the suggestion dropdown when clicking outside
+    function closeSuggestionsOnClickOutside(event, field) {
+        const input = document.getElementById(field);
+        const dropdown = document.getElementById(`${field}-suggestions`);
+
+        // Check if the click is outside the input and dropdown
+        if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none'; // Hide the dropdown
+        }
+    }
+
     // Event listeners for input fields with debounce
     document.getElementById('name').addEventListener('input', debounce(function () {
         const input = this.value.trim();
@@ -589,6 +602,35 @@ $conn->close();
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
             handleKeyboardNavigation(event, 'alt_mobile');
         }
+    });
+
+    // Add focus event listeners to show suggestions when input is focused
+    document.getElementById('name').addEventListener('focus', function () {
+        const dropdown = document.getElementById('name-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    document.getElementById('mobile').addEventListener('focus', function () {
+        const dropdown = document.getElementById('mobile-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    document.getElementById('alt_mobile').addEventListener('focus', function () {
+        const dropdown = document.getElementById('alt-mobile-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    // Add click event listener to the document to close suggestions when clicking outside
+    document.addEventListener('click', function (event) {
+        closeSuggestionsOnClickOutside(event, 'name');
+        closeSuggestionsOnClickOutside(event, 'mobile');
+        closeSuggestionsOnClickOutside(event, 'alt_mobile');
     });
 </script>
 </div>
