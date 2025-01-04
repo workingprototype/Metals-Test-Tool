@@ -1,6 +1,6 @@
 <?php
-// ini_set('display_errors', 1);
-// error_reporting(E_ALL);
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 // Twilio API setup
 require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
@@ -98,7 +98,10 @@ $sr_no = $current_letter . " " . $customer_count;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['fetch_report'])) {
-        $sr_no = $_POST['sr_no'];
+        $sr_no_letter = $_POST['sr_no_letter'];
+        $sr_no_count = $_POST['sr_no_count'];
+        $sr_no = $sr_no_letter . " " . $sr_no_count;
+       // $sr_no = $_POST['sr_no'];
         
         // Fetch receipt data based on sr_no
         $sql = "SELECT name, mobile, alt_mobile, sample, metal_type, weight FROM receipts WHERE sr_no = '$sr_no'";
@@ -113,47 +116,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $metal_type = $row['metal_type'];
             $weight = $row['weight'];
         } else {
+            $name = $sample = $metal_type = $weight = $mobile = $alt_mobile = "";
             echo "No receipt found with this Sr. No.";
         }
     }
 
-    if (isset($_POST['submit_report'])) {
-        // Retrieve form data safely with default values for missing fields
-    $sr_no = mysqli_real_escape_string($conn, $_POST['sr_no']);
-    $name = mysqli_real_escape_string($conn, $_POST['name']);
-    $sample = mysqli_real_escape_string($conn, $_POST['sample']);
-    $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
-    $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
-    $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
-    $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
-    $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-    $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['submit_report'])) {
+            // Retrieve form data
+            $current_letter = mysqli_real_escape_string($conn, $_POST['sr_no_letter']);
+            $customer_count = mysqli_real_escape_string($conn, $_POST['sr_no_count']);
         
-        // Handle optional metals with default values
-    $silver = isset($_POST['silver']) && $_POST['silver'] !== '' ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
-    $platinum = isset($_POST['platinum']) && $_POST['platinum'] !== '' ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
-    $zinc = isset($_POST['zinc']) && $_POST['zinc'] !== '' ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
-    $copper = isset($_POST['copper']) && $_POST['copper'] !== '' ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
-    $others = isset($_POST['others']) && $_POST['others'] !== '' ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
-    $rhodium = isset($_POST['rhodium']) && $_POST['rhodium'] !== '' ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
-    $iridium = isset($_POST['iridium']) && $_POST['iridium'] !== '' ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
-    $ruthenium = isset($_POST['ruthenium']) && $_POST['ruthenium'] !== '' ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
-    $palladium = isset($_POST['palladium']) && $_POST['palladium'] !== '' ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
-    $lead = isset($_POST['lead']) && $_POST['lead'] !== '' ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
-    $tin = isset($_POST['tin']) && $_POST['tin'] !== '' ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
-    $cadmium = isset($_POST['cadmium']) && $_POST['cadmium'] !== '' ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
-    $nickel = isset($_POST['nickel']) && $_POST['nickel'] !== '' ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+            $sr_no = $current_letter . " " . $customer_count;            
+            $name = mysqli_real_escape_string($conn, $_POST['name']);
+            $sample = mysqli_real_escape_string($conn, $_POST['sample']);
+            $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
+            $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
+            $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
+            $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
+            $weight = mysqli_real_escape_string($conn, $_POST['weight']);
+            $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+            $silver = isset($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
+            $platinum = isset($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
+            $zinc = isset($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
+            $copper = isset($_POST['copper']) ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
+            $others = isset($_POST['others']) ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
+            $rhodium = isset($_POST['rhodium']) ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
+            $iridium = isset($_POST['iridium']) ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
+            $ruthenium = isset($_POST['ruthenium']) ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
+            $palladium = isset($_POST['palladium']) ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
+            $lead = isset($_POST['lead']) ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
+            $tin = isset($_POST['tin']) ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
+            $cadmium = isset($_POST['cadmium']) ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+            $nickel = isset($_POST['nickel']) ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+            $total_karat = isset($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
     
-    $total_karat = isset($_POST['total_karat']) && $_POST['total_karat'] !== '' ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
-
+            // Check if the record already exists
+            $check_sql = "SELECT * FROM test_reports WHERE sr_no = '$sr_no'";
+            $check_result = $conn->query($check_sql);
+    
+            if ($check_result->num_rows > 0) {
+                // Update existing record
+                $update_sql = "UPDATE test_reports SET 
+                    name = '$name', 
+                    sample = '$sample', 
+                    metal_type = '$metal_type', 
+                    count = '$count', 
+                    mobile = '$mobile', 
+                    alt_mobile = '$alt_mobile', 
+                    weight = '$weight', 
+                    gold_percent = '$gold_percent', 
+                    silver = '$silver', 
+                    platinum = '$platinum', 
+                    zinc = '$zinc', 
+                    copper = '$copper', 
+                    others = '$others', 
+                    rhodium = '$rhodium', 
+                    iridium = '$iridium', 
+                    ruthenium = '$ruthenium', 
+                    palladium = '$palladium', 
+                    lead = '$lead', 
+                    tin = '$tin', 
+                    cadmium = '$cadmium', 
+                    nickel = '$nickel', 
+                    total_karat = '$total_karat' 
+                    WHERE sr_no = '$sr_no'";
+    
+                if (mysqli_query($conn, $update_sql)) {
+                    echo "Test report updated successfully!";
+                } else {
+                    echo "Error updating record: " . mysqli_error($conn);
+                }
+            } else {
         // SQL query to insert into the database
-    $sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`) 
+        $insert_sql = "INSERT INTO test_reports (`sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`) 
     VALUES ('$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$alt_mobile', '$weight', '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', '$ruthenium', '$palladium', '$lead', '$tin', '$cadmium', '$nickel', '$total_karat')";
         
         // Output the SQL query for debugging purposes
        // var_dump($sql);
 
-    if (mysqli_query($conn, $sql)) {
+    if (mysqli_query($conn, $insert_sql)) {
         echo "Test report saved successfully!";
 
             $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
@@ -252,7 +294,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
     }
 } else {
-    echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
+}
+}
 }
 }
 }
@@ -383,13 +427,18 @@ $conn->close();
                 </div>  
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <label for="sr_no">Sr. No</label>
-                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required>
+                    <label for="sr_no_letter">Month Letter:</label>
+    <input type="text" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>">
+
+    <label for="sr_no_count">Sr. No. Count:</label>
+    <input type="number" id="sr_no_count" name="sr_no_count" placeholder="Enter count number">
+                        <!-- <label for="sr_no">Sr. No</label>
+                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required> -->
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button>
+            <!-- <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button> -->
 
             <!-- Row for Pre-filled fields (Metal Type, Name, Mobile, Sample) -->
             <div class="form-row">
@@ -444,6 +493,158 @@ $conn->close();
     </div>
     
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const srNoCountInput = document.getElementById('sr_no_count');
+    const srNoLetterInput = document.getElementById('sr_no_letter');
+
+    srNoCountInput.addEventListener('keyup', function() {
+        const srNoLetter = srNoLetterInput.value;
+        const srNoCount = srNoCountInput.value;
+
+        if (srNoCount) {
+            fetchReportData(srNoLetter, srNoCount);
+        } else {
+            // Reset form fields if sr_no_count is empty
+            resetFormFields();
+        }
+    });
+
+    function fetchReportData(srNoLetter, srNoCount) {
+        const srNo = srNoLetter + " " + srNoCount;
+
+        fetch('fetch_report.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `sr_no=${encodeURIComponent(srNo)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the form fields with the fetched data
+                document.getElementById('metal_type').value = data.metal_type || '';
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('mobile').value = data.mobile || '';
+                document.getElementById('alt_mobile').value = data.alt_mobile || '';
+                document.getElementById('sample').value = data.sample || '';
+                document.getElementById('weight').value = data.weight || '';
+            } else {
+                resetFormFields();
+                console.error('No receipt found with this Sr. No.', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+        });
+    }
+    function resetFormFields() {
+        document.getElementById('metal_type').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('mobile').value = '';
+        document.getElementById('alt_mobile').value = '';
+        document.getElementById('sample').value = '';
+        document.getElementById('weight').value = '';
+        document.getElementById('gold_percent').value = '';
+        document.getElementById('total_karat').value = '';
+        document.getElementById('silver').value = '';
+        document.getElementById('platinum').value = '';
+        document.getElementById('zinc').value = '';
+        document.getElementById('copper').value = '';
+        document.getElementById('others').value = '';
+        document.getElementById('rhodium').value = '';
+        document.getElementById('iridium').value = '';
+        document.getElementById('ruthenium').value = '';
+        document.getElementById('palladium').value = '';
+        document.getElementById('lead').value = '';
+        document.getElementById('tin').value = '';
+        document.getElementById('cadmium').value = '';
+        document.getElementById('nickel').value = '';
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const srNoCountInput = document.getElementById('sr_no_count');
+    const srNoLetterInput = document.getElementById('sr_no_letter');
+    const editReportButton = document.getElementById('editReport');
+
+    // Fetch data on keyup for sr_no_count
+    srNoCountInput.addEventListener('keyup', function() {
+        const srNoLetter = srNoLetterInput.value;
+        const srNoCount = srNoCountInput.value;
+
+        if (srNoCount) {
+            fetchReportData(srNoLetter, srNoCount);
+        }
+    });
+
+    // Fetch data for editing when Edit button is clicked
+    editReportButton.addEventListener('click', function() {
+        const srNoLetter = srNoLetterInput.value;
+        const srNoCount = srNoCountInput.value;
+
+        if (srNoCount) {
+            fetchReportData(srNoLetter, srNoCount, true); // Pass true for editing
+        } else {
+            alert('Please enter a valid Sr. No. count.');
+        }
+    });
+
+    function fetchReportData(srNoLetter, srNoCount, isEdit = false) {
+        const srNo = srNoLetter + " " + srNoCount;
+
+        fetch('pre_fetch_report.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `sr_no=${encodeURIComponent(srNo)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the form fields with the fetched data
+                document.getElementById('metal_type').value = data.metal_type || '';
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('mobile').value = data.mobile || '';
+                document.getElementById('alt_mobile').value = data.alt_mobile || '';
+                document.getElementById('sample').value = data.sample || '';
+                document.getElementById('weight').value = data.weight || '';
+                document.getElementById('gold_percent').value = data.gold_percent || '';
+                document.getElementById('total_karat').value = data.total_karat || '';
+                document.getElementById('silver').value = data.silver || '';
+                document.getElementById('platinum').value = data.platinum || '';
+                document.getElementById('zinc').value = data.zinc || '';
+                document.getElementById('copper').value = data.copper || '';
+                document.getElementById('others').value = data.others || '';
+                document.getElementById('rhodium').value = data.rhodium || '';
+                document.getElementById('iridium').value = data.iridium || '';
+                document.getElementById('ruthenium').value = data.ruthenium || '';
+                document.getElementById('palladium').value = data.palladium || '';
+                document.getElementById('lead').value = data.lead || '';
+                document.getElementById('tin').value = data.tin || '';
+                document.getElementById('cadmium').value = data.cadmium || '';
+                document.getElementById('nickel').value = data.nickel || '';
+
+                if (isEdit) {
+                    // Enable all fields for editing
+                    document.querySelectorAll('input').forEach(input => {
+                        input.readOnly = false;
+                    });
+                }
+            } else {
+                console.error('No receipt found with this Sr. No.', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+        });
+    }
+});
+</script>
 
 <!-- Grid for Optional Metal Fields -->
 <div class="metal-grid">
@@ -568,7 +769,12 @@ $conn->close();
 <script>
 document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Collect form data
-    var srNo = document.getElementById('sr_no').value.toUpperCase();
+    var current_letter = document.getElementById('sr_no_letter').value.toUpperCase();
+    var customer_count = document.getElementById('sr_no_count').value.toUpperCase();
+
+    var srNo = current_letter + " " + customer_count;
+
+    // var srNo = document.getElementById('sr_no').value.toUpperCase();
      // Get today's date
      var today = new Date();
        // Format date and time

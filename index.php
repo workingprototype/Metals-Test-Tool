@@ -1,4 +1,7 @@
 <?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 // Path to the config file
 $configFile = 'config.json';
 
@@ -284,7 +287,29 @@ $conn->close();
         .btn-secondary:hover {
             background-color: #e0e0e0;
         }
-    </style>
+        
+        .suggestions-dropdown {
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 1000;
+        width: 300px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none; /* Hide dropdown by default */
+    }
+
+    .suggestions-dropdown div {
+        padding: 8px;
+        cursor: pointer;
+    }
+
+    .suggestions-dropdown div:hover,
+    .suggestions-dropdown div.selected {
+        background-color: #f0f0f0;
+    }
+</style>
 </head>
 <script>
     // Function to move focus to the next input element when "Enter" is pressed
@@ -381,26 +406,29 @@ $conn->close();
             <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-
         <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-        </div>
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" name="name" required autocomplete="off">
+    <div id="name-suggestions" class="suggestions-dropdown"></div>
+</div>
 
-        <div class="form-group">
-            <label for="mobile">Mobile</label>
-            <div class="input-group">
-                <span class="input-group-text">+91</span>
-                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number">
-            </div>
-        </div>
-            <div class="form-group">
-            <label for="alt_mobile">Alt-Mobile (Optional)</label>
-            <div class="input-group">
-            <span class="input-group-text">+91</span>
-            <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number">
-            </div>
-            </div>
+<div class="form-group">
+    <label for="mobile">Mobile</label>
+    <div class="input-group">
+        <span class="input-group-text">+91</span>
+        <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" autocomplete="off">
+    </div>
+    <div id="mobile-suggestions" class="suggestions-dropdown"></div>
+</div>
+
+<div class="form-group">
+    <label for="alt_mobile">Alt-Mobile (Optional)</label>
+    <div class="input-group">
+        <span class="input-group-text">+91</span>
+        <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number" autocomplete="off">
+    </div>
+    <div id="alt-mobile-suggestions" class="suggestions-dropdown"></div>
+</div>
 
         <div class="form-group">
             <label for="sample">Sample</label>
@@ -414,7 +442,196 @@ $conn->close();
 
         <button type="submit" class="btn btn-primary btn-block" name="submit_receipt">Save Receipt</button>
     </form>
+    <script>
+    // Track the currently selected suggestion index for each field
+    let selectedIndex = -1;
+    let currentSuggestions = [];
+
+    // Function to fetch suggestions from the server
+    async function fetchSuggestions(input, field) {
+        const response = await fetch(`autofill.php?input=${encodeURIComponent(input)}`);
+        const data = await response.json();
+        currentSuggestions = data; // Store suggestions globally
+        showSuggestions(data, field);
+    }
+
+    // Function to display suggestions in a dropdown
+    function showSuggestions(suggestions, field) {
+        const dropdown = document.getElementById(`${field}-suggestions`);
+        dropdown.innerHTML = '';
+
+        if (suggestions.length > 0) {
+            suggestions.forEach((suggestion, index) => {
+                const div = document.createElement('div');
+                div.textContent = suggestion[field] || suggestion.mobile || suggestion.alt_mobile;
+                div.dataset.index = index; // Add index for keyboard navigation
+                div.addEventListener('click', () => {
+                    autoFillForm(suggestion);
+                    dropdown.innerHTML = ''; // Clear dropdown after selection
+                });
+                dropdown.appendChild(div);
+            });
+            dropdown.style.display = 'block'; // Show the dropdown
+        } else {
+           // dropdown.innerHTML = '<div>No suggestions found</div>';
+            dropdown.style.display = 'block'; // Show the dropdown even if no suggestions
+        }
+    }
+
+    // Function to auto-fill the form fields
+    function autoFillForm(data) {
+        if (data.name) document.getElementById('name').value = data.name;
+        if (data.mobile) document.getElementById('mobile').value = data.mobile.replace('+91', '');
+        if (data.alt_mobile) document.getElementById('alt_mobile').value = data.alt_mobile.replace('+91', '');
+    }
+
+    // Debounce function to limit the frequency of API calls
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Function to handle keyboard navigation in the dropdown
+    function handleKeyboardNavigation(event, field) {
+        const dropdown = document.getElementById(`${field}-suggestions`);
+        const suggestions = dropdown.querySelectorAll('div');
+
+        // Handle arrow down key
+        if (event.key === 'ArrowDown') {
+            event.preventDefault(); // Prevent cursor movement in the input field
+            if (selectedIndex < suggestions.length - 1) {
+                selectedIndex++;
+            } else {
+                selectedIndex = 0; // Wrap around to the first suggestion
+            }
+            updateSelectedSuggestion(suggestions);
+        }
+
+        // Handle arrow up key
+        if (event.key === 'ArrowUp') {
+            event.preventDefault(); // Prevent cursor movement in the input field
+            if (selectedIndex > 0) {
+                selectedIndex--;
+            } else {
+                selectedIndex = suggestions.length - 1; // Wrap around to the last suggestion
+            }
+            updateSelectedSuggestion(suggestions);
+        }
+
+        // Handle enter key
+        if (event.key === 'Enter' && selectedIndex !== -1) {
+            event.preventDefault(); // Prevent form submission
+            const selectedSuggestion = currentSuggestions[selectedIndex]; // Use global suggestions
+            autoFillForm(selectedSuggestion);
+            dropdown.innerHTML = ''; // Clear dropdown after selection
+            selectedIndex = -1; // Reset selected index
+        }
+    }
+
+    // Function to update the selected suggestion visually
+    function updateSelectedSuggestion(suggestions) {
+        suggestions.forEach((suggestion, index) => {
+            if (index === selectedIndex) {
+                suggestion.classList.add('selected');
+                suggestion.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Scroll to the selected suggestion
+            } else {
+                suggestion.classList.remove('selected');
+            }
+        });
+    }
+
+    // Function to close the suggestion dropdown when clicking outside
+    function closeSuggestionsOnClickOutside(event, field) {
+        const input = document.getElementById(field);
+        const dropdown = document.getElementById(`${field}-suggestions`);
+
+        // Check if the click is outside the input and dropdown
+        if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none'; // Hide the dropdown
+        }
+    }
+
+    // Event listeners for input fields with debounce
+    document.getElementById('name').addEventListener('input', debounce(function () {
+        const input = this.value.trim();
+        if (input.length > 0) {
+            fetchSuggestions(input, 'name');
+        } else {
+            document.getElementById('name-suggestions').innerHTML = '';
+        }
+    }, 100));
+
+    document.getElementById('mobile').addEventListener('input', debounce(function () {
+        const input = '+91' + this.value.trim();
+        if (input.length > 2) {
+            fetchSuggestions(input, 'mobile');
+        } else {
+            document.getElementById('mobile-suggestions').innerHTML = '';
+        }
+    }, 100));
+
+    document.getElementById('alt_mobile').addEventListener('input', debounce(function () {
+        const input = '+91' + this.value.trim();
+        if (input.length > 2) {
+            fetchSuggestions(input, 'alt_mobile');
+        } else {
+            document.getElementById('alt-mobile-suggestions').innerHTML = '';
+        }
+    }, 100));
+
+    // Add keyboard event listeners for input fields
+    document.getElementById('name').addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+            handleKeyboardNavigation(event, 'name');
+        }
+    });
+
+    document.getElementById('mobile').addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+            handleKeyboardNavigation(event, 'mobile');
+        }
+    });
+
+    document.getElementById('alt_mobile').addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+            handleKeyboardNavigation(event, 'alt_mobile');
+        }
+    });
+
+    // Add focus event listeners to show suggestions when input is focused
+    document.getElementById('name').addEventListener('focus', function () {
+        const dropdown = document.getElementById('name-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    document.getElementById('mobile').addEventListener('focus', function () {
+        const dropdown = document.getElementById('mobile-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    document.getElementById('alt_mobile').addEventListener('focus', function () {
+        const dropdown = document.getElementById('alt-mobile-suggestions');
+        if (dropdown.innerHTML.trim() !== '') {
+            dropdown.style.display = 'block'; // Show the dropdown if there are suggestions
+        }
+    });
+
+    // Add click event listener to the document to close suggestions when clicking outside
+    document.addEventListener('click', function (event) {
+        closeSuggestionsOnClickOutside(event, 'name');
+        closeSuggestionsOnClickOutside(event, 'mobile');
+        closeSuggestionsOnClickOutside(event, 'alt_mobile');
+    });
+</script>
 </div>
+
 <!-- jQuery and Bootstrap Bundle (includes Popper) -->
 <script src="vendor/assets/jquery-3.5.1.slim.min.js"></script>
 <script src="vendor/assets/bootstrap.bundle.min.js"></script>
