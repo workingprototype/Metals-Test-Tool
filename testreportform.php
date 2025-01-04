@@ -27,13 +27,85 @@ $twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) 
 // Twilio Client initialization (only if credentials are available and toggle is enabled)
 if ($twilio_available) {
     $client = new Client($twilio_sid, $twilio_token);
-    // echo "Twilio functionality is enabled.<br>";
-} elseif ($use_twilio) {
-    echo "Twilio credentials are missing. SMS/WhatsApp features will not work.<br>";
-} else {
-   // echo "Twilio functionality is disabled.<br>";
 }
 
+// Function to send SMS and WhatsApp messages
+function sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample) {
+    $message = "Test Results:\n\nName: $name\nToken: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\n-National Gold Testing, Thrissur. \nContact: 8921243476,6282479875";
+
+    // Send SMS
+    foreach ($phone_numbers as $phone_number) {
+        if (!empty($phone_number)) {
+            try {
+                $client->messages->create(
+                    $phone_number,
+                    [
+                        'from' => $twilio_phone_number,
+                        'body' => $message
+                    ]
+                );
+                echo "SMS sent successfully to $phone_number!<br>";
+            } catch (Exception $e) {
+                echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
+            }
+        }
+    }
+
+    // Send WhatsApp message
+    $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
+    $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
+    $access_token = $configs['WhatsApp']['access_token'];
+    $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
+
+    $formatted_mobile = preg_replace('/\D/', '', $phone_numbers[0]);
+    if (strlen($formatted_mobile) == 10) {
+        $formatted_mobile = '+91' . $formatted_mobile;
+    }
+
+    $whatsapp_data = [
+        'messaging_product' => 'whatsapp',
+        'to' => $formatted_mobile,
+        'type' => 'template',
+        'template' => [
+            'name' => 'testreportssoftware',
+            'language' => ['code' => 'en_US'],
+            'components' => [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        ['type' => 'text', 'text' => $name],
+                        ['type' => 'text', 'text' => $sr_no],
+                        ['type' => 'text', 'text' => $current_date],
+                        ['type' => 'text', 'text' => $sample],
+                        ['type' => 'text', 'text' => $metal_type],
+                        ['type' => 'text', 'text' => $gold_percent],
+                        ['type' => 'text', 'text' => $karat_value]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $access_token,
+        'Content-Type: application/json'
+    ]);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code == 200) {
+        echo "WhatsApp message sent successfully!";
+    } else {
+        echo "Error sending WhatsApp message. Response: " . $response;
+    }
+}
 
 // Extract database settings from the config file
 $servername = $configs['Database']['db_host'];
@@ -95,18 +167,16 @@ $customer_count = $row['total']; // Increment the count for the new customer
 // Generate the Sr. No.
 $sr_no = $current_letter . " " . $customer_count;
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['fetch_report'])) {
         $sr_no_letter = $_POST['sr_no_letter'];
         $sr_no_count = $_POST['sr_no_count'];
         $sr_no = $sr_no_letter . " " . $sr_no_count;
-       // $sr_no = $_POST['sr_no'];
-        
+
         // Fetch receipt data based on sr_no
         $sql = "SELECT name, mobile, alt_mobile, sample, metal_type, weight FROM receipts WHERE sr_no = '$sr_no'";
         $result = $conn->query($sql);
-        
+
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $name = $row['name'];
@@ -121,43 +191,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST['submit_report'])) {
-            // Retrieve form data
-            $current_letter = mysqli_real_escape_string($conn, $_POST['sr_no_letter']);
-            $customer_count = mysqli_real_escape_string($conn, $_POST['sr_no_count']);
-        
-            $sr_no = $current_letter . " " . $customer_count;            
-            $name = mysqli_real_escape_string($conn, $_POST['name']);
-            $sample = mysqli_real_escape_string($conn, $_POST['sample']);
-            $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
-            $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
-            $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
-            $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
-            $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-            $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
-            $silver = !empty($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
-            $platinum = !empty($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
-            $zinc = !empty($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
-            $copper = !empty($_POST['copper']) ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
-            $others = !empty($_POST['others']) ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
-            $rhodium = !empty($_POST['rhodium']) ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
-            $iridium = !empty($_POST['iridium']) ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
-            $ruthenium = !empty($_POST['ruthenium']) ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
-            $palladium = !empty($_POST['palladium']) ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
-            $lead = !empty($_POST['lead']) ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
-            $tin = !empty($_POST['tin']) ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
-            $cadmium = !empty($_POST['cadmium']) ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
-            $nickel = !empty($_POST['nickel']) ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
-            $total_karat = isset($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
-    
-            // Check if the record already exists
-            $check_sql = "SELECT * FROM test_reports WHERE sr_no = '$sr_no'";
-            $check_result = $conn->query($check_sql);
-    
-            if ($check_result->num_rows > 0) {
-                // Update existing record
-                $update_sql = "UPDATE test_reports SET 
+    if (isset($_POST['submit_report'])) {
+        // Retrieve form data
+        $current_letter = mysqli_real_escape_string($conn, $_POST['sr_no_letter']);
+        $customer_count = mysqli_real_escape_string($conn, $_POST['sr_no_count']);
+
+        $sr_no = $current_letter . " " . $customer_count;
+        $name = mysqli_real_escape_string($conn, $_POST['name']);
+        $sample = mysqli_real_escape_string($conn, $_POST['sample']);
+        $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
+        $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
+        $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
+        $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
+        $weight = mysqli_real_escape_string($conn, $_POST['weight']);
+        $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+        $silver = !empty($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
+        $platinum = !empty($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
+        $zinc = !empty($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
+        $copper = !empty($_POST['copper']) ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
+        $others = !empty($_POST['others']) ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
+        $rhodium = !empty($_POST['rhodium']) ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
+        $iridium = !empty($_POST['iridium']) ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
+        $ruthenium = !empty($_POST['ruthenium']) ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
+        $palladium = !empty($_POST['palladium']) ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
+        $lead = !empty($_POST['lead']) ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
+        $tin = !empty($_POST['tin']) ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
+        $cadmium = !empty($_POST['cadmium']) ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+        $nickel = !empty($_POST['nickel']) ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+        $total_karat = isset($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
+
+        // Check if the record already exists
+        $check_sql = "SELECT * FROM test_reports WHERE sr_no = '$sr_no'";
+        $check_result = $conn->query($check_sql);
+
+        if ($check_result->num_rows > 0) {
+            // Update existing record
+            $update_sql = "UPDATE test_reports SET 
                 `name` = '$name', 
                 `sample` = '$sample', 
                 `metal_type` = '$metal_type', 
@@ -181,133 +250,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 `nickel` = '$nickel', 
                 `total_karat` = '$total_karat' 
                 WHERE `sr_no` = '$sr_no'";
-    
-                if (mysqli_query($conn, $update_sql)) {
-                    echo "Test report updated successfully!";
 
-                    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
-
-            // Get the current date
-
-            $current_date = date('d-m-Y');
-
-            // Send SMS and WhatsApp
-
-            // Combine both mobile numbers into an array
-
-            $configFile = 'config.json';
-
-// Load configuration from the JSON file
-$configs = json_decode(file_get_contents($configFile), true);
-
-// Toggle to enable or disable Twilio usage
-$use_twilio = true; // Set to false to disable Twilio functionality
-
-// Load Twilio credentials from the config file
-$twilio_sid = $configs['Twilio']['twilio_sid'];
-$twilio_token = $configs['Twilio']['twilio_token'];
-$twilio_phone_number = $configs['Twilio']['twilio_phone_number']; // Your Twilio phone number (for SMS & WhatsApp)
-
-// Check if Twilio credentials are available and usage is enabled
-$twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) && !empty($twilio_phone_number);
-
-// Twilio Client initialization (only if credentials are available and toggle is enabled)
-if ($twilio_available) {
-    $client = new Client($twilio_sid, $twilio_token);
-    
-            $phone_numbers = [$mobile, $alt_mobile];
-
-            if ($twilio_available) {
-            $message = "Test Results:\n\nName: $name\nToken: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\n-National Gold Testing, Thrissur. \nContact: 8921243476,6282479875";
-
-           // Send SMS
-           foreach ($phone_numbers as $phone_number) {
-            if (!empty($phone_number)) {
-                // Send SMS
-                try {
-                    $client->messages->create(
-                        $phone_number,
-                        [
-                            'from' => $twilio_phone_number,
-                            'body' => $message
-                        ]
-                    );
-                    echo "SMS sent successfully to $phone_number!<br>";
-                } catch (Exception $e) {
-                    echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
-                }
-            }
-        }
-         // Determine the karat value based on metal type
-    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A';       
-        // Send WhatsApp message via the WhatsApp Business API
-        $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
-        $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
-        $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
-        $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
-        // Format the phone number into E.164 format
-    $formatted_mobile = preg_replace('/\D/', '', $mobile);  // Remove non-digits
-    if (strlen($formatted_mobile) == 10) {
-        $formatted_mobile = '+91' . $formatted_mobile; // Adjust according to your country code
-    }
-
-    // Prepare the message data for the WhatsApp template
-    $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
-    $whatsapp_data = [
-        'messaging_product' => 'whatsapp',
-        'to' => $formatted_mobile,
-        'type' => 'template',
-        'template' => [
-            'name' => 'testreportssoftware',  // Your template name
-            'language' => ['code' => 'en_US'],  // Language code for the template
-            'components' => [
-                [
-                    'type' => 'body',
-                    'parameters' => [
-                        ['type' => 'text', 'text' => $name],           // {{1}} - Name
-                        ['type' => 'text', 'text' => $sr_no],          // {{2}} - Token Number
-                        ['type' => 'text', 'text' => $current_date],    // {{3}} - Date
-                        ['type' => 'text', 'text' => $sample],          // {{4}} - Sample
-                        ['type' => 'text', 'text' => $metal_type],      // {{5}} - Metal Type
-                        ['type' => 'text', 'text' => $gold_percent],    // {{6}} - Result (Gold %)
-                        ['type' => 'text', 'text' => $karat_value]      // {{7}} - Total Karat
-                    ]
-                ]
-            ]
-        ]
-    ];
-
-    // Make the HTTP POST request to WhatsApp API using cURL
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $access_token,
-        'Content-Type: application/json'
-    ]);
-
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);  // Get the HTTP response code
-    curl_close($ch);
-
-    // Check the response from WhatsApp API
-    if ($http_code == 200) {
-        echo "WhatsApp message sent successfully!";
-        } else {
-            echo "Error sending WhatsApp message. Response: " . $response;
-        }
-    } else {
-            echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-        }
-
+            if (mysqli_query($conn, $update_sql)) {
+                echo "Test report updated successfully!";
+                $phone_numbers = [$mobile, $alt_mobile];
+                if ($twilio_available) {
+                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
                 } else {
-                    echo "Error updating record: " . mysqli_error($conn);
+                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
                 }
             } else {
-        // SQL query to insert into the database
-        $insert_sql = "INSERT INTO test_reports (
+                echo "Error updating record: " . mysqli_error($conn);
+            }
+        } else {
+            // Insert new record
+            $insert_sql = "INSERT INTO test_reports (
                 `sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, 
                 `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, 
                 `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`
@@ -316,115 +273,21 @@ if ($twilio_available) {
                 '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', 
                 '$ruthenium', '$palladium', '$lead', '$tin', '$cadmium', '$nickel', '$total_karat'
             )";
-        
-        // Output the SQL query for debugging purposes
-       // var_dump($sql);
 
-    if (mysqli_query($conn, $insert_sql)) {
-        echo "Test report saved successfully!";
-
-            $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A'; 
-
-            // Get the current date
-
-            $current_date = date('d-m-Y');
-
-            // Send SMS and WhatsApp
-
-            // Combine both mobile numbers into an array
-            $phone_numbers = [$mobile, $alt_mobile];
-
-            if ($twilio_available) {
-            $message = "Test Results:\n\nName: $name\nToken: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\n-National Gold Testing, Thrissur. \nContact: 8921243476,6282479875";
-
-           // Send SMS
-           foreach ($phone_numbers as $phone_number) {
-            if (!empty($phone_number)) {
-                // Send SMS
-                try {
-                    $client->messages->create(
-                        $phone_number,
-                        [
-                            'from' => $twilio_phone_number,
-                            'body' => $message
-                        ]
-                    );
-                    echo "SMS sent successfully to $phone_number!<br>";
-                } catch (Exception $e) {
-                    echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
+            if (mysqli_query($conn, $insert_sql)) {
+                echo "Test report saved successfully!";
+                $phone_numbers = [$mobile, $alt_mobile];
+                if ($twilio_available) {
+                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                } else {
+                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
                 }
+            } else {
+                echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
         }
-         // Determine the karat value based on metal type
-    $karat_value = (strtolower($metal_type) == 'gold') ? $total_karat : 'N/A';       
-        // Send WhatsApp message via the WhatsApp Business API
-        $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
-        $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
-        $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
-        $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
-        // Format the phone number into E.164 format
-    $formatted_mobile = preg_replace('/\D/', '', $mobile);  // Remove non-digits
-    if (strlen($formatted_mobile) == 10) {
-        $formatted_mobile = '+91' . $formatted_mobile; // Adjust according to your country code
     }
-
-    // Prepare the message data for the WhatsApp template
-    $access_token = $configs['WhatsApp']['access_token']; // Facebook access token for WhatsApp API
-    $whatsapp_data = [
-        'messaging_product' => 'whatsapp',
-        'to' => $formatted_mobile,
-        'type' => 'template',
-        'template' => [
-            'name' => 'testreportssoftware',  // Your template name
-            'language' => ['code' => 'en_US'],  // Language code for the template
-            'components' => [
-                [
-                    'type' => 'body',
-                    'parameters' => [
-                        ['type' => 'text', 'text' => $name],           // {{1}} - Name
-                        ['type' => 'text', 'text' => $sr_no],          // {{2}} - Token Number
-                        ['type' => 'text', 'text' => $current_date],    // {{3}} - Date
-                        ['type' => 'text', 'text' => $sample],          // {{4}} - Sample
-                        ['type' => 'text', 'text' => $metal_type],      // {{5}} - Metal Type
-                        ['type' => 'text', 'text' => $gold_percent],    // {{6}} - Result (Gold %)
-                        ['type' => 'text', 'text' => $karat_value]      // {{7}} - Total Karat
-                    ]
-                ]
-            ]
-        ]
-    ];
-
-    // Make the HTTP POST request to WhatsApp API using cURL
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $access_token,
-        'Content-Type: application/json'
-    ]);
-
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);  // Get the HTTP response code
-    curl_close($ch);
-
-    // Check the response from WhatsApp API
-    if ($http_code == 200) {
-        echo "WhatsApp message sent successfully!";
-        } else {
-            echo "Error sending WhatsApp message. Response: " . $response;
-        }
-    } else {
-        echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-    }
-} else {
-    echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
 }
-}
-}
-}
-}}
 
 $conn->close();
 ?>
