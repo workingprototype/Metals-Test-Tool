@@ -36,6 +36,15 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : '';
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
 
+// Get today's date
+$today = date('Y-m-d');
+
+// Set default date range to today if no date range is provided
+if (empty($from_date) && empty($to_date)) {
+    $from_date = $today;
+    $to_date = $today;
+}
+
 // Build search query if search is active
 $search_query = "";
 if ($search || $from_date || $to_date) {
@@ -260,6 +269,7 @@ if (isset($_GET['delete_id'])) {
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
             <tr>
+            <th>Action</th>
                 <th>Sr No</th>
                 <th>Report Date</th>
                 <th>Name</th>
@@ -280,13 +290,15 @@ if (isset($_GET['delete_id'])) {
                 <th>Palladium</th>
                 <th>Lead</th>
                 <th>Total Karat</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php if ($result->num_rows > 0): ?>
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
+                    <td>
+                            <a href="?delete_id=<?php echo $row['sr_no']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this record?');">Delete</a>
+                        </td>
                         <td><?php echo $row['sr_no']; ?></td>
                         <td><?php echo date('d-m-Y', strtotime($row['report_date'])); ?></td>
                         <td><?php echo $row['name']; ?></td>
@@ -307,9 +319,7 @@ if (isset($_GET['delete_id'])) {
                         <td><?php echo $row['palladium']; ?></td>
                         <td><?php echo $row['lead']; ?></td>
                         <td><?php echo $row['total_karat']; ?></td>
-                        <td>
-                            <a href="?delete_id=<?php echo $row['sr_no']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this record?');">Delete</a>
-                        </td>
+                        
                     </tr>
                 <?php endwhile; ?>
             <?php else: ?>
