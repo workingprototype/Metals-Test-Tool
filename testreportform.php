@@ -158,29 +158,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($check_result->num_rows > 0) {
                 // Update existing record
                 $update_sql = "UPDATE test_reports SET 
-                    name = '$name', 
-                    sample = '$sample', 
-                    metal_type = '$metal_type', 
-                    count = '$count', 
-                    mobile = '$mobile', 
-                    alt_mobile = '$alt_mobile', 
-                    weight = '$weight', 
-                    gold_percent = '$gold_percent', 
-                    silver = '$silver', 
-                    platinum = '$platinum', 
-                    zinc = '$zinc', 
-                    copper = '$copper', 
-                    others = '$others', 
-                    rhodium = '$rhodium', 
-                    iridium = '$iridium', 
-                    ruthenium = '$ruthenium', 
-                    palladium = '$palladium', 
-                    lead = '$lead', 
-                    tin = '$tin', 
-                    cadmium = '$cadmium', 
-                    nickel = '$nickel', 
-                    total_karat = '$total_karat' 
-                    WHERE sr_no = '$sr_no'";
+                    `name` = '$name', 
+                    `sample` = '$sample', 
+                    `metal_type` = '$metal_type', 
+                    `count` = '$count', 
+                    `mobile` = '$mobile', 
+                    `alt_mobile` = '$alt_mobile', 
+                    `weight` = '$weight', 
+                    `gold_percent` = '$gold_percent', 
+                    `silver` = '$silver', 
+                    `platinum` = '$platinum', 
+                    `zinc` = '$zinc', 
+                    `copper` = '$copper', 
+                    `others` = '$others', 
+                    `rhodium` = '$rhodium', 
+                    `iridium` = '$iridium', 
+                    `ruthenium` = '$ruthenium', 
+                    `palladium` = '$palladium', 
+                    `lead` = '$lead', 
+                    `tin` = '$tin', 
+                    `cadmium` = '$cadmium', 
+                    `nickel` = '$nickel', 
+                    `total_karat` = '$total_karat' 
+                    WHERE `sr_no` = '$sr_no'";
     
                 if (mysqli_query($conn, $update_sql)) {
                     echo "Test report updated successfully!";
