@@ -33,20 +33,19 @@ $start = ($page > 1) ? ($page * $limit) - $limit : 0;
 
 // Search parameters
 $search = isset($_GET['search']) ? $_GET['search'] : '';
-$search_date = isset($_GET['search_date']) ? $_GET['search_date'] : '';
-
-// If no search date is provided, set it to today's date by default
-if (empty($search_date)) {
-    $search_date = date('Y-m-d'); // Today's date in Y-m-d format
-}
-
-$search_query = "";
+$from_date = isset($_GET['from_date']) ? $_GET['from_date'] : '';
+$to_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
 
 // Build search query if search is active
-if ($search || $search_date) {
+$search_query = "";
+if ($search || $from_date || $to_date) {
     $search_query = "WHERE (sr_no LIKE '%$search%' OR name LIKE '%$search%' OR mobile LIKE '%$search%')";
-    if ($search_date) {
-        $search_query .= " AND report_date = '$search_date'";
+    if ($from_date && $to_date) {
+        $search_query .= " AND report_date BETWEEN '$from_date' AND '$to_date'";
+    } elseif ($from_date) {
+        $search_query .= " AND report_date >= '$from_date'";
+    } elseif ($to_date) {
+        $search_query .= " AND report_date <= '$to_date'";
     }
 }
 
@@ -182,6 +181,18 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     $pdf->Output('D', 'test_report.pdf');
     exit;
 }
+
+// Handle Delete Record
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    $delete_query = "DELETE FROM test_reports WHERE sr_no = '$delete_id'";
+    if ($conn->query($delete_query) === TRUE) {
+        echo "<script>alert('Record deleted successfully');</script>";
+        echo "<script>window.location.href='reports.php';</script>";
+    } else {
+        echo "<script>alert('Error deleting record: " . $conn->error . "');</script>";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -192,7 +203,6 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     <title>Test Reports</title>
     <!-- Bootstrap CSS -->
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
-
 </head>
 <body>
     <!-- Top Nav Menu -->
@@ -230,16 +240,19 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
 <div class="container mt-5">
     <h2 class="mb-4">Search Reports</h2>
     <form method="GET" action="" class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <input type="text" class="form-control" name="search" placeholder="Search by Sr No, Name, Mobile" value="<?php echo htmlspecialchars($search); ?>">
         </div>
-        <div class="col-md-4">
-            <input type="date" class="form-control" name="search_date" placeholder="Search by Date" value="<?php echo htmlspecialchars($search_date); ?>">
+        <div class="col-md-3">
+            <input type="date" class="form-control" name="from_date" placeholder="From Date" value="<?php echo htmlspecialchars($from_date); ?>">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <input type="date" class="form-control" name="to_date" placeholder="To Date" value="<?php echo htmlspecialchars($to_date); ?>">
+        </div>
+        <div class="col-md-3">
             <button type="submit" class="btn btn-primary">Search</button>
-            <a href="?export=excel&search=<?php echo urlencode($search); ?>&search_date=<?php echo urlencode($search_date); ?>" class="btn btn-success">Export to Excel</a>
-            <a href="?export=pdf&search=<?php echo urlencode($search); ?>&search_date=<?php echo urlencode($search_date); ?>" class="btn btn-danger">Export to PDF</a>
+            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-success">Export to Excel</a>
+            <a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-danger">Export to PDF</a>
         </div>
     </form>
 
@@ -267,6 +280,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                 <th>Palladium</th>
                 <th>Lead</th>
                 <th>Total Karat</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -293,10 +307,13 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
                         <td><?php echo $row['palladium']; ?></td>
                         <td><?php echo $row['lead']; ?></td>
                         <td><?php echo $row['total_karat']; ?></td>
+                        <td>
+                            <a href="?delete_id=<?php echo $row['sr_no']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this record?');">Delete</a>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr><td colspan="20">No records found</td></tr>
+                <tr><td colspan="21">No records found</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
@@ -310,7 +327,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
             if ($total_pages > 1) {
                 for ($i = 1; $i <= $total_pages; $i++) {
                     $active = $i == $page ? 'active' : '';
-                    echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&search_date=$search_date'>$i</a></li>";
+                    echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date'>$i</a></li>";
                 }
             }
             ?>
