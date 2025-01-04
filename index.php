@@ -54,6 +54,19 @@ $customer_count = $row['total'] + 1; // Increment the count for the new customer
 // Generate the Sr. No.
 $sr_no = $current_letter . " " . $customer_count;
 
+// Ensure the Sr. No. is unique
+while (!isSrNoUnique($conn, $sr_no)) {
+    $customer_count++;
+    $sr_no = $current_letter . " " . $customer_count;
+}
+
+// Function to check if the Sr. No. is unique
+function isSrNoUnique($conn, $sr_no) {
+    $sql = "SELECT sr_no FROM receipts WHERE sr_no = '$sr_no'";
+    $result = $conn->query($sql);
+    return $result->num_rows === 0;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit_receipt'])) {
         $metal_type = $_POST['metal_type'];
