@@ -269,68 +269,86 @@ $conn->close();
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #e0e0e0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .form-container {
-            max-width: 500px;
-            margin: 50px auto;
-            background-color: #f4f4f4;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        .form-header {
-            background-color: #0078d7;
-            color: white;
-            padding: 10px;
-            border-radius: 5px 5px 0 0;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            font-weight: bold;
-            color: #333;
-        }
-        .btn-primary, .btn-success {
-            background-color: #0078d7;
-            border-color: #0078d7;
-        }
-        .btn-primary:hover, .btn-success:hover {
-            background-color: #005fa3;
-            border-color: #005fa3;
-        }
-        .btn-secondary {
-            background-color: #f0f0f0;
-            color: #333;
-            border-color: #ccc;
-        }
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .suggestions-dropdown {
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        max-height: 150px;
-        overflow-y: auto;
-        z-index: 1000;
-        width: 300px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        display: none; /* Hide dropdown by default */
-    }
+    background-color: #e0e0e0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .suggestions-dropdown div {
-        padding: 8px;
-        cursor: pointer;
-    }
+.form-container {
+    max-width: 350px; /* Reduced from 500px */
+    margin: 30px auto; /* Reduced margin */
+    background-color: #f4f4f4;
+    padding: 15px; /* Reduced padding */
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
 
-    .suggestions-dropdown div:hover,
-    .suggestions-dropdown div.selected {
-        background-color: #f0f0f0;
-    }
+.form-header {
+    background-color: #0078d7;
+    color: white;
+    padding: 8px; /* Reduced padding */
+    border-radius: 5px 5px 0 0;
+    text-align: center;
+    margin-bottom: 15px; /* Reduced margin */
+    font-size: 14px; /* Reduced font size */
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    font-size: 13px; /* Reduced font size */
+}
+
+.btn-primary, .btn-success {
+    background-color: #0078d7;
+    border-color: #0078d7;
+    font-size: 13px; /* Reduced font size */
+    padding: 6px 12px; /* Adjusted padding */
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background-color: #005fa3;
+    border-color: #005fa3;
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #ccc;
+    font-size: 13px; /* Reduced font size */
+    padding: 6px 12px; /* Adjusted padding */
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    max-height: 120px; /* Reduced height */
+    overflow-y: auto;
+    z-index: 1000;
+    width: 250px; /* Reduced width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none; /* Hide dropdown by default */
+}
+
+.suggestions-dropdown div {
+    padding: 6px; /* Reduced padding */
+    cursor: pointer;
+    font-size: 13px; /* Reduced font size */
+}
+
+.suggestions-dropdown div:hover,
+.suggestions-dropdown div.selected {
+    background-color: #f0f0f0;
+}
+.warning-message {
+    font-size: 0.875em;
+    margin-top: 5px;
+}
 </style>
 </head>
 <script>
@@ -418,7 +436,7 @@ $conn->close();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="width: 150px;">
     <label for="sr_no">Sr. No</label>
     <div class="input-group">
         <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" readonly required>
@@ -428,7 +446,7 @@ $conn->close();
     </div>
 </div>
 
-        <div class="form-group">
+        <div class="form-group"style="width: 150px;">
             <label for="date">Date</label>
             <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
@@ -446,6 +464,7 @@ $conn->close();
         <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" autocomplete="off">
     </div>
     <div id="mobile-suggestions" class="suggestions-dropdown"></div>
+    <div id="mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
 </div>
 
 <div class="form-group">
@@ -455,6 +474,7 @@ $conn->close();
         <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number" autocomplete="off">
     </div>
     <div id="alt-mobile-suggestions" class="suggestions-dropdown"></div>
+    <div id="alt-mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
 </div>
 
         <div class="form-group">
@@ -710,6 +730,54 @@ $conn->close();
         const srNo = this.value.trim();
         fetchReceiptData(srNo);
     }, 50)); // 50ms delay
+
+    //Mobile Number exceeding 10 digits warning
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileInput = document.getElementById('mobile');
+        const altMobileInput = document.getElementById('alt_mobile');
+        const mobileWarning = document.getElementById('mobile-warning');
+        const altMobileWarning = document.getElementById('alt-mobile-warning');
+
+        // Validate while typing (only for exceeding digits)
+        function validateWhileTyping(input, warningElement) {
+            const value = input.value.replace(/\D/g, ''); // Remove non-digit characters
+            if (value.length > 10) {
+                warningElement.textContent = 'Mobile number should not exceed 10 digits.';
+                warningElement.style.display = 'block';
+            } else {
+                warningElement.style.display = 'none';
+            }
+        }
+
+        // Validate on blur (only for less than 10 digits)
+        function validateOnBlur(input, warningElement) {
+            const value = input.value.replace(/\D/g, ''); // Remove non-digit characters
+            if (value.length < 10 && value.length > 0) {
+                warningElement.textContent = 'Mobile number should be exactly 10 digits.';
+                warningElement.style.display = 'block';
+            } else {
+                warningElement.style.display = 'none';
+            }
+        }
+
+        // Mobile input event listeners
+        mobileInput.addEventListener('input', function () {
+            validateWhileTyping(mobileInput, mobileWarning);
+        });
+
+        mobileInput.addEventListener('blur', function () {
+            validateOnBlur(mobileInput, mobileWarning);
+        });
+
+        // Alt-mobile input event listeners
+        altMobileInput.addEventListener('input', function () {
+            validateWhileTyping(altMobileInput, altMobileWarning);
+        });
+
+        altMobileInput.addEventListener('blur', function () {
+            validateOnBlur(altMobileInput, altMobileWarning);
+        });
+    });
 </script>
 </div>
 
