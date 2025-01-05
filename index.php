@@ -86,10 +86,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!empty($alt_mobile)) {
             $alt_mobile = "+91" . $alt_mobile;
         }
-        
 
-        $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, alt_mobile, sample, weight) 
-        VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$alt_mobile', '$sample', '$weight')";
+        // Check if the Sr. No. already exists
+        $sql_check = "SELECT * FROM receipts WHERE sr_no = '$sr_no'";
+        $result_check = $conn->query($sql_check);
+
+        if ($result_check->num_rows > 0) {
+            // Update the existing record
+            $sql = "UPDATE receipts SET metal_type='$metal_type', report_date='$report_date', name='$name', mobile='$mobile', alt_mobile='$alt_mobile', sample='$sample', weight='$weight' WHERE sr_no='$sr_no'";
+        } else {
+            // Insert a new record
+            $sql = "INSERT INTO receipts (metal_type, sr_no, report_date, name, mobile, alt_mobile, sample, weight) 
+            VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$alt_mobile', '$sample', '$weight')";
+        }
 
         if ($conn->query($sql) === TRUE) {
             // Receipt saved successfully, now show the receipt and print option
@@ -410,9 +419,14 @@ $conn->close();
         </div>
 
         <div class="form-group">
-            <label for="sr_no">Sr. No</label>
-            <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" readonly required>
+    <label for="sr_no">Sr. No</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" readonly required>
+        <div class="input-group-append">
+            <button type="button" class="btn btn-secondary" id="edit_sr_no">Edit</button>
         </div>
+    </div>
+</div>
 
         <div class="form-group">
             <label for="date">Date</label>
@@ -642,6 +656,60 @@ $conn->close();
         closeSuggestionsOnClickOutside(event, 'mobile');
         closeSuggestionsOnClickOutside(event, 'alt_mobile');
     });
+
+      // Add event listener for the Edit button
+      document.getElementById('edit_sr_no').addEventListener('click', function () {
+        const srNoInput = document.getElementById('sr_no');
+        srNoInput.readOnly = !srNoInput.readOnly;
+        if (!srNoInput.readOnly) {
+            srNoInput.focus();
+        }
+    });
+
+    // Debounce function to limit the frequency of API calls
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Function to fetch receipt data based on Sr. No.
+    function fetchReceiptData(srNo) {
+        if (srNo) {
+            fetch(`fetch_receipt_edit.php?sr_no=${encodeURIComponent(srNo)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // Pre-fill the form fields with the fetched data
+                        document.querySelector('input[name="metal_type"][value="' + data.metal_type + '"]').checked = true;
+                        document.querySelector('input[name="report_date"]').value = data.report_date;
+                        document.getElementById('name').value = data.name;
+                        document.getElementById('mobile').value = data.mobile.replace('+91', '');
+                        document.getElementById('alt_mobile').value = data.alt_mobile ? data.alt_mobile.replace('+91', '') : '';
+                        document.getElementById('sample').value = data.sample;
+                        document.getElementById('weight').value = data.weight;
+                    } else {
+                        // Clear the form fields if no data is found
+                        document.querySelector('input[name="metal_type"][value="Gold"]').checked = true;
+                        document.querySelector('input[name="report_date"]').value = '<?php echo date('Y-m-d'); ?>';
+                        document.getElementById('name').value = '';
+                        document.getElementById('mobile').value = '';
+                        document.getElementById('alt_mobile').value = '';
+                        document.getElementById('sample').value = '';
+                        document.getElementById('weight').value = '';
+                    }
+                })
+                .catch(error => console.error('Error fetching receipt data:', error));
+        }
+    }
+
+    // Add input event listener for the Sr. No. field with debouncing
+    document.getElementById('sr_no').addEventListener('input', debounce(function () {
+        const srNo = this.value.trim();
+        fetchReceiptData(srNo);
+    }, 50)); // 50ms delay
 </script>
 </div>
 
