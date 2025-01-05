@@ -1,7 +1,7 @@
 <?php
-
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
 // Path to the config file
 $configFile = 'config.json';
 
@@ -70,7 +70,9 @@ function isSrNoUnique($conn, $sr_no) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit_receipt'])) {
         $metal_type = $_POST['metal_type'];
-        $sr_no = $_POST['sr_no'];
+        $sr_no_letter = $_POST['sr_no_letter'];
+        $sr_no_count = $_POST['sr_no_count'];
+        $sr_no = $sr_no_letter . " " . $sr_no_count;
         $report_date = $_POST['report_date'];
         $name = $_POST['name'];
         $mobile = $_POST['mobile'];
@@ -122,13 +124,11 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
         <html>
         <head>
             <style>
- 
                 /* Hide form content when printing */
                 .form-container {
                     display: none;
                 }
             </style>
-            
         </head>
         <body>
         <div id="receipt">         
@@ -437,54 +437,52 @@ $conn->close();
         </div>
 
         <div class="form-group" style="width: 150px;">
-    <label for="sr_no">Sr. No</label>
-    <div class="input-group">
-        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" readonly required>
-        <div class="input-group-append">
-            <button type="button" class="btn btn-secondary" id="edit_sr_no">Edit</button>
-        </div>
+    <label for="sr_no_letter">Sr. No Letter</label>
+    <div style="display: flex;">
+        <input type="text" class="form-control" style="width: 50px; margin-right: 5px;" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>" required>
+        <input type="number" class="form-control" style="width: 100px;" id="sr_no_count" name="sr_no_count" value="<?php echo $customer_count; ?>" required>
     </div>
 </div>
 
-        <div class="form-group"style="width: 150px;">
+        <div class="form-group" style="width: 150px;">
             <label for="date">Date</label>
             <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
         <div class="form-group">
-    <label for="name">Name</label>
-    <input type="text" class="form-control" id="name" name="name" required autocomplete="off">
-    <div id="name-suggestions" class="suggestions-dropdown"></div>
-</div>
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required autocomplete="off">
+            <div id="name-suggestions" class="suggestions-dropdown"></div>
+        </div>
 
-<div class="form-group">
-    <label for="mobile">Mobile</label>
-    <div class="input-group">
-        <span class="input-group-text">+91</span>
-        <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" autocomplete="off">
-    </div>
-    <div id="mobile-suggestions" class="suggestions-dropdown"></div>
-    <div id="mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
-</div>
+        <div class="form-group">
+            <label for="mobile">Mobile</label>
+            <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" autocomplete="off">
+            </div>
+            <div id="mobile-suggestions" class="suggestions-dropdown"></div>
+            <div id="mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
+        </div>
 
-<div class="form-group">
-    <label for="alt_mobile">Alt-Mobile (Optional)</label>
-    <div class="input-group">
-        <span class="input-group-text">+91</span>
-        <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number" autocomplete="off">
-    </div>
-    <div id="alt-mobile-suggestions" class="suggestions-dropdown"></div>
-    <div id="alt-mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
-</div>
+        <div class="form-group">
+            <label for="alt_mobile">Alt-Mobile (Optional)</label>
+            <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" placeholder="Enter alternate mobile number" autocomplete="off">
+            </div>
+            <div id="alt-mobile-suggestions" class="suggestions-dropdown"></div>
+            <div id="alt-mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
+        </div>
 
         <div class="form-group">
             <label for="sample">Sample</label>
-            <input type="text" class="form-control" id="sample" name="sample" required>
+            <input type="text" style="width: 150px;" class="form-control" id="sample" name="sample" required>
         </div>
 
         <div class="form-group">
             <label for="weight">Weight</label>
-            <input type="number" step="0.001" class="form-control" id="weight" name="weight" required>
+            <input type="number" style="width: 100px;" step="0.001" class="form-control" id="weight" name="weight" required>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" name="submit_receipt">Save Receipt</button>
@@ -677,15 +675,6 @@ $conn->close();
         closeSuggestionsOnClickOutside(event, 'alt_mobile');
     });
 
-      // Add event listener for the Edit button
-      document.getElementById('edit_sr_no').addEventListener('click', function () {
-        const srNoInput = document.getElementById('sr_no');
-        srNoInput.readOnly = !srNoInput.readOnly;
-        if (!srNoInput.readOnly) {
-            srNoInput.focus();
-        }
-    });
-
     // Debounce function to limit the frequency of API calls
     function debounce(func, delay) {
         let timeout;
@@ -696,41 +685,49 @@ $conn->close();
     }
 
     // Function to fetch receipt data based on Sr. No.
-    function fetchReceiptData(srNo) {
-        if (srNo) {
-            fetch(`fetch_receipt_edit.php?sr_no=${encodeURIComponent(srNo)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data) {
-                        // Pre-fill the form fields with the fetched data
-                        document.querySelector('input[name="metal_type"][value="' + data.metal_type + '"]').checked = true;
-                        document.querySelector('input[name="report_date"]').value = data.report_date;
-                        document.getElementById('name').value = data.name;
-                        document.getElementById('mobile').value = data.mobile.replace('+91', '');
-                        document.getElementById('alt_mobile').value = data.alt_mobile ? data.alt_mobile.replace('+91', '') : '';
-                        document.getElementById('sample').value = data.sample;
-                        document.getElementById('weight').value = data.weight;
-                    } else {
-                        // Clear the form fields if no data is found
-                        document.querySelector('input[name="metal_type"][value="Gold"]').checked = true;
-                        document.querySelector('input[name="report_date"]').value = '<?php echo date('Y-m-d'); ?>';
-                        document.getElementById('name').value = '';
-                        document.getElementById('mobile').value = '';
-                        document.getElementById('alt_mobile').value = '';
-                        document.getElementById('sample').value = '';
-                        document.getElementById('weight').value = '';
-                    }
-                })
-                .catch(error => console.error('Error fetching receipt data:', error));
-        }
+function fetchReceiptData(srNoLetter, srNoCount) {
+    const srNo = srNoLetter + " " + srNoCount; // Combine letter and count to form the full Sr. No.
+    if (srNoLetter && srNoCount) { // Ensure both fields have values
+        fetch(`fetch_receipt_edit.php?sr_no=${encodeURIComponent(srNo)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Pre-fill the form fields with the fetched data
+                    document.querySelector('input[name="metal_type"][value="' + data.metal_type + '"]').checked = true;
+                    document.querySelector('input[name="report_date"]').value = data.report_date;
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('mobile').value = data.mobile.replace('+91', '');
+                    document.getElementById('alt_mobile').value = data.alt_mobile ? data.alt_mobile.replace('+91', '') : '';
+                    document.getElementById('sample').value = data.sample;
+                    document.getElementById('weight').value = data.weight;
+                } else {
+                    // Clear the form fields if no data is found
+                    document.querySelector('input[name="metal_type"][value="Gold"]').checked = true;
+                    document.querySelector('input[name="report_date"]').value = '<?php echo date('Y-m-d'); ?>';
+                    document.getElementById('name').value = '';
+                    document.getElementById('mobile').value = '';
+                    document.getElementById('alt_mobile').value = '';
+                    document.getElementById('sample').value = '';
+                    document.getElementById('weight').value = '';
+                }
+            })
+            .catch(error => console.error('Error fetching receipt data:', error));
     }
+}
+
+// Function to handle changes in Sr. No. letter or count
+function handleSrNoChange() {
+    const srNoLetter = document.getElementById('sr_no_letter').value.trim();
+    const srNoCount = document.getElementById('sr_no_count').value.trim();
+    fetchReceiptData(srNoLetter, srNoCount); // Fetch data whenever either field changes
+}
+
+// Add event listeners for both Sr. No. letter and count fields
+document.getElementById('sr_no_letter').addEventListener('input', debounce(handleSrNoChange, 50));
+document.getElementById('sr_no_count').addEventListener('input', debounce(handleSrNoChange, 50));
 
     // Add input event listener for the Sr. No. field with debouncing
-    document.getElementById('sr_no').addEventListener('input', debounce(function () {
-        const srNo = this.value.trim();
-        fetchReceiptData(srNo);
-    }, 50)); // 50ms delay
-
+    
     //Mobile Number exceeding 10 digits warning
     document.addEventListener('DOMContentLoaded', function () {
         const mobileInput = document.getElementById('mobile');

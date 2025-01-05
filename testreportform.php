@@ -350,6 +350,23 @@ $conn->close();
 .metal-grid .form-group {
     margin-bottom: 0;
 }
+.info-bar-container {
+    width: 100%; /* Ensure the container takes full width */
+    position: relative; /* Make this container the reference for absolute positioning */
+}
+
+#infoBar {
+    width: 100%; /* Ensure the info bar takes full width */
+    text-align: center; /* Center the text */
+    padding: 10px; /* Add padding for better appearance */
+    border-radius: 5px; /* Add rounded corners */
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    background-color: white; /* Add a background color to ensure readability */
+    position: absolute; /* Position absolutely within the container */
+    top: 0; /* Position at the top of the container */
+    left: 0; /* Align to the left */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+}
     </style>
     <!-- JavaScript for calculating Karat Purity -->
     <script>
@@ -427,17 +444,19 @@ $conn->close();
                     </div>
                 </div>  
                 <div class="col-sm-6">
-                    <div class="form-group">
-                    <label for="sr_no_letter">Month Letter:</label>
-    <input type="text" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>">
-
-    <label for="sr_no_count">Sr. No. Count:</label>
-    <input type="number" id="sr_no_count" name="sr_no_count" placeholder="Enter count number">
-                        <!-- <label for="sr_no">Sr. No</label>
-                        <input type="text" class="form-control" id="sr_no" name="sr_no" value="<?php echo $sr_no; ?>" required> -->
-                    </div>
-                </div>
+    <div class="form-group">
+        <label for="sr_no">Sr.no</label>
+        <div class="d-flex align-items-center">
+            <input type="text" class="form-control mr-2" id="sr_no_letter" name="sr_no_letter" style="width: 50px;" value="<?php echo $current_letter; ?>">
+            <input type="number" class="form-control" id="sr_no_count" name="sr_no_count" placeholder="" style="width: 100px;">
+        </div>
+        <div class="info-bar-container">
+            <div id="infoBar" class="alert alert-warning" style="display: none; margin-bottom: 15px;">
+                Token number doesn't exist.
             </div>
+        </div>
+    </div>
+</div></div>
 
             <!-- <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button> -->
 
@@ -499,6 +518,7 @@ $conn->close();
 document.addEventListener('DOMContentLoaded', function() {
     const srNoCountInput = document.getElementById('sr_no_count');
     const srNoLetterInput = document.getElementById('sr_no_letter');
+    const infoBar = document.getElementById('infoBar');
 
     srNoCountInput.addEventListener('keyup', function() {
         const srNoLetter = srNoLetterInput.value;
@@ -509,6 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // Reset form fields if sr_no_count is empty
             resetFormFields();
+            infoBar.style.display = 'none'; // Hide the info bar
         }
     });
 
@@ -532,15 +553,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('alt_mobile').value = data.alt_mobile || '';
                 document.getElementById('sample').value = data.sample || '';
                 document.getElementById('weight').value = data.weight || '';
+                infoBar.style.display = 'none'; // Hide the info bar if record is found
             } else {
                 resetFormFields();
-                console.error('No receipt found with this Sr. No.', error);
+                infoBar.style.display = 'block'; // Show the info bar if no record is found
             }
         })
         .catch(error => {
             console.error('Error fetching report data:', error);
+            infoBar.style.display = 'block'; // Show the info bar if there's an error
         });
     }
+
     function resetFormFields() {
         document.getElementById('metal_type').value = '';
         document.getElementById('name').value = '';
@@ -565,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('nickel').value = '';
     }
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const srNoCountInput = document.getElementById('sr_no_count');
