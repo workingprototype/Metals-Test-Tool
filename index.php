@@ -723,8 +723,8 @@ function handleSrNoChange() {
 }
 
 // Add event listeners for both Sr. No. letter and count fields
-document.getElementById('sr_no_letter').addEventListener('input', debounce(handleSrNoChange, 50));
-document.getElementById('sr_no_count').addEventListener('input', debounce(handleSrNoChange, 50));
+document.getElementById('sr_no_letter').addEventListener('input', debounce(handleSrNoChange, 100));
+document.getElementById('sr_no_count').addEventListener('input', debounce(handleSrNoChange, 100));
 
     // Add input event listener for the Sr. No. field with debouncing
     
