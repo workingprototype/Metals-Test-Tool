@@ -287,6 +287,147 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     }
+    if (isset($_POST['save_send_print'])) {
+        // Retrieve form data
+        $current_letter = mysqli_real_escape_string($conn, $_POST['sr_no_letter']);
+        $customer_count = mysqli_real_escape_string($conn, $_POST['sr_no_count']);
+    
+        $sr_no = $current_letter . " " . $customer_count;
+        $name = mysqli_real_escape_string($conn, $_POST['name']);
+        $sample = mysqli_real_escape_string($conn, $_POST['sample']);
+        $metal_type = mysqli_real_escape_string($conn, $_POST['metal_type']);
+        $count = isset($_POST['count']) ? mysqli_real_escape_string($conn, $_POST['count']) : 0;
+        $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
+        $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
+        $weight = mysqli_real_escape_string($conn, $_POST['weight']);
+        $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+        $silver = !empty($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
+        $platinum = !empty($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
+        $zinc = !empty($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
+        $copper = !empty($_POST['copper']) ? mysqli_real_escape_string($conn, $_POST['copper']) : 0.00;
+        $others = !empty($_POST['others']) ? mysqli_real_escape_string($conn, $_POST['others']) : 0.00;
+        $rhodium = !empty($_POST['rhodium']) ? mysqli_real_escape_string($conn, $_POST['rhodium']) : 0.00;
+        $iridium = !empty($_POST['iridium']) ? mysqli_real_escape_string($conn, $_POST['iridium']) : 0.00;
+        $ruthenium = !empty($_POST['ruthenium']) ? mysqli_real_escape_string($conn, $_POST['ruthenium']) : 0.00;
+        $palladium = !empty($_POST['palladium']) ? mysqli_real_escape_string($conn, $_POST['palladium']) : 0.00;
+        $lead = !empty($_POST['lead']) ? mysqli_real_escape_string($conn, $_POST['lead']) : 0.00;
+        $tin = !empty($_POST['tin']) ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
+        $cadmium = !empty($_POST['cadmium']) ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
+        $nickel = !empty($_POST['nickel']) ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
+        $total_karat = isset($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
+    
+        // Check if the record already exists
+        $check_sql = "SELECT * FROM test_reports WHERE sr_no = '$sr_no'";
+        $check_result = $conn->query($check_sql);
+    
+        if ($check_result->num_rows > 0) {
+            // Update existing record
+            $update_sql = "UPDATE test_reports SET 
+                `name` = '$name', 
+                `sample` = '$sample', 
+                `metal_type` = '$metal_type', 
+                `count` = '$count', 
+                `mobile` = '$mobile', 
+                `alt_mobile` = '$alt_mobile', 
+                `weight` = '$weight', 
+                `gold_percent` = '$gold_percent', 
+                `silver` = '$silver', 
+                `platinum` = '$platinum', 
+                `zinc` = '$zinc', 
+                `copper` = '$copper', 
+                `others` = '$others', 
+                `rhodium` = '$rhodium', 
+                `iridium` = '$iridium', 
+                `ruthenium` = '$ruthenium', 
+                `palladium` = '$palladium', 
+                `lead` = '$lead', 
+                `tin` = '$tin', 
+                `cadmium` = '$cadmium', 
+                `nickel` = '$nickel', 
+                `total_karat` = '$total_karat' 
+                WHERE `sr_no` = '$sr_no'";
+    
+            if (mysqli_query($conn, $update_sql)) {
+                echo "Test report updated successfully!";
+                $phone_numbers = [$mobile, $alt_mobile];
+                if ($twilio_available) {
+                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                } else {
+                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
+                }
+            } else {
+                echo "Error updating record: " . mysqli_error($conn);
+            }
+        } else {
+            // Insert new record
+            $insert_sql = "INSERT INTO test_reports (
+                `sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, 
+                `gold_percent`, `silver`, `platinum`, `zinc`, `copper`, `others`, `rhodium`, `iridium`, `ruthenium`, 
+                `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`
+            ) VALUES (
+                '$sr_no', CURDATE(), '$name', '$sample', '$metal_type', '$count', '$mobile', '$alt_mobile', '$weight', 
+                '$gold_percent', '$silver', '$platinum', '$zinc', '$copper', '$others', '$rhodium', '$iridium', 
+                '$ruthenium', '$palladium', '$lead', '$tin', '$cadmium', '$nickel', '$total_karat'
+            )";
+    
+            if (mysqli_query($conn, $insert_sql)) {
+                echo "Test report saved successfully!";
+                $phone_numbers = [$mobile, $alt_mobile];
+                if ($twilio_available) {
+                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                } else {
+                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
+                }
+            } else {
+                echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
+            }
+        }
+    
+        // Redirect to print the receipt
+        echo "
+<script>
+    console.log('Print script executed');
+    window.addEventListener('load', function() {
+        console.log('Page fully loaded');
+        // Populate the receipt layout with the form data
+        document.getElementById('printSrNo').textContent = '$sr_no';
+        document.getElementById('printDate').textContent = new Date().toLocaleString();
+        document.getElementById('printName').textContent = '$name';
+        document.getElementById('printSample').textContent = '$sample';
+        document.getElementById('printWeight').textContent = '$weight';
+        document.getElementById('printGoldPercent').textContent = '$gold_percent';
+        document.getElementById('printSilver').textContent = '$silver';
+        document.getElementById('printPlatinum').textContent = '$platinum';
+        document.getElementById('printZinc').textContent = '$zinc';
+        document.getElementById('printCopper').textContent = '$copper';
+        document.getElementById('printOthers').textContent = '$others';
+        document.getElementById('printRhodium').textContent = '$rhodium';
+        document.getElementById('printIridium').textContent = '$iridium';
+        document.getElementById('printRuthenium').textContent = '$ruthenium';
+        document.getElementById('printPalladium').textContent = '$palladium';
+        document.getElementById('printLead').textContent = '$lead';
+        document.getElementById('printTin').textContent = '$tin';
+        document.getElementById('printCadmium').textContent = '$cadmium';
+        document.getElementById('printNickel').textContent = '$nickel';
+        document.getElementById('printTotalKarat').textContent = '$total_karat';
+
+        console.log('Receipt div populated');
+        var receiptContent = document.getElementById('receipt').innerHTML;
+        var printWindow = window.open('', '_blank', 'width=600,height=400');
+        printWindow.document.write('<html><head><title>Receipt</title>');
+        printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(receiptContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        console.log('Printing receipt');
+        printWindow.print();
+        printWindow.close();
+    });
+</script>
+";
+    }
 }
 
 $conn->close();
@@ -735,8 +876,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
         </div>
 </div>
-
-
+            
+            <button type="submit" class="btn btn-primary btn-block" name="save_send_print">Save, Send & Print</button>
             <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
             <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
         </form>
