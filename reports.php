@@ -118,7 +118,10 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     $sheet->setCellValue('Q1', 'Ruthenium');
     $sheet->setCellValue('R1', 'Palladium');
     $sheet->setCellValue('S1', 'Lead');
-    $sheet->setCellValue('T1', 'Total Karat');
+    $sheet->setCellValue('T1', 'Tin');
+    $sheet->setCellValue('U1', 'Cadmium');
+    $sheet->setCellValue('V1', 'Nickel');
+    $sheet->setCellValue('H1', 'Total Karat');
  
     // Fetch and populate data
     $export_query = "SELECT * FROM test_reports $search_query";
@@ -145,7 +148,10 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
         $sheet->setCellValue('Q'.$rowCount, $row['ruthenium']);
         $sheet->setCellValue('R'.$rowCount, $row['palladium']);
         $sheet->setCellValue('S'.$rowCount, $row['lead']);
-        $sheet->setCellValue('T'.$rowCount, $row['total_karat']);
+        $sheet->setCellValue('T'.$rowCount, $row['tin']);
+        $sheet->setCellValue('U'.$rowCount, $row['cadmium']);
+        $sheet->setCellValue('V'.$rowCount, $row['nickel']);
+        $sheet->setCellValue('H'.$rowCount, $row['total_karat']);
         $rowCount++;
     }
 
@@ -181,6 +187,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
     $pdf->Cell(20, 10, 'Ruthenium', 1);
     $pdf->Cell(20, 10, 'Palladium', 1);
     $pdf->Cell(20, 10, 'Lead', 1);
+    $pdf->Cell(20, 10, 'Tin', 1);
+    $pdf->Cell(20, 10, 'Cadmium', 1);
+    $pdf->Cell(20, 10, 'Nickel', 1);
     $pdf->Cell(20, 10, 'Total Karat', 1);
     $pdf->Ln();
 
@@ -208,6 +217,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'pdf') {
         $pdf->Cell(20, 10, $row['ruthenium'], 1);
         $pdf->Cell(20, 10, $row['palladium'], 1);
         $pdf->Cell(20, 10, $row['lead'], 1);
+        $pdf->Cell(20, 10, $row['tin'], 1);
+        $pdf->Cell(20, 10, $row['cadmium'], 1);
+        $pdf->Cell(20, 10, $row['nickel'], 1);
         $pdf->Cell(20, 10, $row['total_karat'], 1);
 
         $pdf->Ln();
@@ -326,6 +338,9 @@ if (isset($_GET['delete_id'])) {
                 <th>Ruthenium</th>
                 <th>Palladium</th>
                 <th>Lead</th>
+                <th>Tin</th>
+                <th>Cadmium</th>
+                <th>Nickel</th>
                 <th>Total Karat</th>
             </tr>
         </thead>
@@ -355,6 +370,9 @@ if (isset($_GET['delete_id'])) {
                         <td><?php echo $row['ruthenium']; ?></td>
                         <td><?php echo $row['palladium']; ?></td>
                         <td><?php echo $row['lead']; ?></td>
+                        <td><?php echo $row['tin']; ?></td>
+                        <td><?php echo $row['cadmium']; ?></td>
+                        <td><?php echo $row['nickel']; ?></td>
                         <td><?php echo $row['total_karat']; ?></td>
                         
                     </tr>
