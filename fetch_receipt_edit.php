@@ -27,7 +27,7 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     echo json_encode($row); // Return the data as JSON
 } else {
-    echo json_encode([]); // Return an empty array if no data is found
+    echo json_encode(null); // Return null if no data is found
 }
 
 $conn->close();

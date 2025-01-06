@@ -439,74 +439,122 @@ $conn->close();
     <!-- Bootstrap CSS -->
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #e0e0e0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-        }
-        .form-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #f4f4f4;
-            padding: 15px;
-            border: 1px solid #ccc;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        .form-header {
-            background-color: #0078d7;
-            color: white;
-            padding: 8px;
-            border-radius: 5px 5px 0 0;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            font-weight: bold;
-            color: #333;
-            font-size: 13px;
-        }
-        .form-control {
-            height: 30px;
-            font-size: 13px;
-        }
-        .btn-block {
-            margin-top: 8px;
-        }
-        
-                .compact-input {
-    width: 100px; /* Adjust the width as needed */
-    height: 30px; /* Adjust the height as needed */
-    font-size: 12px; /* Adjust the font size as needed */
-    padding: 5px; /* Adjust the padding as needed */
+     body {
+    background-color: #e0e0e0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12px; /* Reduced font size */
+    margin: 0;
+    padding: 0;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 10px auto; /* Reduced margin */
+    background-color: #f4f4f4;
+    padding: 10px; /* Reduced padding */
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.form-header {
+    background-color: #0078d7;
+    color: white;
+    padding: 3px; /* Reduced padding */
+    border-radius: 5px 5px 0 0;
+    text-align: center;
+    margin-bottom: 10px; /* Reduced margin */
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px; /* Reduced font size */
+}
+
+.form-control {
+    height: 25px; /* Reduced height */
+    font-size: 12px; /* Reduced font size */
+    padding: 3px; /* Reduced padding */
+}
+
+.btn-block {
+    margin-top: 5px; /* Reduced margin */
+    padding: 5px; /* Reduced padding */
+}
+
+.compact-input {
+    width: 80px; /* Adjusted width */
+    height: 25px; /* Adjusted height */
+    font-size: 12px; /* Reduced font size */
+    padding: 3px; /* Reduced padding */
 }
 
 .metal-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 5px; /* Reduced gap */
+    margin-bottom: 10px; /* Reduced margin */
 }
 
 .metal-grid .form-group {
     margin-bottom: 0;
 }
+
 .info-bar-container {
-    width: 100%; /* Ensure the container takes full width */
-    position: relative; /* Make this container the reference for absolute positioning */
+    width: 100%;
+    position: relative;
 }
 
 #infoBar {
-    width: 100%; /* Ensure the info bar takes full width */
-    text-align: center; /* Center the text */
-    padding: 10px; /* Add padding for better appearance */
-    border-radius: 5px; /* Add rounded corners */
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    background-color: white; /* Add a background color to ensure readability */
-    position: absolute; /* Position absolutely within the container */
-    top: 0; /* Position at the top of the container */
-    left: 0; /* Align to the left */
-    z-index: 1000; /* Ensure it stays on top of other elements */
+    width: 100%;
+    text-align: center;
+    padding: 5px; /* Reduced padding */
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    font-size: 12px; /* Reduced font size */
+}
+
+.navbar {
+    padding: 5px; /* Reduced padding */
+}
+
+.navbar-brand {
+    font-size: 14px; /* Reduced font size */
+}
+
+.nav-link {
+    font-size: 12px; /* Reduced font size */
+    padding: 5px; /* Reduced padding */
+}
+
+.receipt-layout {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px; /* Reduced font size */
+}
+
+.receipt-layout div {
+    margin-bottom: 5px; /* Reduced margin */
+}
+
+.receipt-layout strong {
+    font-size: 14px; /* Reduced font size */
+}
+/* Custom class for larger input */
+.larger-input {
+    width: 150px; /* Adjust width as needed */
+    height: 35px; /* Adjust height as needed */
+    font-size: 14px; /* Adjust font size as needed */
+    padding: 5px; /* Adjust padding as needed */
 }
     </style>
     <!-- JavaScript for calculating Karat Purity -->
@@ -579,11 +627,12 @@ $conn->close();
             <!-- Row for Count and Sr. No -->
             <div class="form-row">
                 <div class="col-sm-6">
-                    <div class="form-group">
+                    <div class="form-group ">
                         <label for="count">(Total Reports Today)</label>
-                        <input type="number" class="form-control" id="count" name="count" value="<?php echo $count; ?>" readonly>
+                        <input type="number" style="width: 120px;" class="form-control" id="count" name="count" value="<?php echo $count; ?>" readonly>
                     </div>
-                </div>  
+                </div>
+                <div class="metal-grid-container" style="border: 1px solid #000; padding: 1px; background: linear-gradient(135deg, #f0f0f0, #c0c0c0);">  
                 <div class="col-sm-6">
     <div class="form-group">
         <label for="sr_no">Sr.no</label>
@@ -597,11 +646,13 @@ $conn->close();
             </div>
         </div>
     </div>
-</div></div>
+</div></div></div>
 
             <!-- <button type="submit" class="btn btn-success btn-block" name="fetch_report">Fetch Report</button> -->
 
             <!-- Row for Pre-filled fields (Metal Type, Name, Mobile, Sample) -->
+            <div class="metal-grid-container" style="border: 2px solid #000; padding: 10px; margin-top: 20px;">
+
             <div class="form-row">
                 <div class="col-sm-6">
                     <div class="form-group">
@@ -626,7 +677,7 @@ $conn->close();
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <label for="mobile">Alternative Mobile Number</label>
+                        <label for="mobile">Alt. Mobile</label>
                         <input type="text" class="form-control" id="alt_mobile" name="alt_mobile" value="<?php echo $alt_mobile; ?>" readonly>
                     </div>
                 </div>
@@ -645,14 +696,15 @@ $conn->close();
             <label for="weight">Weight</label>
             <input type="number" step="0.01" class="form-control compact-input" id="weight" name="weight" value="<?php echo $weight; ?>" oninput="calculateKarat()">
         </div>
-    </div>
+    </div></br></br></br></br>
     <div class="col-sm-4">
-        <div class="form-group">
-            <label for="gold_percent">Gold % or Purity</label>
-            <input type="number" step="0.01" class="form-control compact-input" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
-        </div>
+    <div class="form-group">
+        <label for="gold_percent">Gold % or Purity</label>
+        <input type="number" step="0.01" class="form-control larger-input" id="gold_percent" name="gold_percent" oninput="calculateKarat()">
     </div>
+</div>
     
+</div>
 </div>
 
 <script>
@@ -665,7 +717,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const srNoLetter = srNoLetterInput.value;
         const srNoCount = srNoCountInput.value;
 
-        if (srNoCount) {
+        if (srNoCount) {            
+            resetFormFields(); // Reset form fields before fetching new data
             fetchReportData(srNoLetter, srNoCount);
         } else {
             // Reset form fields if sr_no_count is empty
@@ -810,8 +863,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on the sr_no_count input box on page load
+            const srNoCountInput = document.getElementById('sr_no_count');
+            if (srNoCountInput) {
+                srNoCountInput.focus();
+            }
 
+            // Select all input elements
+            const inputs = document.querySelectorAll('input');
+
+            // Add focus event listener to each input
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.select(); // Select the text inside the input
+                });
+            });
+        });
+    </script>
 <!-- Grid for Optional Metal Fields -->
+<div class="metal-grid-container" style="border: 2px solid #000; padding: 10px; margin-top: 20px;">
 <div class="metal-grid">
     <div class="form-group">
         <label for="silver">Silver</label>
@@ -875,11 +947,20 @@ document.addEventListener('DOMContentLoaded', function() {
             <label for="total_karat">Total Karat</label>
             <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
         </div>
-</div>
+</div></div>
             
-            <button type="submit" class="btn btn-primary btn-block" name="save_send_print">Save, Send & Print</button>
-            <button type="button" class="btn btn-success btn-block" id="savePrintBtn">Print Receipt Only</button>
-            <button type="submit" class="btn btn-primary btn-block" name="submit_report">Save Report & Send SMS & WhatsApp</button>
+           <!-- Prominent Save, Send & Print Button -->
+<button type="submit" class="btn btn-danger btn-block" name="save_send_print" style="margin-bottom: 10px;">Save, Send & Print</button>
+
+<!-- Smaller Buttons Below -->
+<div class="row">
+    <div class="col-6">
+        <button type="button" class="btn btn-info btn-block" id="savePrintBtn">Print Receipt Only</button>
+    </div>
+    <div class="col-6">
+        <button type="submit" class="btn btn-info btn-block" name="submit_report">Save & Send only</button>
+    </div>
+</div>
         </form>
     </div>
 </body>
