@@ -381,7 +381,25 @@ $conn->close();
         return formElements[currentIndex + 1] || null;
     }
 </script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on the sr_no_count input box on page load
+            const srNoCountInput = document.getElementById('sr_no_count');
+            if (srNoCountInput) {
+                srNoCountInput.focus();
+            }
 
+            // Select all input elements
+            const inputs = document.querySelectorAll('input');
+
+            // Add focus event listener to each input
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.select(); // Select the text inside the input
+                });
+            });
+        });
+    </script>
 <body>
     <!-- Top Nav Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
