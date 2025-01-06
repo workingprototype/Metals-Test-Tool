@@ -31,10 +31,21 @@ $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start = ($page > 1) ? ($page * $limit) - $limit : 0;
 
+// Function to add space between letters and numbers in the search input
+function formatSrNo($input) {
+    return preg_replace('/([A-Za-z])(\d)/', '$1 $2', $input);
+}
+// Build search query if search is active
+$search_query = "";
+
 // Search parameters
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : '';
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
+$include_date = isset($_GET['include_date']) ? $_GET['include_date'] : false;
+
+// Format the search input for sr_no
+$formatted_search = formatSrNo($search);
 
 // Get today's date
 $today = date('Y-m-d');
@@ -43,20 +54,37 @@ $today = date('Y-m-d');
 if (empty($from_date) && empty($to_date)) {
     $from_date = $today;
     $to_date = $today;
+    $include_date = false; // Ensure the date range is included in the search
+
 }
 
-// Build search query if search is active
-$search_query = "";
-if ($search || $from_date || $to_date) {
-    $search_query = "WHERE (sr_no LIKE '%$search%' OR name LIKE '%$search%' OR mobile LIKE '%$search%' OR alt_mobile LIKE '%$search%')";
-    if ($from_date && $to_date) {
-        $search_query .= " AND report_date BETWEEN '$from_date' AND '$to_date'";
-    } elseif ($from_date) {
-        $search_query .= " AND report_date >= '$from_date'";
-    } elseif ($to_date) {
-        $search_query .= " AND report_date <= '$to_date'";
+if (isset($_GET['todays_reports']) || (!isset($_GET['search']) && !isset($_GET['from_date']) && !isset($_GET['to_date']))) {
+    $from_date = $today;
+    $to_date = $today;
+    $include_date = true; // Ensure the date range is included in the search
+}
+
+// If no search parameters are provided, show today's reports by default
+if (empty($formatted_search) && empty($from_date) && empty($to_date)) {
+    $search_query = "WHERE report_date = '$today'";
+} else {
+    // If search parameters are provided, build the query accordingly
+    if ($formatted_search) {
+        $search_query = "WHERE (sr_no LIKE '%$formatted_search%' OR name LIKE '%$formatted_search%' OR mobile LIKE '%$formatted_search%' OR alt_mobile LIKE '%$formatted_search%')";
+    }
+
+    // Include date range ONLY if the "Include Date" checkbox is checked
+    if ($include_date) {
+        if ($from_date && $to_date) {
+            $search_query .= (empty($search_query) ? "WHERE" : " AND") . " report_date BETWEEN '$from_date' AND '$to_date'";
+        } elseif ($from_date) {
+            $search_query .= (empty($search_query) ? "WHERE" : " AND") . " report_date >= '$from_date'";
+        } elseif ($to_date) {
+            $search_query .= (empty($search_query) ? "WHERE" : " AND") . " report_date <= '$to_date'";
+        }
     }
 }
+
 
 // Fetch total number of records for pagination
 $total_result = $conn->query("SELECT COUNT(*) AS total FROM receipts $search_query");
@@ -214,10 +242,17 @@ if (isset($_GET['delete_id'])) {
         <div class="col-md-3">
             <input type="date" class="form-control" name="to_date" placeholder="To Date" value="<?php echo htmlspecialchars($to_date); ?>">
         </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-primary">Search</button>
-            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-success">Export to Excel</a>
-            <a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-danger">Export to PDF</a>
+        <div class="col-md-2 mt-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="include_date" id="include_date" <?php echo $include_date ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="include_date">Include Date</label>
+            </div>
+        </div>
+        <div class="col-md-4 mt-2">
+            <button type="submit" class="btn btn-primary mt-2">Search</button>
+
+            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-success mt-2">Export to Excel</a>
+            <a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-danger mt-2">Export to PDF</a>
         </div>
     </form>
 
