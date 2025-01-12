@@ -5,46 +5,71 @@ error_reporting(E_ALL);
 // Twilio API setup
 require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
 
-use Twilio\Rest\Client;
-
 // Path to the config file
 $configFile = 'config.json';
 
 // Load configuration from the JSON file
 $configs = json_decode(file_get_contents($configFile), true);
+// Function to send SMS using Fast2SMS
+function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample) {
+    // Approved template format
+    $template_id = "178360"; // Replace with your approved template ID
 
-// Toggle to enable or disable Twilio usage
-$use_twilio = true; // Set to false to disable Twilio functionality
+    // Variables for the template (pipe-separated values with newlines)
+    $variables_values = "$name|$sr_no|$current_date|$sample|$metal_type|$gold_percent|$karat_value";
 
-// Load Twilio credentials from the config file
-$twilio_sid = $configs['Twilio']['twilio_sid'];
-$twilio_token = $configs['Twilio']['twilio_token'];
-$twilio_phone_number = $configs['Twilio']['twilio_phone_number']; // Your Twilio phone number (for SMS & WhatsApp)
+    // Fast2SMS API URL
+    $fast2sms_url = "https://www.fast2sms.com/dev/bulkV2";
 
-// Check if Twilio credentials are available and usage is enabled
-$twilio_available = $use_twilio && !empty($twilio_sid) && !empty($twilio_token) && !empty($twilio_phone_number);
+    // Fast2SMS API Key
+    $api_key = $configs['Fast2SMS']['api_key']; // Ensure you have added 'Fast2SMS' section in your config.json
 
-// Twilio Client initialization (only if credentials are available and toggle is enabled)
-if ($twilio_available) {
-    $client = new Client($twilio_sid, $twilio_token);
-}
-
-// Function to send SMS and WhatsApp messages
-function sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample) {
-    $message = "Test Results:\n\nName: $name\nToken: $sr_no\nType: $metal_type\nPurity: $gold_percent%\nCarat: $karat_value\n\n-National Gold Testing, Thrissur. \nContact: 8921243476,6282479875";
-
-    // Send SMS
+    // Send SMS via Fast2SMS
     foreach ($phone_numbers as $phone_number) {
         if (!empty($phone_number)) {
             try {
-                $client->messages->create(
-                    $phone_number,
-                    [
-                        'from' => $twilio_phone_number,
-                        'body' => $message
-                    ]
-                );
-                echo "SMS sent successfully to $phone_number!<br>";
+                // Sanitize the phone number
+                $formatted_number = preg_replace('/\D/', '', $phone_number); // Remove all non-numeric characters
+
+                // Remove the '91' prefix if it exists
+                if (strlen($formatted_number) == 12 && substr($formatted_number, 0, 2) == '91') {
+                    $formatted_number = substr($formatted_number, 2); // Remove the first 2 characters (91)
+                }
+
+                // Ensure the number is exactly 10 digits long
+                if (strlen($formatted_number) != 10) {
+                    echo "Invalid phone number: $phone_number. It must be exactly 10 digits long. Skipping.<br>";
+                    continue;
+                }
+
+                // Prepare the Fast2SMS API request
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $fast2sms_url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'authorization: ' . $api_key,
+                    'Content-Type: application/x-www-form-urlencoded'
+                ]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                    'sender_id' => 'NTGLD',
+                    'message' => $template_id, // Use the template ID
+                    'variables_values' => $variables_values, // Variables for the template
+                    'route' => 'dlt',
+                    'numbers' => $formatted_number, // Send the sanitized 10-digit number
+                    'flash' => 0
+                ]));
+
+                // Execute the request
+                $response = curl_exec($ch);
+                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($http_code == 200) {
+                    echo "SMS sent successfully to $phone_number!<br>";
+                } else {
+                    echo "Error sending SMS to $phone_number. Response: $response<br>";
+                }
             } catch (Exception $e) {
                 echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
             }
@@ -57,17 +82,19 @@ function sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $
     $access_token = $configs['WhatsApp']['access_token'];
     $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
 
+    // Format the WhatsApp number
     $formatted_mobile = preg_replace('/\D/', '', $phone_numbers[0]);
     if (strlen($formatted_mobile) == 10) {
         $formatted_mobile = '+91' . $formatted_mobile;
     }
 
+    // Prepare WhatsApp API request
     $whatsapp_data = [
         'messaging_product' => 'whatsapp',
         'to' => $formatted_mobile,
         'type' => 'template',
         'template' => [
-            'name' => 'testreportssoftware',
+            'name' => 'testreportssoftware', // Ensure this template is approved
             'language' => ['code' => 'en_US'],
             'components' => [
                 [
@@ -254,11 +281,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                if ($twilio_available) {
-                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
-                } else {
-                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-                }
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -277,11 +300,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                if ($twilio_available) {
-                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
-                } else {
-                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-                }
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
@@ -350,11 +369,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                if ($twilio_available) {
-                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
-                } else {
-                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-                }
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -373,11 +388,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                if ($twilio_available) {
-                    sendMessages($client, $twilio_phone_number, $configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
-                } else {
-                    echo "SMS and WhatsApp messages were not sent because Twilio is disabled.<br>";
-                }
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }

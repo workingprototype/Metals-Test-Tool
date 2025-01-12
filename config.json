@@ -1,9 +1,7 @@
 {
-    "Twilio": {
-        "use_twilio": true,
-        "twilio_sid": "your_twilio_sid",
-        "twilio_token": "your_twilio_token",
-        "twilio_phone_number": "your_twilio_phone_number"
+    "Fast2SMS": {
+        "api_key": "your_Fast2SMS_API",
+        "sender_id": "your_sender_ID-e.g-NTGLD"
     },
     "WhatsApp": {
         "access_token": "your_whatsapp_access_token",
