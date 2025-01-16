@@ -519,45 +519,43 @@ $conn->close();
     }
 
     // Function to display suggestions in a dropdown
-    function showSuggestions(suggestions, field) {
-        const dropdown = document.getElementById(`${field}-suggestions`);
-        dropdown.innerHTML = '';
+    // Function to show suggestions in a dropdown
+function showSuggestions(suggestions, field) {
+    const dropdown = document.getElementById(`${field}-suggestions`);
+    dropdown.innerHTML = '';
 
-        if (suggestions.length > 0) {
-            suggestions.forEach((suggestion, index) => {
-                const div = document.createElement('div');
-                div.textContent = suggestion[field] || suggestion.mobile || suggestion.alt_mobile;
-                div.dataset.index = index; // Add index for keyboard navigation
-                div.addEventListener('click', () => {
-                    autoFillForm(suggestion);
-                    dropdown.innerHTML = ''; // Clear dropdown after selection
-                });
-                dropdown.appendChild(div);
+    if (suggestions.length > 0) {
+        suggestions.forEach((suggestion, index) => {
+            const div = document.createElement('div');
+            div.textContent = suggestion[field] || suggestion.mobile || suggestion.alt_mobile;
+            div.dataset.index = index; // Add index for keyboard navigation
+            div.addEventListener('click', () => {
+                autoFillForm(suggestion, field); // Pass the field to autoFillForm
+                dropdown.innerHTML = ''; // Clear dropdown after selection
             });
-            dropdown.style.display = 'block'; // Show the dropdown
-        } else {
-           // dropdown.innerHTML = '<div>No suggestions found</div>';
-            dropdown.style.display = 'block'; // Show the dropdown even if no suggestions
-        }
+            dropdown.appendChild(div);
+        });
+        dropdown.style.display = 'block'; // Show the dropdown
+    } else {
+        dropdown.style.display = 'none'; // Hide the dropdown if no suggestions
     }
+}
+
 
     // Function to auto-fill the form fields
-    function autoFillForm(data) {
+    function autoFillForm(data, field) {
+    if (field === 'name') {
         if (data.name) document.getElementById('name').value = data.name;
         if (data.mobile) document.getElementById('mobile').value = data.mobile.replace('+91', '');
         if (data.alt_mobile) document.getElementById('alt_mobile').value = data.alt_mobile.replace('+91', '');
+    } else if (field === 'mobile') {
+        if (data.mobile) document.getElementById('mobile').value = data.mobile.replace('+91', '');
+    } else if (field === 'alt_mobile') {
+        if (data.alt_mobile) document.getElementById('alt_mobile').value = data.alt_mobile.replace('+91', '');
     }
+}
 
-    // Debounce function to limit the frequency of API calls
-    function debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    // Function to handle keyboard navigation in the dropdown
+// Function to handle keyboard navigation in the dropdown
 function handleKeyboardNavigation(event, field) {
     const dropdown = document.getElementById(`${field}-suggestions`);
     const suggestions = dropdown.querySelectorAll('div');
@@ -589,14 +587,13 @@ function handleKeyboardNavigation(event, field) {
         event.preventDefault(); // Prevent form submission
         if (selectedIndex !== -1) {
             const selectedSuggestion = currentSuggestions[selectedIndex]; // Use global suggestions
-            autoFillForm(selectedSuggestion);
+            autoFillForm(selectedSuggestion, field); // Pass the field to autoFillForm
         }
         dropdown.innerHTML = ''; // Clear dropdown after selection
         dropdown.style.display = 'none'; // Hide the dropdown
         selectedIndex = -1; // Reset selected index
     }
 }
-
 
 
     // Function to update the selected suggestion visually
