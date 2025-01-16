@@ -252,6 +252,10 @@ printWindow.document.write('</body></html>');
 printWindow.document.close();
 printWindow.focus();
 printWindow.print();
+// Redirect to index.php after printing
+printWindow.onafterprint = function() {
+        window.location.href = 'index.php';
+    };
         </script>
         </body>
         </html>
@@ -518,7 +522,6 @@ $conn->close();
         showSuggestions(data, field);
     }
 
-    // Function to display suggestions in a dropdown
     // Function to show suggestions in a dropdown
 function showSuggestions(suggestions, field) {
     const dropdown = document.getElementById(`${field}-suggestions`);
@@ -540,7 +543,6 @@ function showSuggestions(suggestions, field) {
         dropdown.style.display = 'none'; // Hide the dropdown if no suggestions
     }
 }
-
 
     // Function to auto-fill the form fields
     function autoFillForm(data, field) {
@@ -595,6 +597,27 @@ function handleKeyboardNavigation(event, field) {
     }
 }
 
+// Function to show suggestions in a dropdown
+function showSuggestions(suggestions, field) {
+    const dropdown = document.getElementById(`${field}-suggestions`);
+    dropdown.innerHTML = '';
+
+    if (suggestions.length > 0) {
+        suggestions.forEach((suggestion, index) => {
+            const div = document.createElement('div');
+            div.textContent = suggestion[field] || suggestion.mobile || suggestion.alt_mobile;
+            div.dataset.index = index; // Add index for keyboard navigation
+            div.addEventListener('click', () => {
+                autoFillForm(suggestion, field); // Pass the field to autoFillForm
+                dropdown.innerHTML = ''; // Clear dropdown after selection
+            });
+            dropdown.appendChild(div);
+        });
+        dropdown.style.display = 'block'; // Show the dropdown
+    } else {
+        dropdown.style.display = 'none'; // Hide the dropdown if no suggestions
+    }
+}
 
     // Function to update the selected suggestion visually
     function updateSelectedSuggestion(suggestions) {
