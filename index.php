@@ -384,7 +384,7 @@ $conn->close();
 <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Focus on the sr_no_count input box on page load
-            const srNoCountInput = document.getElementById('sr_no_count');
+            const srNoCountInput = document.getElementById('name');
             if (srNoCountInput) {
                 srNoCountInput.focus();
             }
@@ -558,41 +558,46 @@ $conn->close();
     }
 
     // Function to handle keyboard navigation in the dropdown
-    function handleKeyboardNavigation(event, field) {
-        const dropdown = document.getElementById(`${field}-suggestions`);
-        const suggestions = dropdown.querySelectorAll('div');
+function handleKeyboardNavigation(event, field) {
+    const dropdown = document.getElementById(`${field}-suggestions`);
+    const suggestions = dropdown.querySelectorAll('div');
 
-        // Handle arrow down key
-        if (event.key === 'ArrowDown') {
-            event.preventDefault(); // Prevent cursor movement in the input field
-            if (selectedIndex < suggestions.length - 1) {
-                selectedIndex++;
-            } else {
-                selectedIndex = 0; // Wrap around to the first suggestion
-            }
-            updateSelectedSuggestion(suggestions);
+    // Handle arrow down key
+    if (event.key === 'ArrowDown') {
+        event.preventDefault(); // Prevent cursor movement in the input field
+        if (selectedIndex < suggestions.length - 1) {
+            selectedIndex++;
+        } else {
+            selectedIndex = 0; // Wrap around to the first suggestion
         }
+        updateSelectedSuggestion(suggestions);
+    }
 
-        // Handle arrow up key
-        if (event.key === 'ArrowUp') {
-            event.preventDefault(); // Prevent cursor movement in the input field
-            if (selectedIndex > 0) {
-                selectedIndex--;
-            } else {
-                selectedIndex = suggestions.length - 1; // Wrap around to the last suggestion
-            }
-            updateSelectedSuggestion(suggestions);
+    // Handle arrow up key
+    if (event.key === 'ArrowUp') {
+        event.preventDefault(); // Prevent cursor movement in the input field
+        if (selectedIndex > 0) {
+            selectedIndex--;
+        } else {
+            selectedIndex = suggestions.length - 1; // Wrap around to the last suggestion
         }
+        updateSelectedSuggestion(suggestions);
+    }
 
-        // Handle enter key
-        if (event.key === 'Enter' && selectedIndex !== -1) {
-            event.preventDefault(); // Prevent form submission
+    // Handle enter key
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        if (selectedIndex !== -1) {
             const selectedSuggestion = currentSuggestions[selectedIndex]; // Use global suggestions
             autoFillForm(selectedSuggestion);
-            dropdown.innerHTML = ''; // Clear dropdown after selection
-            selectedIndex = -1; // Reset selected index
         }
+        dropdown.innerHTML = ''; // Clear dropdown after selection
+        dropdown.style.display = 'none'; // Hide the dropdown
+        selectedIndex = -1; // Reset selected index
     }
+}
+
+
 
     // Function to update the selected suggestion visually
     function updateSelectedSuggestion(suggestions) {
@@ -644,26 +649,38 @@ $conn->close();
             document.getElementById('alt-mobile-suggestions').innerHTML = '';
         }
     }, 100));
-
+// Function to hide the dropdown when Enter is pressed and no suggestion is selected
+function hideDropdownOnEnter(event, field) {
+    const dropdown = document.getElementById(`${field}-suggestions`);
+    if (event.key === 'Enter') {
+        dropdown.innerHTML = ''; // Clear dropdown
+        dropdown.style.display = 'none'; // Hide the dropdown
+    }
+}
     // Add keyboard event listeners for input fields
-    document.getElementById('name').addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
-            handleKeyboardNavigation(event, 'name');
-        }
-    });
+document.getElementById('name').addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+        handleKeyboardNavigation(event, 'name');
+    } else if (event.key === 'Enter') {
+        hideDropdownOnEnter(event, 'name');
+    }
+});
 
-    document.getElementById('mobile').addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
-            handleKeyboardNavigation(event, 'mobile');
-        }
-    });
+document.getElementById('mobile').addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+        handleKeyboardNavigation(event, 'mobile');
+    } else if (event.key === 'Enter') {
+        hideDropdownOnEnter(event, 'mobile');
+    }
+});
 
-    document.getElementById('alt_mobile').addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
-            handleKeyboardNavigation(event, 'alt_mobile');
-        }
-    });
-
+document.getElementById('alt_mobile').addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+        handleKeyboardNavigation(event, 'alt_mobile');
+    } else if (event.key === 'Enter') {
+        hideDropdownOnEnter(event, 'alt_mobile');
+    }
+});
     // Add focus event listeners to show suggestions when input is focused
     document.getElementById('name').addEventListener('focus', function () {
         const dropdown = document.getElementById('name-suggestions');
