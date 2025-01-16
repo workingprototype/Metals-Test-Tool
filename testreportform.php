@@ -450,124 +450,158 @@ $conn->close();
     <!-- Bootstrap CSS -->
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
     <style>
-     body {
-    background-color: #e0e0e0;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 12px; /* Reduced font size */
-    margin: 0;
-    padding: 0;
-}
+    body {
+        background-color: #e0e0e0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px; /* Increased font size */
+        margin: 0;
+        padding: 0;
+        height: 100vh; /* Full viewport height */
+        overflow: hidden; /* Prevent body scrolling */
+    }
 
-.form-container {
-    max-width: 600px;
-    margin: 10px auto; /* Reduced margin */
-    background-color: #f4f4f4;
-    padding: 10px; /* Reduced padding */
-    border: 1px solid #ccc;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
+    .form-container {
+        width: 100%; /* Full width */
+        height: 100vh; /* Full viewport height */
+        background-color: #f4f4f4;
+        padding: 10px; /* Adjusted padding */
+        border: 1px solid #ccc;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+    }
 
-.form-header {
-    background-color: #0078d7;
-    color: white;
-    padding: 3px; /* Reduced padding */
-    border-radius: 5px 5px 0 0;
-    text-align: center;
-    margin-bottom: 10px; /* Reduced margin */
-}
+    .form-header {
+        background-color: #0078d7;
+        color: white;
+        padding: 10px; /* Adjusted padding */
+        border-radius: 5px 5px 0 0;
+        text-align: center;
+        margin-bottom: 10px; /* Adjusted margin */
+    }
 
-.form-group label {
-    font-weight: bold;
-    color: #333;
-    font-size: 16px; /* Reduced font size */
-}
+    .form-content {
+        flex: 1; /* Take up remaining space */
+        overflow-y: auto; /* Enable scrolling within the form content */
+        padding: 10px; /* Adjusted padding */
+        margin-bottom: 10px; /* Add margin to prevent overlap with footer */
+    }
 
-.form-control {
-    height: 25px; /* Reduced height */
-    font-size: 12px; /* Reduced font size */
-    padding: 3px; /* Reduced padding */
-}
+    .form-group label {
+        font-weight: bold;
+        color: #333;
+        font-size: 19px; /* Increased font size */
+    }
 
-.btn-block {
-    margin-top: 5px; /* Reduced margin */
-    padding: 5px; /* Reduced padding */
-}
+    .form-control {
+        height: 30px; /* Increased height */
+        font-size: 14px; /* Increased font size */
+        padding: 5px; /* Adjusted padding */
+    }
 
-.compact-input {
-    width: 80px; /* Adjusted width */
-    height: 25px; /* Adjusted height */
-    font-size: 12px; /* Reduced font size */
-    padding: 3px; /* Reduced padding */
-}
+    .btn-block {
+        margin-top: 10px; /* Adjusted margin */
+        padding: 8px; /* Adjusted padding */
+        font-size: 14px; /* Increased font size */
+    }
 
-.metal-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px; /* Reduced gap */
-    margin-bottom: 10px; /* Reduced margin */
-}
+    .compact-input {
+        width: 100px; /* Adjusted width */
+        height: 30px; /* Increased height */
+        font-size: 14px; /* Increased font size */
+        padding: 5px; /* Adjusted padding */
+    }
 
-.metal-grid .form-group {
-    margin-bottom: 0;
-}
+    .metal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px; /* Adjusted gap */
+        margin-bottom: 10px; /* Adjusted margin */
+    }
 
-.info-bar-container {
-    width: 100%;
-    position: relative;
-}
+    .metal-grid .form-group {
+        margin-bottom: 0;
+    }
 
-#infoBar {
-    width: 100%;
-    text-align: center;
-    padding: 5px; /* Reduced padding */
-    border-radius: 5px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    font-size: 12px; /* Reduced font size */
-}
+    .info-bar-container {
+        width: 100%;
+        position: relative;
+    }
 
-.navbar {
-    padding: 5px; /* Reduced padding */
-}
+    #infoBar {
+        width: 100%;
+        text-align: center;
+        padding: 10px; /* Adjusted padding */
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        font-size: 14px; /* Increased font size */
+    }
 
-.navbar-brand {
-    font-size: 14px; /* Reduced font size */
-}
+    .navbar {
+        padding: 10px; /* Adjusted padding */
+    }
 
-.nav-link {
-    font-size: 12px; /* Reduced font size */
-    padding: 5px; /* Reduced padding */
-}
+    .navbar-brand {
+        font-size: 18px; /* Increased font size */
+    }
 
-.receipt-layout {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px; /* Reduced font size */
-}
+    .nav-link {
+        font-size: 14px; /* Increased font size */
+        padding: 10px; /* Adjusted padding */
+    }
 
-.receipt-layout div {
-    margin-bottom: 5px; /* Reduced margin */
-}
+    .receipt-layout {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px; /* Increased font size */
+    }
 
-.receipt-layout strong {
-    font-size: 14px; /* Reduced font size */
-}
-/* Custom class for larger input */
-.larger-input {
-    width: 150px; /* Adjust width as needed */
-    height: 35px; /* Adjust height as needed */
-    font-size: 14px; /* Adjust font size as needed */
-    padding: 5px; /* Adjust padding as needed */
-}
-    </style>
+    .receipt-layout div {
+        margin-bottom: 10px; /* Adjusted margin */
+    }
+
+    .receipt-layout strong {
+        font-size: 16px; /* Increased font size */
+    }
+
+    /* Custom class for larger input */
+    .larger-input {
+        width: 150px; /* Adjusted width */
+        height: 40px; /* Increased height */
+        font-size: 16px; /* Increased font size */
+        padding: 8px; /* Adjusted padding */
+    }
+
+    /* Ensure the form takes up the full height */
+    html, body {
+        height: 100%;
+    }
+
+    /* Make the form container stretch to full height */
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    /* Adjust the footer buttons to stay at the bottom */
+    .form-footer {
+        margin-top: auto; /* Push to the bottom */
+        padding: 10px;
+        background-color: #f4f4f4;
+        border-top: 1px solid #ccc;
+        flex-shrink: 0; /* Prevent footer from shrinking */
+    }
+</style>
     <!-- JavaScript for calculating Karat Purity -->
     <script>
         function calculateKarat() {
@@ -631,9 +665,10 @@ $conn->close();
     </nav>
 
     <div class="form-container">
-        <div class="form-header">
-            <h4>Test Report Form</h4>
-        </div>
+    <div class="form-header">
+        <h4>Test Report Form</h4>
+    </div>
+    <div class="form-content">
         <form method="post">
             <!-- Row for Count and Sr. No -->
             <div class="form-row">
@@ -971,8 +1006,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="col-6">
         <button type="submit" class="btn btn-info btn-block" name="submit_report">Save & Send only</button>
     </div>
-</div>
-        </form>
+</div></br></br>
+        </form></div>
     </div>
 </body>
 </html>
