@@ -1162,9 +1162,38 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
         let formElements = Array.from(currentElement.form.elements);
         let currentIndex = formElements.indexOf(currentElement);
 
-        // Return the next input element if available, otherwise null
-        return formElements[currentIndex + 1] || null;
+        // Loop through the form elements to find the next editable input
+        for (let i = currentIndex + 1; i < formElements.length; i++) {
+            let nextElement = formElements[i];
+
+            // Skip read-only, disabled, and the weight input field
+            if ((nextElement.tagName === 'INPUT' || nextElement.tagName === 'TEXTAREA') && 
+                !nextElement.readOnly && !nextElement.disabled && nextElement.id !== 'weight') {
+                return nextElement;
+            }
+        }
+
+        // Return null if no editable input is found
+        return null;
     }
+
+    // Focus on the sr_no_count input box on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const srNoCountInput = document.getElementById('sr_no_count');
+        if (srNoCountInput) {
+            srNoCountInput.focus();
+        }
+
+        // Select all input elements
+        const inputs = document.querySelectorAll('input');
+
+        // Add focus event listener to each input
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.select(); // Select the text inside the input
+            });
+        });
+    });
 </script>
 
 <!-- jQuery and Bootstrap Bundle (includes Popper) --> 
