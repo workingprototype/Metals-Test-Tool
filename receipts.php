@@ -43,6 +43,8 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : '';
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
 $include_date = isset($_GET['include_date']) ? $_GET['include_date'] : false;
+$exact_search = isset($_GET['exact_search']) ? $_GET['exact_search'] : false; // New parameter for exact search
+
 
 // Format the search input for sr_no
 $formatted_search = formatSrNo($search);
@@ -70,8 +72,13 @@ if (empty($formatted_search) && empty($from_date) && empty($to_date)) {
 } else {
     // If search parameters are provided, build the query accordingly
     if ($formatted_search) {
+        if ($exact_search) {
+            $search_query = "WHERE (sr_no = '$formatted_search' OR name = '$search' OR mobile = '$search' OR alt_mobile = '$search')";
+        } else {
+            // Partial search: use LIKE for partial matching
         $search_query = "WHERE (sr_no LIKE '%$formatted_search%' OR name LIKE '%$formatted_search%' OR mobile LIKE '%$formatted_search%' OR alt_mobile LIKE '%$formatted_search%')";
     }
+}
 
     // Include date range ONLY if the "Include Date" checkbox is checked
     if ($include_date) {
@@ -248,6 +255,12 @@ if (isset($_GET['delete_id'])) {
                 <label class="form-check-label" for="include_date">Include Date</label>
             </div>
         </div>
+        <div class="col-md-2 mt-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="exact_search" id="exact_search" <?php echo $exact_search ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="exact_search">Exact Search</label>
+                </div>
+            </div>
         <div class="col-md-4 mt-2">
             <button type="submit" class="btn btn-primary mt-2">Search</button>
 
