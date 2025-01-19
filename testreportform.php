@@ -10,8 +10,19 @@ $configFile = 'config.json';
 
 // Load configuration from the JSON file
 $configs = json_decode(file_get_contents($configFile), true);
+// Get the zoom level from the config
+$zoomLevel = isset($configs['zoomLevel']) ? $configs['zoomLevel'] : '100'; // Default to 100% if not set
+
+// Function to log messages to the database
+function logMessage($conn, $sr_no, $message_type, $recipient, $message, $status) {
+    $stmt = $conn->prepare("INSERT INTO message_logs (sr_no, message_type, recipient, message, status) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $sr_no, $message_type, $recipient, $message, $status);
+    $stmt->execute();
+    $stmt->close();
+}
+
 // Function to send SMS using Fast2SMS
-function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample) {
+function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample, $conn) {
     // Approved template format
     $template_id = "178360"; // Replace with your approved template ID
 
@@ -67,71 +78,88 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
 
                 if ($http_code == 200) {
                     echo "SMS sent successfully to $phone_number!<br>";
+                    logMessage($conn, $sr_no, 'SMS', $phone_number, $variables_values, 'Success');
                 } else {
                     echo "Error sending SMS to $phone_number. Response: $response<br>";
+                    logMessage($conn, $sr_no, 'SMS', $phone_number, $variables_values, 'Failed');
                 }
             } catch (Exception $e) {
                 echo "Error sending SMS to $phone_number: " . $e->getMessage() . "<br>";
+                logMessage($conn, $sr_no, 'SMS', $phone_number, $variables_values, 'Failed');
             }
         }
     }
 
     // Send WhatsApp message
-    $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
-    $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
-    $access_token = $configs['WhatsApp']['access_token'];
-    $whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
+    // Send WhatsApp message
+$whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
+$whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
+$access_token = $configs['WhatsApp']['access_token'];
+$whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
 
-    // Format the WhatsApp number
-    $formatted_mobile = preg_replace('/\D/', '', $phone_numbers[0]);
-    if (strlen($formatted_mobile) == 10) {
-        $formatted_mobile = '+91' . $formatted_mobile;
-    }
+// Format the WhatsApp number
+$formatted_mobile = preg_replace('/\D/', '', $phone_numbers[0]);
+if (strlen($formatted_mobile) == 10) {
+    $formatted_mobile = '+91' . $formatted_mobile;
+}
 
-    // Prepare WhatsApp API request
-    $whatsapp_data = [
-        'messaging_product' => 'whatsapp',
-        'to' => $formatted_mobile,
-        'type' => 'template',
-        'template' => [
-            'name' => 'testreportssoftware', // Ensure this template is approved
-            'language' => ['code' => 'en_US'],
-            'components' => [
-                [
-                    'type' => 'body',
-                    'parameters' => [
-                        ['type' => 'text', 'text' => $name],
-                        ['type' => 'text', 'text' => $sr_no],
-                        ['type' => 'text', 'text' => $current_date],
-                        ['type' => 'text', 'text' => $sample],
-                        ['type' => 'text', 'text' => $metal_type],
-                        ['type' => 'text', 'text' => $gold_percent],
-                        ['type' => 'text', 'text' => $karat_value]
-                    ]
+// Prepare WhatsApp API request
+$whatsapp_data = [
+    'messaging_product' => 'whatsapp',
+    'to' => $formatted_mobile,
+    'type' => 'template',
+    'template' => [
+        'name' => 'testreportssoftware', // Ensure this template is approved
+        'language' => ['code' => 'en_US'],
+        'components' => [
+            [
+                'type' => 'body',
+                'parameters' => [
+                    ['type' => 'text', 'text' => $name],
+                    ['type' => 'text', 'text' => $sr_no],
+                    ['type' => 'text', 'text' => $current_date],
+                    ['type' => 'text', 'text' => $sample],
+                    ['type' => 'text', 'text' => $metal_type],
+                    ['type' => 'text', 'text' => $gold_percent],
+                    ['type' => 'text', 'text' => $karat_value]
                 ]
             ]
         ]
-    ];
+    ]
+];
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $access_token,
-        'Content-Type: application/json'
-    ]);
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $access_token,
+    'Content-Type: application/json'
+]);
 
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+$response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
-    if ($http_code == 200) {
-        echo "WhatsApp message sent successfully!";
+// Decode the API response
+$response_data = json_decode($response, true);
+
+// Check if the message was sent successfully
+if ($http_code == 200 && isset($response_data['messages'][0]['id'])) {
+    echo "WhatsApp message sent successfully!";
+    logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Success');
+} else {
+    // Handle API errors
+    $error_message = "Error sending WhatsApp message. ";
+    if (isset($response_data['error']['message'])) {
+        $error_message .= "API Error: " . $response_data['error']['message'];
     } else {
-        echo "Error sending WhatsApp message. Response: " . $response;
+        $error_message .= "Response: " . $response;
     }
+    echo $error_message;
+    logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Failed');
+}
 }
 
 // Extract database settings from the config file
@@ -231,7 +259,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
         $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
         $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-        $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+        $gold_percent = isset($_POST['gold_percent']) && is_numeric($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
         $silver = !empty($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
         $platinum = !empty($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
         $zinc = !empty($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
@@ -281,7 +309,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -300,7 +328,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
@@ -319,7 +347,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mobile = mysqli_real_escape_string($conn, $_POST['mobile']);
         $alt_mobile = mysqli_real_escape_string($conn, $_POST['alt_mobile']);
         $weight = mysqli_real_escape_string($conn, $_POST['weight']);
-        $gold_percent = isset($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;
+        $gold_percent = isset($_POST['gold_percent']) && is_numeric($_POST['gold_percent']) ? mysqli_real_escape_string($conn, $_POST['gold_percent']) : 0.00;        
         $silver = !empty($_POST['silver']) ? mysqli_real_escape_string($conn, $_POST['silver']) : 0.00;
         $platinum = !empty($_POST['platinum']) ? mysqli_real_escape_string($conn, $_POST['platinum']) : 0.00;
         $zinc = !empty($_POST['zinc']) ? mysqli_real_escape_string($conn, $_POST['zinc']) : 0.00;
@@ -333,7 +361,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tin = !empty($_POST['tin']) ? mysqli_real_escape_string($conn, $_POST['tin']) : 0.00;
         $cadmium = !empty($_POST['cadmium']) ? mysqli_real_escape_string($conn, $_POST['cadmium']) : 0.00;
         $nickel = !empty($_POST['nickel']) ? mysqli_real_escape_string($conn, $_POST['nickel']) : 0.00;
-        $total_karat = isset($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;
+        $total_karat = isset($_POST['total_karat']) && is_numeric($_POST['total_karat']) ? mysqli_real_escape_string($conn, $_POST['total_karat']) : 0.00;        
     
         // Check if the record already exists
         $check_sql = "SELECT * FROM test_reports WHERE sr_no = '$sr_no'";
@@ -369,7 +397,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -388,7 +416,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
@@ -496,7 +524,7 @@ $conn->close();
 
     .form-control {
         height: 30px; /* Increased height */
-        font-size: 14px; /* Increased font size */
+        font-size: 19px; /* Increased font size */
         padding: 5px; /* Adjusted padding */
     }
 
@@ -509,7 +537,7 @@ $conn->close();
     .compact-input {
         width: 100px; /* Adjusted width */
         height: 30px; /* Increased height */
-        font-size: 14px; /* Increased font size */
+        font-size: 19px; /* Increased font size */
         padding: 5px; /* Adjusted padding */
     }
 
@@ -630,7 +658,38 @@ $conn->close();
 });
 </script>
 </head>
-<body>
+<body class="testreportform-page">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if the body has the class 'testreportform-page'
+        if (document.body.classList.contains('testreportform-page')) {
+            // Get the zoom level from PHP
+            var zoomLevel = "<?php echo $zoomLevel; ?>";
+            // Create a style element
+            var style = document.createElement('style');
+            style.type = 'text/css';
+
+            
+            // Define the custom zoom-out CSS
+            var css = `
+                body {
+                    zoom: ${zoomLevel}%; /* Use the zoom level from config.json */
+                }
+            `;
+
+            // Append the CSS to the style element
+            if (style.styleSheet) {
+                // This is required for IE8 and below
+                style.styleSheet.cssText = css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+
+            // Append the style element to the head
+            document.head.appendChild(style);
+        }
+    });
+    </script>
     <!-- Top Nav Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="index.php">National Gold Testing</a>
