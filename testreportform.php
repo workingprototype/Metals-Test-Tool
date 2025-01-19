@@ -27,7 +27,7 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
     $template_id = "178360"; // Replace with your approved template ID
 
     // Variables for the template (pipe-separated values with newlines)
-    $variables_values = "$name|$sr_no|$current_date|$sample|$metal_type|$gold_percent|$karat_value";
+    $variables_values = "$name|$sr_no|$current_date|$sample|$metal_type|$gold_percent";
 
     // Fast2SMS API URL
     $fast2sms_url = "https://www.fast2sms.com/dev/bulkV2";
@@ -89,8 +89,6 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
             }
         }
     }
-
-    // Send WhatsApp message
     // Send WhatsApp message
 $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
 $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
