@@ -957,7 +957,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
+    // Function to format metal values to two decimal places
+    function formatMetalValue(input) {
+            let value = input.value.trim();
+            if (value === "") {
+                input.value = "0.00";
+            } else {
+                // Ensure the value is a number and format it to two decimal places
+                let num = parseFloat(value);
+                if (!isNaN(num)) {
+                    input.value = num.toFixed(2);
+                } else {
+                    input.value = "0.00";
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Select all input fields that need formatting
+            const metalInputs = document.querySelectorAll('.metal-input');
+
+            // Add blur event listener to each input field
+            metalInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    formatMetalValue(this);
+                });
+            });
             // Focus on the sr_no_count input box on page load
             const srNoCountInput = document.getElementById('sr_no_count');
             if (srNoCountInput) {
@@ -996,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="form-group">
         <label for="tin">Tin</label>
-        <input type="number" step="0.01" class="form-control cmetal-input compact-input" id="tin" name="tin">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="tin" name="tin">
     </div>
     
     <div class="form-group">
@@ -1241,6 +1266,8 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
             });
         });
     });
+
+    
 </script>
 
 <!-- jQuery and Bootstrap Bundle (includes Popper) --> 
