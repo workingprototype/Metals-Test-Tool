@@ -755,24 +755,46 @@ $conn->close();
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const copperInput = document.getElementById('copper');
+    const metalInputs = document.querySelectorAll('.metal-input');
     const srNoCountInput = document.getElementById('sr_no_count');
-    const srNoLetterInput = document.getElementById('sr_no_letter');
     const infoBar = document.getElementById('infoBar');
 
-    srNoCountInput.addEventListener('keyup', function() {
-        const srNoLetter = srNoLetterInput.value;
+    // Function to calculate copper value
+    function calculateCopper() {
+        let totalOtherMetals = 0;
+
+        // Sum the values of all other metal inputs
+        metalInputs.forEach(input => {
+            if (input.value && !isNaN(input.value) && input.id !== 'copper') {
+                totalOtherMetals += parseFloat(input.value);
+            }
+        });
+
+        // Calculate copper value
+        const copperValue = 100 - totalOtherMetals;
+        copperInput.value = copperValue.toFixed(2); // Set copper value with 2 decimal places
+    }
+
+    // Add event listeners to all metal inputs
+    metalInputs.forEach(input => {
+        input.addEventListener('input', calculateCopper);
+    });
+
+    // Trigger calculation when sr_no_count changes
+    srNoCountInput.addEventListener('input', function() {
+        const srNoLetter = document.getElementById('sr_no_letter').value;
         const srNoCount = srNoCountInput.value;
 
-        if (srNoCount) {            
-            resetFormFields(); // Reset form fields before fetching new data
+        if (srNoCount) {
             fetchReportData(srNoLetter, srNoCount);
         } else {
-            // Reset form fields if sr_no_count is empty
             resetFormFields();
             infoBar.style.display = 'none'; // Hide the info bar
         }
     });
 
+    // Function to fetch report data
     function fetchReportData(srNoLetter, srNoCount) {
         const srNo = srNoLetter + " " + srNoCount;
 
@@ -793,6 +815,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('alt_mobile').value = data.alt_mobile || '';
                 document.getElementById('sample').value = data.sample || '';
                 document.getElementById('weight').value = data.weight || '';
+                document.getElementById('gold_percent').value = data.gold_percent || '';
+                document.getElementById('total_karat').value = data.total_karat || '';
+                document.getElementById('silver').value = data.silver || '';
+                document.getElementById('platinum').value = data.platinum || '';
+                document.getElementById('zinc').value = data.zinc || '';
+                document.getElementById('copper').value = data.copper || '';
+                document.getElementById('others').value = data.others || '';
+                document.getElementById('rhodium').value = data.rhodium || '';
+                document.getElementById('iridium').value = data.iridium || '';
+                document.getElementById('ruthenium').value = data.ruthenium || '';
+                document.getElementById('palladium').value = data.palladium || '';
+                document.getElementById('lead').value = data.lead || '';
+                document.getElementById('tin').value = data.tin || '';
+                document.getElementById('cadmium').value = data.cadmium || '';
+                document.getElementById('nickel').value = data.nickel || '';
+
+                // Calculate copper value after fields are populated
+                calculateCopper();
                 infoBar.style.display = 'none'; // Hide the info bar if record is found
             } else {
                 resetFormFields();
@@ -805,6 +845,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Function to reset form fields
     function resetFormFields() {
         document.getElementById('metal_type').value = '';
         document.getElementById('name').value = '';
@@ -827,7 +868,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tin').value = '';
         document.getElementById('cadmium').value = '';
         document.getElementById('nickel').value = '';
+
+        // Calculate copper value after resetting fields
+        calculateCopper();
     }
+
+    // Trigger calculation on page load
+    calculateCopper();
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -933,52 +980,52 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="metal-grid">
     <div class="form-group">
         <label for="silver">Silver</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="silver" name="silver">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="silver" name="silver">
     </div>
     <div class="form-group">
         <label for="iridium">Iridium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="iridium" name="iridium">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="iridium" name="iridium">
     </div>
     <div class="form-group">
         <label for="platinum">Platinum</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="platinum" name="platinum">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="platinum" name="platinum">
     </div>
     <div class="form-group">
         <label for="zinc">Zinc</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="zinc" name="zinc">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="zinc" name="zinc">
     </div>
     <div class="form-group">
         <label for="tin">Tin</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="tin" name="tin">
+        <input type="number" step="0.01" class="form-control cmetal-input compact-input" id="tin" name="tin">
     </div>
     
     <div class="form-group">
         <label for="rhodium">Rhodium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="rhodium" name="rhodium">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="rhodium" name="rhodium">
     </div>
     
     <div class="form-group">
         <label for="cadmium">Cadmium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="cadmium" name="cadmium">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="cadmium" name="cadmium">
     </div>
     
     <div class="form-group">
         <label for="nickel">Nickel</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="nickel" name="nickel">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="nickel" name="nickel">
     </div>
     <div class="form-group">
         <label for="palladium">Palladium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="palladium" name="palladium">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="palladium" name="palladium">
     </div>
     
 <div class="form-group">
     <label for="others">Others</label>
-    <input type="number" step="0.01" class="form-control compact-input" id="others" name="others">
+    <input type="number" step="0.01" class="form-control metal-input compact-input" id="others" name="others">
 </div>
 
 <div class="form-group">
         <label for="lead">Lead</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="lead" name="lead">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="lead" name="lead">
     </div>
     <br>
     <div class="form-group">
@@ -987,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="form-group">
         <label for="ruthenium">Ruthenium</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="ruthenium" name="ruthenium">
+        <input type="number" step="0.01" class="form-control metal-input compact-input" id="ruthenium" name="ruthenium">
     </div>
         <div class="form-group">
             <label for="total_karat">Total Karat</label>
