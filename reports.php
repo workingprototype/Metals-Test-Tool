@@ -29,7 +29,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 // Pagination variables
 $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$start = ($page > 1) ? ($page * $limit) - $limit : 0;
+$start = ($page > 1) ? ($page - 1) * $limit : 0; // Corrected calculation
 
 // Function to add space between letters and numbers in the search input
 function formatSrNo($input) {
@@ -41,6 +41,8 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : '';
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : '';
 $include_date = isset($_GET['include_date']) ? $_GET['include_date'] : false;
+$exact_search = isset($_GET['exact_search']) ? $_GET['exact_search'] : false; // New parameter for exact search
+
 
 // Format the search input for sr_no
 $formatted_search = formatSrNo($search);
@@ -70,9 +72,14 @@ if (empty($formatted_search) && empty($from_date) && empty($to_date)) {
 } else {
     // If search parameters are provided, build the query accordingly
     if ($formatted_search) {
+        if ($exact_search) {
+            // Exact search: use = for exact matching
+            $search_query = "WHERE (sr_no = '$formatted_search' OR name = '$search' OR mobile = '$search' OR alt_mobile = '$search')";
+        } else {
+            // Partial search: use LIKE for partial matching
         $search_query = "WHERE (sr_no LIKE '%$formatted_search%' OR name LIKE '%$formatted_search%' OR mobile LIKE '%$formatted_search%' OR alt_mobile LIKE '%$formatted_search%')";
     }
-
+    }
     // Include date range ONLY if the "Include Date" checkbox is checked
     if ($include_date) {
         if ($from_date && $to_date) {
@@ -306,11 +313,17 @@ if (isset($_GET['delete_id'])) {
                 <label class="form-check-label" for="include_date">Include Date</label>
             </div>
         </div>
+        <div class="col-md-2 mt-2">
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="exact_search" id="exact_search" <?php echo isset($_GET['exact_search']) ? 'checked' : ''; ?>>
+        <label class="form-check-label" for="exact_search">Exact Search</label>
+    </div>
+</div>
         <div class="col-md-4 mt-2">
             <button type="submit" class="btn btn-primary mt-2">Search</button>
 
-            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-success mt-2">Export to Excel</a>
-            <a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>" class="btn btn-danger mt-2">Export to PDF</a>
+            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-success mt-2">Export to Excel</a>
+<a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-danger mt-2">Export to PDF</a>
         </div>
     </form>
 
@@ -386,18 +399,18 @@ if (isset($_GET['delete_id'])) {
 
     <!-- Pagination -->
     <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <?php
-            $total_pages = ceil($total_rows / $limit);
-            if ($total_pages > 1) {
-                for ($i = 1; $i <= $total_pages; $i++) {
-                    $active = $i == $page ? 'active' : '';
-                    echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date'>$i</a></li>";
-                }
+    <ul class="pagination justify-content-center">
+        <?php
+        $total_pages = ceil($total_rows / $limit);
+        if ($total_pages > 1) {
+            for ($i = 1; $i <= $total_pages; $i++) {
+                $active = $i == $page ? 'active' : '';
+                echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date&exact_search=$exact_search'>$i</a></li>";
             }
-            ?>
-        </ul>
-    </nav>
+        }
+        ?>
+    </ul>
+</nav>
 </div>
 
 <!-- Bootstrap JS -->
