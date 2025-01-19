@@ -13,5 +13,6 @@
         "db_user": "root",
         "db_password": "",
         "db_name": "metal_store"
-    }
+    },
+    "zoomLevel": "97"
 }

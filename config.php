@@ -11,12 +11,12 @@ $configs = json_decode(file_get_contents($configFile), true);
 // Update configuration settings when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     foreach ($_POST['config'] as $category => $settings) {
-        foreach ($settings as $key => $value) {
-            // Handle the use_twilio checkbox separately
-            if ($key === 'use_twilio') {
-                // If the checkbox is checked, $_POST will have 'on', otherwise it's not set
-                $configs[$category][$key] = isset($settings[$key]) && $settings[$key] === 'on' ? true : false;
-            } else {
+        // Handle zoomLevel separately since it's not an array
+        if ($category === 'zoomLevel') {
+            $configs[$category] = $settings; // Directly assign the value
+        } else {
+            // Handle nested arrays (Fast2SMS, WhatsApp, Database)
+            foreach ($settings as $key => $value) {
                 $configs[$category][$key] = $value;
             }
         }
@@ -124,8 +124,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2 class="mb-4">Configuration Settings</h2>
         <form method="POST" action="">
             <h5 class="mb-4">Config file stored in:<?php echo realpath($configFile); ?></h5>
-            <!-- Twilio Configuration -->
-            <h4>Twilio Config</h4>
+
+            <!-- Fast2SMS Configuration -->
+            <h4>Fast2SMS Config</h4>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -134,21 +135,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($configs['Twilio'] as $key => $value): ?>
+                    <?php foreach ($configs['Fast2SMS'] as $key => $value): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($key); ?></td>
                             <td>
-                                <?php if ($key === 'use_twilio'): ?>
-                                    <!-- Custom Switch Toggle (Inline) -->
-                                    <div class="custom-switch-inline">
-                                        <input type="checkbox" class="custom-checkbox" id="use_twilio" name="config[Twilio][<?php echo $key; ?>]" <?php echo $value ? 'checked' : ''; ?>>
-                                        <label for="use_twilio" class="toggle-label"></label>
-                                        <span class="status-text"><?php echo $value ? 'Enabled' : 'Disabled'; ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <!-- Regular text input for other fields -->
-                                    <input type="text" class="form-control" name="config[Twilio][<?php echo $key; ?>]" value="<?php echo htmlspecialchars($value); ?>">
-                                <?php endif; ?>
+                                <input type="text" class="form-control" name="config[Fast2SMS][<?php echo $key; ?>]" value="<?php echo htmlspecialchars($value); ?>">
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -194,6 +185,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <!-- Zoom Level Configuration -->
+            <h4>Zoom Level</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Config Key</th>
+                        <th>Config Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>zoomLevel</td>
+                        <td>
+                            <input type="text" class="form-control" name="config[zoomLevel]" value="<?php echo htmlspecialchars($configs['zoomLevel']); ?>">
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
