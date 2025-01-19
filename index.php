@@ -269,6 +269,7 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <!-- Bootstrap CSS -->
     <link href="vendor/assets/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -353,9 +354,13 @@ $conn->close();
     font-size: 0.875em;
     margin-top: 5px;
 }
+.form-control {
+    font-size: 18px;
+}
 </style>
 </head>
 <script>
+    
     // Function to move focus to the next input element when "Enter" is pressed
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
