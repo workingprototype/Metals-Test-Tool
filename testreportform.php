@@ -24,10 +24,10 @@ function logMessage($conn, $sr_no, $message_type, $recipient, $message, $status)
 // Function to send SMS using Fast2SMS
 function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample, $conn) {
     // Approved template format
-    $template_id = "178360"; // Replace with your approved template ID
+    $template_id = "178649"; // Replace with your approved template ID
 
     // Variables for the template (pipe-separated values with newlines)
-    $variables_values = "$name|$sr_no|$current_date|$sample|$metal_type|$gold_percent";
+    $variables_values = "$name|$sr_no|$current_date|$metal_type|$gold_percent";
 
     // Fast2SMS API URL
     $fast2sms_url = "https://www.fast2sms.com/dev/bulkV2";
@@ -816,6 +816,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const metalInputs = document.querySelectorAll('.metal-input');
     const srNoCountInput = document.getElementById('sr_no_count');
     const infoBar = document.getElementById('infoBar');
+    const goldPercentInput = document.getElementById('gold_percent');
 
     // Function to calculate copper value
     function calculateCopper() {
@@ -828,10 +829,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+          // Subtract the gold percentage from 100
+          const goldPercent = goldPercentInput.value ? parseFloat(goldPercentInput.value) : 0;
+        const totalMetals = totalOtherMetals + goldPercent;
+
         // Calculate copper value
-        const copperValue = 100 - totalOtherMetals;
+        const copperValue = 100 - totalMetals;
         copperInput.value = copperValue.toFixed(2); // Set copper value with 2 decimal places
     }
+
+    goldPercentInput.addEventListener('input', calculateCopper);
 
     // Add event listeners to all metal inputs
     metalInputs.forEach(input => {
