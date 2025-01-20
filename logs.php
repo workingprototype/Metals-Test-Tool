@@ -24,8 +24,19 @@ if ($conn->connect_error) {
 // Determine the message type to display (SMS or WhatsApp)
 $message_type = isset($_GET['type']) ? $_GET['type'] : 'SMS';
 
-// Fetch logs from the database
-$sql = "SELECT * FROM message_logs WHERE message_type = '$message_type' ORDER BY sent_at DESC";
+// Pagination logic
+$limit = 10; // Number of records per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page
+$offset = ($page - 1) * $limit; // Offset for SQL query
+
+// Fetch total number of records
+$sql_count = "SELECT COUNT(*) as total FROM message_logs WHERE message_type = '$message_type'";
+$result_count = $conn->query($sql_count);
+$total_records = $result_count->fetch_assoc()['total'];
+$total_pages = ceil($total_records / $limit); // Total pages
+
+// Fetch logs from the database with pagination
+$sql = "SELECT * FROM message_logs WHERE message_type = '$message_type' ORDER BY sent_at DESC LIMIT $limit OFFSET $offset";
 $result = $conn->query($sql);
 
 $logs = [];
@@ -48,6 +59,9 @@ $conn->close();
     <style>
         .table th, .table td {
             vertical-align: middle;
+        }
+        .pagination {
+            justify-content: center;
         }
     </style>
 </head>
@@ -118,6 +132,33 @@ $conn->close();
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php if ($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?type=<?php echo $message_type; ?>&page=<?php echo $page - 1; ?>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                        <a class="page-link" href="?type=<?php echo $message_type; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <?php if ($page < $total_pages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?type=<?php echo $message_type; ?>&page=<?php echo $page + 1; ?>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
     </div>
 
     <!-- Bootstrap JS and jQuery -->
