@@ -89,75 +89,78 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
             }
         }
     }
-    // Send WhatsApp message
-$whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
-$whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
-$access_token = $configs['WhatsApp']['access_token'];
-$whatsapp_url = $whatsapp_api_url . $whatsapp_number . '/messages';
+    // Send WhatsApp message to both numbers
+    $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
+    $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
+    $access_token = $configs['WhatsApp']['access_token'];
 
-// Format the WhatsApp number
-$formatted_mobile = preg_replace('/\D/', '', $phone_numbers[0]);
-if (strlen($formatted_mobile) == 10) {
-    $formatted_mobile = '+91' . $formatted_mobile;
-}
+    foreach ($phone_numbers as $phone_number) {
+        if (!empty($phone_number)) {
+            // Format the WhatsApp number
+            $formatted_mobile = preg_replace('/\D/', '', $phone_number);
+            if (strlen($formatted_mobile) == 10) {
+                $formatted_mobile = '+91' . $formatted_mobile;
+            }
 
-// Prepare WhatsApp API request
-$whatsapp_data = [
-    'messaging_product' => 'whatsapp',
-    'to' => $formatted_mobile,
-    'type' => 'template',
-    'template' => [
-        'name' => 'testreportssoftware', // Ensure this template is approved
-        'language' => ['code' => 'en_US'],
-        'components' => [
-            [
-                'type' => 'body',
-                'parameters' => [
-                    ['type' => 'text', 'text' => $name],
-                    ['type' => 'text', 'text' => $sr_no],
-                    ['type' => 'text', 'text' => $current_date],
-                    ['type' => 'text', 'text' => $sample],
-                    ['type' => 'text', 'text' => $metal_type],
-                    ['type' => 'text', 'text' => $gold_percent],
-                    ['type' => 'text', 'text' => $karat_value]
+            // Prepare WhatsApp API request
+            $whatsapp_data = [
+                'messaging_product' => 'whatsapp',
+                'to' => $formatted_mobile,
+                'type' => 'template',
+                'template' => [
+                    'name' => 'testreportssoftware', // Ensure this template is approved
+                    'language' => ['code' => 'en_US'],
+                    'components' => [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                ['type' => 'text', 'text' => $name],
+                                ['type' => 'text', 'text' => $sr_no],
+                                ['type' => 'text', 'text' => $current_date],
+                                ['type' => 'text', 'text' => $sample],
+                                ['type' => 'text', 'text' => $metal_type],
+                                ['type' => 'text', 'text' => $gold_percent],
+                                ['type' => 'text', 'text' => $karat_value]
+                            ]
+                        ]
+                    ]
                 ]
-            ]
-        ]
-    ]
-];
+            ];
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $whatsapp_url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . $access_token,
-    'Content-Type: application/json'
-]);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $whatsapp_api_url . $whatsapp_number . '/messages');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($whatsapp_data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $access_token,
+                'Content-Type: application/json'
+            ]);
 
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-// Decode the API response
-$response_data = json_decode($response, true);
+            // Decode the API response
+            $response_data = json_decode($response, true);
 
-// Check if the message was sent successfully
-if ($http_code == 200 && isset($response_data['messages'][0]['id'])) {
-    echo "WhatsApp message sent successfully!";
-    logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Success');
-} else {
-    // Handle API errors
-    $error_message = "Error sending WhatsApp message. ";
-    if (isset($response_data['error']['message'])) {
-        $error_message .= "API Error: " . $response_data['error']['message'];
-    } else {
-        $error_message .= "Response: " . $response;
+            // Check if the message was sent successfully
+            if ($http_code == 200 && isset($response_data['messages'][0]['id'])) {
+                echo "WhatsApp message sent successfully to $phone_number!<br>";
+                logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Success');
+            } else {
+                // Handle API errors
+                $error_message = "Error sending WhatsApp message to $phone_number. ";
+                if (isset($response_data['error']['message'])) {
+                    $error_message .= "API Error: " . $response_data['error']['message'];
+                } else {
+                    $error_message .= "Response: " . $response;
+                }
+                echo $error_message . "<br>";
+                logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Failed');
+            }
+        }
     }
-    echo $error_message;
-    logMessage($conn, $sr_no, 'WhatsApp', $formatted_mobile, json_encode($whatsapp_data), 'Failed');
-}
 }
 
 // Extract database settings from the config file
