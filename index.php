@@ -102,12 +102,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             VALUES ('$metal_type', '$sr_no', '$report_date', '$name', '$mobile', '$alt_mobile', '$sample', '$weight')";
         }
 
+        
         if ($conn->query($sql) === TRUE) {
-            // Receipt saved successfully, now show the receipt and print option
-            echo "<script>
-                    alert('Receipt saved successfully.');
-                    window.location.href = '" . $_SERVER['PHP_SELF'] . "?print_receipt=true&sr_no=" . urlencode($sr_no) . "';
-                </script>";
+            // Receipt saved successfully, redirect to the print page
+            header("Location: " . $_SERVER['PHP_SELF'] . "?print_receipt=true&sr_no=" . urlencode($sr_no));
+            exit(); // Ensure no further code is executed
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
@@ -145,7 +144,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
                         </div>
                         <div style="align-items:center;display:flex;gap:100px;margin-bottom:17px;font-size:x-small;">
                             <div>&nbsp;</div>
-                            <div> <?php echo $receipt['report_date']; ?></div>
+                           <div> <?php echo (new DateTime($receipt['report_date']))->format('d-m-Y'); ?></div>
                         </div>
                         <div style="align-items:center;display:flex;gap:100px;margin-bottom:17px;font-size:x-small;">
                             <div>&nbsp;</div>
@@ -165,7 +164,7 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
         <div style="">
             <div style="margin-left: 10px;white-space: nowrap;align-items:center;display:flex;gap:10px;justify-content:center;font-size:x-small;">
                 <div>&nbsp;</div>
-                <div><?php echo $receipt['report_date']; ?></div>
+                <div><?php echo (new DateTime($receipt['report_date']))->format('d-m-Y'); ?></div>
             </div>
         </div>
         <div>&nbsp;</div>
@@ -240,23 +239,37 @@ if (isset($_GET['print_receipt']) && $_GET['print_receipt'] == 'true') {
             </div>
         </div>
         <script>
-            // Show the receipt layout for printing
+    // Get the receipt content as HTML
     var receiptContent = document.getElementById('receipt').innerHTML;
 
-// Open the print window
-var printWindow = window.open('', '_blank', 'width=600,height=400');
-printWindow.document.write('<html><head><title>Receipt</title>');
-printWindow.document.write('</head><body>');
-printWindow.document.write(receiptContent);
-printWindow.document.write('</body></html>');
-printWindow.document.close();
-printWindow.focus();
-printWindow.print();
-// Redirect to index.php after printing
-printWindow.onafterprint = function() {
+    // Debugging: Log the receipt content
+    console.log('Receipt Content:', receiptContent);
+
+    // Check if Electron IPC Renderer is available
+    if (window.electron && window.electron.ipcRenderer) {
+        console.log('Sending receipt content to Electron for printing...');
+        window.electron.ipcRenderer.send('print-receipt', receiptContent);
+    } else {
+        console.error('Electron IPC Renderer is not available. Falling back to browser print.');
+
+        // Fallback: Open a new window and print using browser's print dialog
+        var printWindow = window.open('', '_blank', 'width=600,height=400');
+        printWindow.document.write('<html><head><title>Receipt</title>');
+        printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(receiptContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
+
+    // Redirect to index.php after printing
+    setTimeout(() => {
         window.location.href = 'index.php';
-    };
-        </script>
+    }, 20); // Redirect after 1 second (adjust as needed)
+</script>
         </body>
         </html>
         <?php
@@ -279,7 +292,7 @@ $conn->close();
 }
 
 .form-container {
-    max-width: 350px; /* Reduced from 500px */
+    max-width: 850px; /* Reduced from 500px */
     margin: 30px auto; /* Reduced margin */
     background-color: #f4f4f4;
     padding: 15px; /* Reduced padding */
@@ -463,18 +476,22 @@ $conn->close();
             </div>
         </div>
 
-        <div class="form-group" style="width: 150px;">
-    <label for="sr_no_letter">Sr. No Letter</label>
-    <div style="display: flex;">
-        <input type="text" class="form-control" style="width: 50px; margin-right: 5px;" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>" required>
-        <input type="number" class="form-control" style="width: 100px;" id="sr_no_count" name="sr_no_count" value="<?php echo $customer_count; ?>" required>
+        <div style="display: flex; gap: 20px;">
+    <!-- First Form -->
+    <div class="form-group" style="width: 150px;">
+        <label for="sr_no_letter">Sr. No Letter</label>
+        <div style="display: flex;">
+            <input type="text" class="form-control" style="width: 50px; margin-right: 5px;" id="sr_no_letter" name="sr_no_letter" value="<?php echo $current_letter; ?>" required>
+            <input type="number" class="form-control" style="width: 100px;" id="sr_no_count" name="sr_no_count" value="<?php echo $customer_count; ?>" required>
+        </div>
+    </div>
+
+    <!-- Second Form -->
+    <div class="form-group" style="width: 150px;">
+        <label for="date">Date</label>
+        <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
     </div>
 </div>
-
-        <div class="form-group" style="width: 150px;">
-            <label for="date">Date</label>
-            <input type="date" class="form-control" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
-        </div>
 
         <div class="form-group">
             <label for="name">Name</label>
@@ -502,15 +519,19 @@ $conn->close();
             <div id="alt-mobile-warning" class="warning-message" style="color: red; display: none;">Mobile numbers should not exceed 10 digits.</div>
         </div>
 
-        <div class="form-group">
-            <label for="sample">Sample</label>
-            <input type="text" style="width: 150px;" class="form-control" id="sample" name="sample" required>
-        </div>
+        <div style="display: flex; gap: 20px;">
+    <!-- First Form -->
+    <div class="form-group">
+        <label for="sample">Sample</label>
+        <input type="text" style="width: 150px;" class="form-control" id="sample" name="sample" required>
+    </div>
 
-        <div class="form-group">
-            <label for="weight">Weight</label>
-            <input type="number" style="width: 100px;" step="0.001" class="form-control" id="weight" name="weight" required>
-        </div>
+    <!-- Second Form -->
+    <div class="form-group">
+        <label for="weight">Weight</label>
+        <input type="number" style="width: 100px;" step="0.001" class="form-control" id="weight" name="weight" required>
+    </div>
+</div>
 
         <button type="submit" class="btn btn-primary btn-block" name="submit_receipt">Save Receipt</button>
     </form>

@@ -309,19 +309,19 @@ if (isset($_GET['delete_id'])) {
     </div>
 
     <!-- Pagination -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <?php
-            $total_pages = ceil($total_rows / $limit);
-            if ($total_pages > 1) {
-                for ($i = 1; $i <= $total_pages; $i++) {
-                    $active = $i == $page ? 'active' : '';
-                    echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date'>$i</a></li>";
-                }
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <?php
+        $total_pages = ceil($total_rows / $limit);
+        if ($total_pages > 1) {
+            for ($i = 1; $i <= $total_pages; $i++) {
+                $active = $i == $page ? 'active' : '';
+                echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date&include_date=$include_date'>$i</a></li>";
             }
-            ?>
-        </ul>
-    </nav>
+        }
+        ?>
+    </ul>
+</nav>
 </div>
 
 <!-- Bootstrap JS -->

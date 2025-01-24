@@ -1,6 +1,16 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+session_start(); // Start the session to store the last execution time
+
+// Set the default timezone (e.g., 'Asia/Kolkata' for Indian Standard Time)
+date_default_timezone_set('Asia/Kolkata'); // Replace with your desired timezone
+
+// Get the current date in DD-MM-YYYY format
+$currentDate = (new DateTime())->format('d-m-Y');
+
+// Generate the current time in HH:MM:SS AM/PM format
+$currentTime = (new DateTime())->format('h:i:s A');
 
 // Twilio API setup
 require_once 'vendor/autoload.php'; // Adjust to the location of Twilio SDK
@@ -22,13 +32,30 @@ function logMessage($conn, $sr_no, $message_type, $recipient, $message, $status)
 }
 
 // Function to send SMS using Fast2SMS
-function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $karat_value, $current_date, $sample, $conn) {
-    // Approved template format
-    $template_id = "178649"; // Replace with your approved template ID
+function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, $current_date, $sample, $conn, $silver, $platinum) {
+
+    // Rate-limiting: Check if the function was called within the last 5 seconds
+    if (isset($_SESSION['last_send_time']) && (time() - $_SESSION['last_send_time']) < 5) {
+        echo "Please wait 5 seconds before sending messages again.<br>";
+        return; // Exit the function if the cooldown period hasn't passed
+    }
+
+    // Update the last execution time
+    $_SESSION['last_send_time'] = time();
+
+    // Determine the value to send based on metal_type
+    $value_to_send = $gold_percent; // Default to gold_percent
+    if ($metal_type == 'Silver') {
+        $value_to_send = $silver; // Use silver value if metal_type is silver
+    } elseif ($metal_type == 'Platinum') {
+        $value_to_send = $platinum; // Use platinum value if metal_type is platinum
+    }
 
     // Variables for the template (pipe-separated values with newlines)
-    $variables_values = "$name|$sr_no|$current_date|$metal_type|$gold_percent";
+    $variables_values = "$name|$sr_no|$current_date|$metal_type|$value_to_send";
 
+    // Approved template format
+    $template_id = "178649"; // Replace with your approved template ID
     // Fast2SMS API URL
     $fast2sms_url = "https://www.fast2sms.com/dev/bulkV2";
 
@@ -89,6 +116,7 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
             }
         }
     }
+
     // Send WhatsApp message to both numbers
     $whatsapp_api_url = $configs['WhatsApp']['whatsapp_api_url'];
     $whatsapp_number = $configs['WhatsApp']['whatsapp_number'];
@@ -119,8 +147,8 @@ function sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gol
                                 ['type' => 'text', 'text' => $current_date],
                                 ['type' => 'text', 'text' => $sample],
                                 ['type' => 'text', 'text' => $metal_type],
-                                ['type' => 'text', 'text' => $gold_percent],
-                                ['type' => 'text', 'text' => $karat_value]
+                                ['type' => 'text', 'text' => $value_to_send], // Use the determined value
+                                ['type' => 'text', 'text' => $total_karat]
                             ]
                         ]
                     ]
@@ -310,7 +338,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn, $silver, $platinum);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -329,7 +357,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn, $silver, $platinum);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
@@ -398,7 +426,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $update_sql)) {
                 echo "Test report updated successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn, $silver, $platinum);
             } else {
                 echo "Error updating record: " . mysqli_error($conn);
             }
@@ -417,7 +445,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_query($conn, $insert_sql)) {
                 echo "Test report saved successfully!";
                 $phone_numbers = [$mobile, $alt_mobile];
-                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn);
+                sendMessages($configs, $phone_numbers, $name, $sr_no, $metal_type, $gold_percent, $total_karat, date('d-m-Y'), $sample, $conn, $silver, $platinum);
             } else {
                 echo "Error: " . $insert_sql . "<br>" . mysqli_error($conn);
             }
@@ -431,7 +459,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         console.log('Page fully loaded');
         // Populate the receipt layout with the form data
         document.getElementById('printSrNo').textContent = '$sr_no';
-        document.getElementById('printDate').textContent = new Date().toLocaleString();
+        document.getElementById('printDate').textContent = '$currentDate $currentTime'; // Use PHP-generated date and time
         document.getElementById('printName').textContent = '$name';
         document.getElementById('printSample').textContent = '$sample';
         document.getElementById('printWeight').textContent = '$weight';
@@ -452,18 +480,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         document.getElementById('printTotalKarat').textContent = '$total_karat';
 
         console.log('Receipt div populated');
+        // Show the receipt layout for printing
         var receiptContent = document.getElementById('receipt').innerHTML;
-        var printWindow = window.open('', '_blank', 'width=600,height=400');
-        printWindow.document.write('<html><head><title>Receipt</title>');
-        printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write(receiptContent);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        console.log('Printing receipt');
-        printWindow.print();
-        printWindow.close();
+
+        // Check if Electron IPC Renderer is available
+        if (window.electron && window.electron.ipcRenderer) {
+            // Send the receipt content to the main process for printing
+            window.electron.ipcRenderer.send('print-receipt', receiptContent);
+        } else {
+            // Fallback for non-Electron environments (e.g., browser)
+            var printWindow = window.open('', '_blank', 'width=600,height=400');
+            printWindow.document.write('<html><head><title>Receipt</title>');
+            printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(receiptContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            console.log('Printing receipt');
+            printWindow.print();
+            printWindow.close();
+        }
     });
 </script>
 ";
@@ -1068,75 +1105,86 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     </script>
 <!-- Grid for Optional Metal Fields -->
-<div class="metal-grid-container" style="border: 2px solid #000; padding: 10px; margin-top: 20px;">
-<div class="metal-grid">
-    <div class="form-group">
-        <label for="silver">Silver</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="silver" name="silver">
-    </div>
-    <div class="form-group">
-        <label for="iridium">Iridium</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="iridium" name="iridium">
-    </div>
-    <div class="form-group">
-        <label for="platinum">Platinum</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="platinum" name="platinum">
-    </div>
-    <div class="form-group">
-        <label for="zinc">Zinc</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="zinc" name="zinc">
-    </div>
-    <div class="form-group">
-        <label for="tin">Tin</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="tin" name="tin">
-    </div>
-    
-    <div class="form-group">
-        <label for="rhodium">Rhodium</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="rhodium" name="rhodium">
-    </div>
-    
-    <div class="form-group">
-        <label for="cadmium">Cadmium</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="cadmium" name="cadmium">
-    </div>
-    
-    <div class="form-group">
-        <label for="nickel">Nickel</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="nickel" name="nickel">
-    </div>
-    <div class="form-group">
-        <label for="palladium">Palladium</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="palladium" name="palladium">
-    </div>
-    
-<div class="form-group">
-    <label for="others">Others</label>
-    <input type="number" step="0.01" class="form-control metal-input compact-input" id="others" name="others">
-</div>
-
-<div class="form-group">
-        <label for="lead">Lead</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="lead" name="lead">
-    </div>
-    <br>
-    <div class="form-group">
-        <label for="copper">Copper</label>
-        <input type="number" step="0.01" class="form-control compact-input" id="copper" name="copper">
-    </div>
-    <div class="form-group">
-        <label for="ruthenium">Ruthenium</label>
-        <input type="number" step="0.01" class="form-control metal-input compact-input" id="ruthenium" name="ruthenium">
-    </div>
+<div class="metal-grid-container" style="border: 2px solid #000; padding: 10px; margin-top: 20px; font-size: 20px;">
+    <div class="metal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+        <!-- Silver -->
         <div class="form-group">
-            <label for="total_karat">Total Karat</label>
-            <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly>
+            <label for="silver">Silver</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="silver" name="silver">
         </div>
-</div></div>
+          <!-- Zinc -->
+          <div class="form-group">
+            <label for="zinc">Zinc</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="zinc" name="zinc">
+        </div>
+        <!-- Cadmium -->
+        <div class="form-group">
+            <label for="cadmium">Cadmium</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="cadmium" name="cadmium">
+        </div>  
+        <!-- Nickel -->
+        <div class="form-group">
+            <label for="nickel">Nickel</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="nickel" name="nickel">
+        </div>
+        <!-- Iridium -->
+        <div class="form-group">
+            <label for="iridium">Iridium</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="iridium" name="iridium">
+        </div>
+         <!-- Ruthenium -->
+         <div class="form-group">
+            <label for="ruthenium">Ruthenium</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="ruthenium" name="ruthenium">
+        </div>
+        <!-- Platinum -->
+        <div class="form-group">
+            <label for="platinum">Platinum</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="platinum" name="platinum">
+        </div>
+      
+        <!-- Tin -->
+        <div class="form-group">
+            <label for="tin">Tin</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="tin" name="tin">
+        </div>
+        <!-- Rhodium -->
+        <div class="form-group">
+            <label for="rhodium">Rhodium</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="rhodium" name="rhodium">
+        </div>
+      
+        <!-- Palladium -->
+        <div class="form-group">
+            <label for="palladium">Palladium</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="palladium" name="palladium">
+        </div>
+       
+        <!-- Lead -->
+        <div class="form-group">
+            <label for="lead">Lead</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="lead" name="lead">
+        </div>
+        <!-- Copper -->
+        <div class="form-group">
+            <label for="copper">Copper</label>
+            <input type="number" step="0.01" class="form-control compact-input" id="copper" name="copper">
+        </div>
+        <!-- Others -->
+        <div class="form-group">
+            <label for="others">Others</label>
+            <input type="number" step="0.01" class="form-control metal-input compact-input" id="others" name="others">
+        </div>
+        <!-- Total Karat -->
+        <div class="form-group" style="grid-column: span 3; display: flex; flex-direction: column; align-items: center;">
+            <label for="total_karat">Total Karat</label>
+            <input type="text" class="form-control compact-input" id="total_karat" name="total_karat" value="<?php echo number_format($total_karat, 2); ?>" readonly style="width: 200px; font-size: 20px; text-align: center;">
+        </div>
+    </div>
+</div>
             
            <!-- Prominent Save, Send & Print Button -->
-<button type="submit" class="btn btn-danger btn-block" name="save_send_print" style="margin-bottom: 10px;">Save, Send & Print</button>
-
+<button type="submit" class="btn btn-danger btn-block" name="save_send_print" id="save_send_print" style="margin-bottom: 10px;">Save, Send & Print</button>
 <!-- Smaller Buttons Below -->
 <div class="row">
     <div class="col-6">
@@ -1145,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="col-6">
         <button type="submit" class="btn btn-info btn-block" name="submit_report">Save & Send only</button>
     </div>
-</div></br></br>
+</div><br><br>
         </form></div>
     </div>
 </body>
@@ -1196,7 +1244,24 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>   
 </div>
 
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('testReportForm');
+            const saveSendPrintButton = document.getElementById('save_send_print');
 
+            form.addEventListener('submit', function(event) {
+                // Disable the submit button to prevent multiple submissions
+                saveSendPrintButton.disabled = true;
+                saveSendPrintButton.textContent = 'Processing...';
+
+                // Optionally, you can add a delay to re-enable the button after a certain time
+                setTimeout(function() {
+                    saveSendPrintButton.disabled = false;
+                    saveSendPrintButton.textContent = 'Save, Send & Print';
+                }, 5000); // Re-enable after 5 seconds
+            });
+        });
+    </script>
 <script>
 document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Collect form data
@@ -1204,16 +1269,15 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     var customer_count = document.getElementById('sr_no_count').value.toUpperCase();
 
     var srNo = current_letter + " " + customer_count;
-
-    // var srNo = document.getElementById('sr_no').value.toUpperCase();
-     // Get today's date
-     var today = new Date();
-       // Format date and time
-       var dateString = today.toLocaleDateString();  // This gets the date in a localized format
-    var timeString = today.toLocaleTimeString();  // This gets the time in a localized format
     
+    // Use the PHP-generated date
+    var dateString = "<?php echo $currentDate; ?>"; // DD-MM-YYYY format
+
+    var timeString = "<?php echo $currentTime; ?>"; // HH:MM:SS AM/PM format
+
     // Combine date and time into a single string
     var dateTimeString = dateString + ' ' + timeString;
+    
     var name = document.getElementById('name').value.toUpperCase() || '';
     var mobile = document.getElementById('mobile').value  || '';
     var sample = document.getElementById('sample').value || '';
@@ -1262,16 +1326,23 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Show the receipt layout for printing
     var receiptContent = document.getElementById('receipt').innerHTML;
 
-    // Open the print window
-    var printWindow = window.open('', '_blank', 'width=600,height=400');
-    printWindow.document.write('<html><head><title>Receipt</title>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(receiptContent);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+// Check if Electron IPC Renderer is available
+if (window.electron && window.electron.ipcRenderer) {
+        // Send the receipt content to the main process for printing
+        window.electron.ipcRenderer.send('print-receipt', receiptContent);
+    } else {
+        // Fallback for non-Electron environments (e.g., browser)
+        var printWindow = window.open('', '_blank', 'width=600,height=400');
+        printWindow.document.write('<html><head><title>Receipt</title>');
+        printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(receiptContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
 });
 
 </script>

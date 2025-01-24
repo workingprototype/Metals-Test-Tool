@@ -1,129 +1,270 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: localhost
--- Generation Time: Dec 31, 2024 at 05:59 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               8.0.30 - MySQL Community Server - GPL
+-- Server OS:                    Win64
+-- HeidiSQL Version:             12.1.0.6537
+-- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Database: `metal_store`
---
 
--- --------------------------------------------------------
+-- Dumping database structure for metal_store
+CREATE DATABASE IF NOT EXISTS `metal_store` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `metal_store`;
 
---
--- Table structure for table `receipts`
---
+-- Dumping structure for table metal_store.message_logs
+CREATE TABLE IF NOT EXISTS `message_logs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sr_no` varchar(50) NOT NULL,
+  `message_type` enum('SMS','WhatsApp') NOT NULL,
+  `recipient` varchar(20) NOT NULL,
+  `message` text NOT NULL,
+  `status` enum('Success','Failed') NOT NULL,
+  `sent_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `receipts` (
-  `id` int(11) NOT NULL,
-  `metal_type` enum('Gold','Silver','Platinum') DEFAULT NULL,
-  `sr_no` varchar(10) DEFAULT NULL,
+-- Dumping data for table metal_store.message_logs: ~112 rows (approximately)
+REPLACE INTO `message_logs` (`id`, `sr_no`, `message_type`, `recipient`, `message`, `status`, `sent_at`) VALUES
+	(1, 'M 19', 'SMS', '+916362368425', 'Jake|M 19|23-01-2025|Silver|67.46', 'Failed', '2025-01-23 09:41:45'),
+	(2, 'M 19', 'SMS', '+919400503664', 'Jake|M 19|23-01-2025|Silver|67.46', 'Failed', '2025-01-23 09:41:45'),
+	(3, 'M 19', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"67.46"},{"type":"text","text":"16.19"}]}]}}', 'Success', '2025-01-23 09:41:47'),
+	(4, 'M 19', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"67.46"},{"type":"text","text":"16.19"}]}]}}', 'Success', '2025-01-23 09:41:47'),
+	(5, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:04'),
+	(6, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:04'),
+	(7, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:04'),
+	(8, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:05'),
+	(9, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:05'),
+	(10, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:06'),
+	(11, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:06'),
+	(12, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:06'),
+	(13, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:06'),
+	(14, 'M 5', 'SMS', '+919393939393', 'Jane Doe|M 5|23-01-2025|Gold|91.75', 'Failed', '2025-01-23 09:55:06'),
+	(15, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:07'),
+	(16, 'M 5', 'WhatsApp', '919393939393', '{"messaging_product":"whatsapp","to":"919393939393","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jane Doe"},{"type":"text","text":"M 5"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"iPhone"},{"type":"text","text":"Gold"},{"type":"text","text":"91.75"},{"type":"text","text":"22.02"}]}]}}', 'Success', '2025-01-23 09:55:07'),
+	(17, 'M 19', 'SMS', '+916362368425', 'Jake|M 19|23-01-2025|Silver|67.46', 'Failed', '2025-01-23 13:21:25'),
+	(18, 'M 19', 'SMS', '+919400503664', 'Jake|M 19|23-01-2025|Silver|67.46', 'Failed', '2025-01-23 13:21:25'),
+	(19, 'M 19', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"67.46"},{"type":"text","text":null}]}]}}', 'Failed', '2025-01-23 13:21:26'),
+	(20, 'M 19', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"67.46"},{"type":"text","text":null}]}]}}', 'Failed', '2025-01-23 13:21:26'),
+	(21, 'M 30', 'SMS', '+916362368425', 'TEST|M 30|23-01-2025|Silver|96.86', 'Failed', '2025-01-23 13:36:19'),
+	(22, 'M 30', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 30"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"Ring"},{"type":"text","text":"Silver"},{"type":"text","text":"96.86"},{"type":"text","text":"23.25"}]}]}}', 'Success', '2025-01-23 13:36:19'),
+	(23, 'M 19', 'SMS', '+916362368425', 'Jake|M 19|23-01-2025|Silver|0', 'Failed', '2025-01-23 13:58:40'),
+	(24, 'M 19', 'SMS', '+919400503664', 'Jake|M 19|23-01-2025|Silver|0', 'Failed', '2025-01-23 13:58:40'),
+	(25, 'M 19', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"0"},{"type":"text","text":"0.00"}]}]}}', 'Success', '2025-01-23 13:58:41'),
+	(26, 'M 19', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 19"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"0"},{"type":"text","text":"0.00"}]}]}}', 'Success', '2025-01-23 13:58:41'),
+	(27, 'M 31', 'SMS', '+916362368425', 'TEST|M 31|23-01-2025|Silver|0', 'Failed', '2025-01-23 14:01:12'),
+	(28, 'M 31', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 31"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"Ring"},{"type":"text","text":"Silver"},{"type":"text","text":0},{"type":"text","text":0}]}]}}', 'Success', '2025-01-23 14:01:12'),
+	(29, 'M 31', 'SMS', '+916362368425', 'TEST|M 31|23-01-2025|Silver|0.00', 'Failed', '2025-01-23 14:07:18'),
+	(30, 'M 31', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 31"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"Ring"},{"type":"text","text":"Silver"},{"type":"text","text":"0.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:07:19'),
+	(31, 'M 31', 'SMS', '+916362368425', 'TEST|M 31|23-01-2025|Silver|0.00', 'Failed', '2025-01-23 14:09:17'),
+	(32, 'M 31', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 31"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"Ring"},{"type":"text","text":"Silver"},{"type":"text","text":"0.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:09:18'),
+	(33, 'M 31', 'SMS', '+916362368425', 'TEST|M 31|23-01-2025|Silver|67.00', 'Failed', '2025-01-23 14:09:29'),
+	(34, 'M 31', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 31"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"Ring"},{"type":"text","text":"Silver"},{"type":"text","text":"67.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:09:29'),
+	(35, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:49'),
+	(36, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:50'),
+	(37, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:50'),
+	(38, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:50'),
+	(39, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:50'),
+	(40, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:51'),
+	(41, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:51'),
+	(42, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:52'),
+	(43, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:52'),
+	(44, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:52'),
+	(45, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:52'),
+	(46, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:53'),
+	(47, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:53'),
+	(48, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:53'),
+	(49, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:53'),
+	(50, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:53'),
+	(51, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:53'),
+	(52, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:53'),
+	(53, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:10:53'),
+	(54, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:53'),
+	(55, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:53'),
+	(56, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:54'),
+	(57, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:54'),
+	(58, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:10:54'),
+	(59, 'M 32', 'SMS', '+916362368425', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:11:23'),
+	(60, 'M 32', 'SMS', '+919400503664', 'TEST|M 32|23-01-2025|Platinum|67.56', 'Failed', '2025-01-23 14:11:24'),
+	(61, 'M 32', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:11:24'),
+	(62, 'M 32', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"TEST"},{"type":"text","text":"M 32"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"R"},{"type":"text","text":"Platinum"},{"type":"text","text":"67.56"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:11:25'),
+	(63, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(64, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(65, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(66, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(67, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(68, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(69, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(70, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(71, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(72, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(73, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(74, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(75, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(76, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(77, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(78, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(79, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(80, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(81, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(82, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(83, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(84, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(85, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:23'),
+	(86, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:23'),
+	(87, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(88, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(89, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(90, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(91, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(92, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(93, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(94, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(95, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(96, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:24'),
+	(97, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:24'),
+	(98, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:24'),
+	(99, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:24'),
+	(100, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:25'),
+	(101, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:25'),
+	(102, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:25'),
+	(103, 'M 34', 'SMS', '+916362368425', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:25'),
+	(104, 'M 34', 'SMS', '+919400503664', 'Jake|M 34|23-01-2025|Gold|.54', 'Success', '2025-01-23 14:13:26'),
+	(105, 'M 34', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:26'),
+	(106, 'M 34', 'WhatsApp', '919400503664', '{"messaging_product":"whatsapp","to":"919400503664","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Jake"},{"type":"text","text":"M 34"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":".54"},{"type":"text","text":"0.13"}]}]}}', 'Failed', '2025-01-23 14:13:26'),
+	(107, 'M 33', 'SMS', '+916362368425', 'Adarsh|M 33|23-01-2025|Gold|89.35', 'Success', '2025-01-23 14:33:28'),
+	(108, 'M 33', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"Adarsh"},{"type":"text","text":"M 33"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Gold"},{"type":"text","text":"89.35"},{"type":"text","text":"21.44"}]}]}}', 'Failed', '2025-01-23 14:33:28'),
+	(109, 'M 35', 'SMS', '+916362368425', 'POP|M 35|23-01-2025|Silver|36.00', 'Success', '2025-01-23 14:35:41'),
+	(110, 'M 35', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"POP"},{"type":"text","text":"M 35"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"36.00"},{"type":"text","text":0}]}]}}', 'Failed', '2025-01-23 14:35:42'),
+	(111, 'M 35', 'SMS', '+916362368425', 'POP|M 35|23-01-2025|Silver|36.00', 'Success', '2025-01-23 14:37:53'),
+	(112, 'M 35', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"POP"},{"type":"text","text":"M 35"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"36.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:37:53'),
+	(113, 'M 35', 'SMS', '+916362368425', 'POP|M 35|23-01-2025|Silver|36.00', 'Success', '2025-01-23 14:38:05'),
+	(114, 'M 35', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"POP"},{"type":"text","text":"M 35"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"36.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:38:05'),
+	(115, 'M 35', 'SMS', '+916362368425', 'POP|M 35|23-01-2025|Silver|36.00', 'Success', '2025-01-23 14:38:18'),
+	(116, 'M 35', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"POP"},{"type":"text","text":"M 35"},{"type":"text","text":"23-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"36.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-23 14:38:18'),
+	(117, 'M 37', 'SMS', '+916362368425', 'GA|M 37|24-01-2025|Gold|91.55', 'Success', '2025-01-24 08:25:23'),
+	(118, 'M 37', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"GA"},{"type":"text","text":"M 37"},{"type":"text","text":"24-01-2025"},{"type":"text","text":"POP"},{"type":"text","text":"Gold"},{"type":"text","text":"91.55"},{"type":"text","text":"21.97"}]}]}}', 'Failed', '2025-01-24 08:25:24'),
+	(119, 'M 37', 'SMS', '+916362368425', 'GA|M 37|24-01-2025|Gold|91.55', 'Success', '2025-01-24 08:26:25'),
+	(120, 'M 37', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"GA"},{"type":"text","text":"M 37"},{"type":"text","text":"24-01-2025"},{"type":"text","text":"POP"},{"type":"text","text":"Gold"},{"type":"text","text":"91.55"},{"type":"text","text":"21.97"}]}]}}', 'Failed', '2025-01-24 08:26:26'),
+	(121, 'M 35', 'SMS', '+916362368425', 'POP|M 35|24-01-2025|Silver|36.00', 'Success', '2025-01-24 08:37:00'),
+	(122, 'M 35', 'WhatsApp', '916362368425', '{"messaging_product":"whatsapp","to":"916362368425","type":"template","template":{"name":"testreportssoftware","language":{"code":"en_US"},"components":[{"type":"body","parameters":[{"type":"text","text":"POP"},{"type":"text","text":"M 35"},{"type":"text","text":"24-01-2025"},{"type":"text","text":"K1"},{"type":"text","text":"Silver"},{"type":"text","text":"36.00"},{"type":"text","text":"0.00"}]}]}}', 'Failed', '2025-01-24 08:37:01');
+
+-- Dumping structure for table metal_store.receipts
+CREATE TABLE IF NOT EXISTS `receipts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `metal_type` enum('Gold','Silver','Platinum') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `sr_no` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `report_date` date DEFAULT NULL,
-  `name` varchar(100) DEFAULT NULL,
-  `mobile` varchar(15) DEFAULT NULL,
-  `alt_mobile` varchar(15) DEFAULT NULL,
-  `sample` varchar(50) DEFAULT NULL,
-  `weight` decimal(10,3) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `receipts`
---
-
-INSERT INTO `receipts` (`id`, `metal_type`, `sr_no`, `report_date`, `name`, `mobile`, `alt_mobile`, `sample`, `weight`) VALUES
-(1, 'Gold', 'K 1', '2024-11-29', 'Fredrick Pages', '+9164646454454', NULL, 'K', 0.500),
-(2, 'Silver', 'L 1', '2024-12-07', 'GHA', '+9134534534543', NULL, '5J', 0.700),
-(10, 'Platinum', 'L 2', '2024-12-07', 'RWW', '+915555252254', NULL, 'asd', 0.630),
-(11, 'Silver', 'L 3', '2024-12-07', 'A6A', '+913236552563', NULL, 'K4', 0.300);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `test_reports`
---
-
-CREATE TABLE `test_reports` (
-  `id` int(11) NOT NULL,
-  `sr_no` varchar(10) DEFAULT NULL,
-  `report_date` date DEFAULT NULL,
-  `name` varchar(100) DEFAULT NULL,
-  `sample` varchar(50) DEFAULT NULL,
-  `metal_type` enum('Gold','Silver','Platinum') DEFAULT NULL,
-  `count` int(11) DEFAULT NULL,
-  `mobile` varchar(15) DEFAULT NULL,
-  `alt_mobile` varchar(15) DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `mobile` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `alt_mobile` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `sample` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `weight` decimal(10,3) DEFAULT NULL,
-  `gold_percent` decimal(5,2) DEFAULT 0.00,
-  `silver` decimal(5,2) DEFAULT 0.00,
-  `zinc` decimal(5,2) DEFAULT 0.00,
-  `copper` decimal(5,2) DEFAULT 0.00,
-  `others` decimal(5,2) DEFAULT 0.00,
-  `platinum` decimal(5,2) DEFAULT 0.00,
-  `rhodium` decimal(5,2) DEFAULT 0.00,
-  `iridium` decimal(5,2) DEFAULT 0.00,
-  `ruthenium` decimal(5,2) DEFAULT 0.00,
-  `palladium` decimal(5,2) DEFAULT 0.00,
-  `lead` decimal(5,2) DEFAULT 0.00,
-  `total_karat` decimal(5,2) DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `test_reports`
---
+-- Dumping data for table metal_store.receipts: ~34 rows (approximately)
+REPLACE INTO `receipts` (`id`, `metal_type`, `sr_no`, `report_date`, `name`, `mobile`, `alt_mobile`, `sample`, `weight`) VALUES
+	(1, 'Gold', 'K 1', '2024-11-29', 'Fredrick Pages', '+9164646454454', NULL, 'K', 0.500),
+	(2, 'Silver', 'L 1', '2024-12-07', 'GHA', '+9134534534543', NULL, '5J', 0.700),
+	(45, 'Gold', 'M 1', '2025-01-01', 'John Doe', '', '', 'K1', 0.400),
+	(46, 'Gold', 'M 2', '2025-01-01', 'John Doe', '+9167676767676', '', 'K3', 0.500),
+	(47, 'Gold', 'M 3', '2025-01-01', 'John Doe', '+916366666366', '', 'K3', 0.500),
+	(48, 'Gold', 'M 4', '2025-01-01', 'John Doe', '+9167676767676', '+9145345345345', 'Ring', 0.400),
+	(49, 'Gold', 'M 5', '2025-01-01', 'Jane Doe', '+916362368425', '', 'iPhone', 0.243),
+	(51, 'Gold', 'M 7', '2025-01-04', 'Jane Doe', '+919393939393', '+919393939393', 'K1', 0.400),
+	(52, 'Gold', 'M 8', '2025-01-04', 'Fredrick Pages', '+9164646454454', '', 'Ring', 0.045),
+	(53, 'Gold', 'M 9', '2025-01-04', 'Adarshhhhhhh', '+916362368425', '+919400503664', 'Ring', 0.690),
+	(54, 'Silver', 'M 10', '2025-01-04', 'Fredrick Pages', '+9164646454454', '', 'K45', 0.880),
+	(57, 'Gold', 'M 11', '2025-01-05', 'Fredrick Pagessss', '+916464645445', '', 'K1', 0.500),
+	(58, 'Gold', 'M 12', '2025-01-05', 'AAD', '+9195757575', '', '10', 0.770),
+	(59, 'Gold', 'M 13', '2025-01-06', 'TEST22', '+9164646464', '+91234234', 'K3', 1.000),
+	(60, 'Gold', 'M 14', '2025-01-06', 'ATES', '+919455325424', '+912236542144', 'K1', 0.500),
+	(61, 'Gold', 'M 15', '2025-01-06', 'Adarshhhhhhh', '+916362368425', '+919400503664', 'K3', 0.530),
+	(62, 'Gold', 'M 16', '2025-01-06', 'GHA', '+9134534534543', '', 'K1', 0.500),
+	(63, 'Gold', 'M 17', '2025-01-06', 'testsfsf', '', '', 'K1', 56.000),
+	(64, 'Gold', 'M 18', '2025-01-06', 'asd', '', '', 'K1', 0.600),
+	(65, 'Silver', 'M 19', '2025-01-23', 'Jake', '+916362368425', '+919400503664', 'K1', 0.200),
+	(66, 'Gold', 'M 20', '2025-01-23', 'Kai', '', '', 'K', 0.200),
+	(67, 'Gold', 'M 21', '2025-01-23', 'POP', '', '', 'Ring', 0.100),
+	(68, 'Gold', 'M 22', '2025-01-23', 'TEST22', '+9164646464', '+91234234', 'K1', 0.600),
+	(69, 'Gold', 'M 23', '2025-01-23', 'TEST22', '+9164646464', '+91234234', 'R', 0.540),
+	(70, 'Gold', 'M 24', '2025-01-23', 'k1', '', '', 'K1', 0.120),
+	(71, 'Gold', 'M 25', '2025-01-23', 'Fredrick Pages', '+91123123123', '', 'R', 0.400),
+	(72, 'Gold', 'M 26', '2025-01-23', 'Asd', '+91424242', '+911231', '2', 0.001),
+	(73, 'Gold', 'M 27', '2025-01-23', 'Adarshhhhhhh', '+916362368425', '+919400503664', 'K1', 0.700),
+	(74, 'Gold', 'M 28', '2025-01-23', 'AAD', '+9195757575', '', 'K1', 55.000),
+	(75, 'Gold', 'M 29', '2025-01-23', 'John Doe', '+916366666366', '', 'G1', 1.000),
+	(76, 'Silver', 'M 30', '2025-01-23', 'TEST', '+916362368425', '', 'Ring', 0.640),
+	(77, 'Silver', 'M 31', '2025-01-23', 'TEST', '+916362368425', '', 'Ring', 0.550),
+	(78, 'Platinum', 'M 32', '2025-01-23', 'TEST', '+916362368425', '+919400503664', 'R', 0.200),
+	(79, 'Gold', 'M 34', '2025-01-23', 'Jake', '+916362368425', '+919400503664', 'K1', 0.840),
+	(80, 'Gold', 'M 33', '2025-01-23', 'Adarsh', '+916362368425', '', 'K1', 0.650),
+	(81, 'Silver', 'M 35', '2025-01-23', 'POP', '+916362368425', '', 'K1', 0.350),
+	(82, 'Gold', 'M 36', '2025-01-24', 'ATES', '+919455325424', '+912236542144', 'K11', 0.560),
+	(83, 'Gold', 'M 37', '2025-01-24', 'GA', '+916362368425', '', 'POP', 0.550);
 
-INSERT INTO `test_reports` (`id`, `sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `zinc`, `copper`, `others`, `platinum`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `total_karat`) VALUES
-(12, 'K 1', '2024-12-07', 'Fredrick Pages', 'K', 'Gold', 0, '+9164646454454', NULL, 0.500, 91.34, 3.00, 7.00, 8.00, 9.00, 2.00, 8.00, 9.00, 78.00, 9.00, 8.00, 21.92),
-(13, 'L 3', '2024-12-07', 'A6A', 'K4', 'Silver', 1, '+913236552563', NULL, 0.300, 91.75, 2.00, 0.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 5.00, 22.02),
-(14, 'L 9', '2024-12-23', 'Jacob P', 'Ring', 'Gold', 0, '+919393939393', NULL, 0.300, 91.75, 2.00, 4.00, 5.00, 6.00, 3.00, 7.00, 8.00, 9.00, 7.00, 1.00, 22.02),
-(15, 'L 9', '2024-12-23', 'Jacob P', 'Ring', 'Gold', 0, '+919393939393', NULL, 0.300, 91.75, 2.00, 4.00, 5.00, 6.00, 3.00, 7.00, 8.00, 9.00, 7.00, 1.00, 22.02),
-(16, 'L 9', '2024-12-23', 'Jacob P', 'Ring', 'Gold', 2, '+919393939393', NULL, 0.300, 91.75, 9.00, 0.00, 9.00, 7.00, 8.00, 6.00, 7.00, 8.00, 9.00, 0.00, 22.02);
+-- Dumping structure for table metal_store.test_reports
+CREATE TABLE IF NOT EXISTS `test_reports` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sr_no` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `report_date` date DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `sample` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `metal_type` enum('Gold','Silver','Platinum') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `count` int DEFAULT NULL,
+  `mobile` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `alt_mobile` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `weight` decimal(10,3) DEFAULT NULL,
+  `gold_percent` decimal(5,2) DEFAULT '0.00',
+  `silver` decimal(5,2) DEFAULT '0.00',
+  `zinc` decimal(5,2) DEFAULT '0.00',
+  `copper` decimal(5,2) DEFAULT '0.00',
+  `others` decimal(5,2) DEFAULT '0.00',
+  `platinum` decimal(5,2) DEFAULT '0.00',
+  `rhodium` decimal(5,2) DEFAULT '0.00',
+  `iridium` decimal(5,2) DEFAULT '0.00',
+  `ruthenium` decimal(5,2) DEFAULT '0.00',
+  `palladium` decimal(5,2) DEFAULT '0.00',
+  `lead` decimal(5,2) DEFAULT '0.00',
+  `tin` decimal(5,2) DEFAULT '0.00',
+  `cadmium` decimal(5,2) DEFAULT '0.00',
+  `nickel` decimal(5,2) DEFAULT '0.00',
+  `total_karat` decimal(5,2) DEFAULT '0.00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for dumped tables
---
+-- Dumping data for table metal_store.test_reports: ~19 rows (approximately)
+REPLACE INTO `test_reports` (`id`, `sr_no`, `report_date`, `name`, `sample`, `metal_type`, `count`, `mobile`, `alt_mobile`, `weight`, `gold_percent`, `silver`, `zinc`, `copper`, `others`, `platinum`, `rhodium`, `iridium`, `ruthenium`, `palladium`, `lead`, `tin`, `cadmium`, `nickel`, `total_karat`) VALUES
+	(12, 'K 1', '2024-12-07', 'Fredrick Pages', 'K', 'Gold', 0, '+9164646454454', NULL, 0.500, 91.34, 3.00, 7.00, 8.00, 9.00, 2.00, 8.00, 9.00, 78.00, 9.00, 8.00, 0.00, 0.00, 0.00, 21.92),
+	(61, 'L 2', '2025-01-01', 'RWW', 'asd', 'Platinum', 2, '+915555252254', '', 0.630, 91.75, 1.00, 3.00, 4.00, 2.00, 2.00, 6.00, 7.00, 8.00, 9.00, 5.00, 0.00, 0.00, 0.00, 22.02),
+	(62, 'L 5', '2025-01-01', 'Jake', 'K1', 'Platinum', 3, '+916362368425', '+919400503664', 0.120, 91.75, 1.00, 3.00, 1.00, 2.00, 2.00, 5.00, 6.00, 3.00, 1.00, 4.00, 0.00, 0.00, 0.00, 22.02),
+	(63, 'M 5', '2025-01-01', 'Jane Doe', 'iPhone', 'Gold', 3, '+919393939393', '+919393939393', 0.220, 91.75, 1.00, 4.00, 12.00, 10.00, 3.00, 6.00, 2.00, 13.00, 9.00, 11.00, 5.00, 7.00, 8.00, 22.02),
+	(72, 'M 7', '2025-01-04', 'Jane Doe', 'K1', 'Gold', 0, '+919393939393', '+919393939393', 0.400, 91.75, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 22.02),
+	(73, 'M 9', '2025-01-04', 'Adarshhhhhhh', 'Ring', 'Gold', 0, '+916362368425', '+919400503664', 0.690, 99.00, 67.00, 66.00, 7.00, 66.00, 66.00, 66.00, 66.00, 8.00, 66.00, 66.00, 66.00, 66.00, 66.00, 23.76),
+	(74, 'M 10', '2025-01-04', 'Adarshhh', 'K45', 'Gold', 2, '+916362368425', '', 0.880, 86.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 20.64),
+	(75, 'M 1', '2025-01-05', 'John Doe', 'K1', 'Gold', 2, '', '', 0.400, 56.00, 1.00, 4.00, -35.00, 10.00, 3.00, 6.00, 2.00, 13.00, 9.00, 11.00, 5.00, 7.00, 8.00, 13.44),
+	(76, 'M 19', '2025-01-23', 'Jake', 'K1', 'Silver', 4, '+916362368425', '+919400503664', 0.200, 0.00, 95.00, 0.00, 5.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00),
+	(77, 'M 20', '2025-01-23', 'Kai', 'K', 'Gold', 1, '', '', 0.200, 92.55, 0.20, 0.00, 7.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 22.21),
+	(78, 'M ', '2025-01-23', 'Kai', 'K', 'Gold', 1, '', '', 0.200, 0.00, 0.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 22.21),
+	(79, 'M 30', '2025-01-23', 'TEST', 'Ring', 'Silver', 3, '+916362368425', '', 0.640, 96.86, 0.00, 0.00, 3.14, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 23.25),
+	(80, 'M 31', '2025-01-23', 'TEST', 'Ring', 'Silver', 5, '+916362368425', '', 0.550, 0.00, 67.00, 0.00, 33.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00),
+	(81, 'M 32', '2025-01-23', 'TEST', 'R', 'Platinum', 6, '+916362368425', '+919400503664', 0.200, 0.00, 0.00, 0.00, 32.44, 0.00, 67.56, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00),
+	(82, 'M 34', '2025-01-23', 'Jake', 'K1', 'Gold', 6, '+916362368425', '+919400503664', 0.840, 0.54, 0.21, 0.00, 99.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.13),
+	(83, 'M 33', '2025-01-23', 'Adarsh', 'K1', 'Gold', 7, '+916362368425', '', 0.650, 89.35, 0.00, 0.00, 10.65, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 21.44),
+	(84, 'M 35', '2025-01-23', 'POP', 'K1', 'Silver', 2, '+916362368425', '', 0.350, 0.00, 36.00, 0.00, 31.00, 33.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00),
+	(85, 'M 21', '2025-01-24', 'POP', 'Ring', 'Gold', 0, '', '', 0.100, 91.75, 0.00, 0.00, 8.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 22.02),
+	(86, 'M 37', '2025-01-24', 'GA', 'POP', 'Gold', 2, '+916362368425', '', 0.550, 91.55, 0.00, 0.00, 8.45, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 21.97);
 
---
--- Indexes for table `receipts`
---
-ALTER TABLE `receipts`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `test_reports`
---
-ALTER TABLE `test_reports`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `receipts`
---
-ALTER TABLE `receipts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
-
---
--- AUTO_INCREMENT for table `test_reports`
---
-ALTER TABLE `test_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
-COMMIT;
-
+/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

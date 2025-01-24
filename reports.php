@@ -308,11 +308,11 @@ if (isset($_GET['delete_id'])) {
             <input type="date" class="form-control" name="to_date" placeholder="To Date" value="<?php echo htmlspecialchars($to_date); ?>">
         </div>
         <div class="col-md-2 mt-2">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="include_date" id="include_date" <?php echo $include_date ? 'checked' : ''; ?>>
-                <label class="form-check-label" for="include_date">Include Date</label>
-            </div>
-        </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="include_date" id="include_date" <?php echo $include_date ? 'checked' : ''; ?>>
+        <label class="form-check-label" for="include_date">Include Date</label>
+    </div>
+</div>
         <div class="col-md-2 mt-2">
     <div class="form-check">
         <input class="form-check-input" type="checkbox" name="exact_search" id="exact_search" <?php echo isset($_GET['exact_search']) ? 'checked' : ''; ?>>
@@ -322,8 +322,8 @@ if (isset($_GET['delete_id'])) {
         <div class="col-md-4 mt-2">
             <button type="submit" class="btn btn-primary mt-2">Search</button>
 
-            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-success mt-2">Export to Excel</a>
-<a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-danger mt-2">Export to PDF</a>
+            <a href="?export=excel&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&include_date=<?php echo $include_date; ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-success mt-2">Export to Excel</a>
+<a href="?export=pdf&search=<?php echo urlencode($search); ?>&from_date=<?php echo urlencode($from_date); ?>&to_date=<?php echo urlencode($to_date); ?>&include_date=<?php echo $include_date; ?>&exact_search=<?php echo $exact_search; ?>" class="btn btn-danger mt-2">Export to PDF</a>
         </div>
     </form>
 
@@ -398,14 +398,14 @@ if (isset($_GET['delete_id'])) {
     </div>
 
     <!-- Pagination -->
-    <nav aria-label="Page navigation">
+<nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
         <?php
         $total_pages = ceil($total_rows / $limit);
         if ($total_pages > 1) {
             for ($i = 1; $i <= $total_pages; $i++) {
                 $active = $i == $page ? 'active' : '';
-                echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date&exact_search=$exact_search'>$i</a></li>";
+                echo "<li class='page-item $active'><a class='page-link' href='?page=$i&search=$search&from_date=$from_date&to_date=$to_date&include_date=$include_date&exact_search=$exact_search'>$i</a></li>";
             }
         }
         ?>
