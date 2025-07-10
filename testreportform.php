@@ -216,39 +216,42 @@ if ($result_count->num_rows > 0) {
 }
 
 // Calculate the current month and determine the Sr. No. prefix
-$current_month = date('n');  // 1 = January, 12 = December
-$current_letter = chr(64 + $current_month);  // Convert month number to letter (A = 1, B = 2, ..., L = 12)
-
-// Get the last used Sr. No. for the previous month
-$prev_month = $current_month == 1 ? 12 : $current_month - 1;  // Previous month logic
-$sql = "SELECT sr_no FROM receipts WHERE MONTH(report_date) = $prev_month ORDER BY sr_no DESC LIMIT 1";
+// 1. Get the most recent receipt from the database to ensure consistency
+$sql = "SELECT sr_no, report_date FROM receipts ORDER BY id DESC LIMIT 1";
 $result = $conn->query($sql);
 
-// Initialize the last_letter variable to a default value of the current letter for this month
-$last_letter = $current_letter;
+$current_letter = 'A'; // Default starting letter if database is empty
+$customer_count = 1;   // Default starting number
 
-if ($result->num_rows > 0) {
-    $last_sr_no = $result->fetch_assoc()['sr_no'];
-    $last_letter = substr($last_sr_no, 0, 1);  // Extract the letter from the Sr. No.
-}
+if ($result && $result->num_rows > 0) {
+    $last_receipt = $result->fetch_assoc();
+    $last_sr_no = $last_receipt['sr_no'];
+    $last_report_date = new DateTime($last_receipt['report_date']);
+    $current_date = new DateTime();
 
-// Check if we need to reset or continue the letter sequence
-if ($last_letter == 'Z') {
-    $current_letter = 'A';  // Reset to 'A' if the last letter was 'Z'
-} else {
-    // Otherwise, continue to the next letter only if we move from previous month
-    if ($prev_month != $current_month) {
-        $current_letter = chr(ord($last_letter) + 1);
+    // Extract letter and number from the last sr_no
+    list($last_letter, $last_number) = explode(' ', $last_sr_no);
+
+    // 2. Check if the last receipt was in the same month and year
+    if ($last_report_date->format('Y-m') == $current_date->format('Y-m')) {
+        // Same month: Increment the number, keep the letter
+        $current_letter = $last_letter;
+        $customer_count = intval($last_number) + 1;
+    } else {
+        // New month: Increment the letter, reset number to 1
+        if ($last_letter == 'Z') {
+            $current_letter = 'A'; // Wrap around from Z to A
+        } else {
+            $current_letter = chr(ord($last_letter) + 1);
+        }
+        $customer_count = 1;
     }
+} else {
+    // This is the very first record in the database
+    // The defaults 'A' and 1 are already set
 }
 
-// Get the total number of receipts for the current month to determine the count for this month
-$sql = "SELECT COUNT(*) AS total FROM receipts WHERE MONTH(report_date) = $current_month";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$customer_count = $row['total']; // Increment the count for the new customer
-
-// Generate the Sr. No.
+// Generate the suggested Sr. No. for the form
 $sr_no = $current_letter . " " . $customer_count;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -767,6 +770,7 @@ $conn->close();
     </div>
     <div class="form-content">
         <form method="post">
+            <input type="hidden" id="fetched_date" value="">
             <!-- Row for Count and Sr. No -->
             <div class="form-row">
                 <div class="col-sm-6">
@@ -1043,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('tin').value = data.tin || '';
                 document.getElementById('cadmium').value = data.cadmium || '';
                 document.getElementById('nickel').value = data.nickel || '';
-
+                document.getElementById('fetched_date').value = data.report_date || ''; 
                 if (isEdit) {
                     // Enable all fields for editing
                     document.querySelectorAll('input').forEach(input => {
@@ -1052,6 +1056,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else {
                 console.error('No receipt found with this Sr. No.', error);
+                // Clear the hidden date field if the report is not found
+                document.getElementById('fetched_date').value = '';
             }
         })
         .catch(error => {
@@ -1267,16 +1273,26 @@ document.getElementById('savePrintBtn').addEventListener('click', function() {
     // Collect form data
     var current_letter = document.getElementById('sr_no_letter').value.toUpperCase();
     var customer_count = document.getElementById('sr_no_count').value.toUpperCase();
-
     var srNo = current_letter + " " + customer_count;
-    
-    // Use the PHP-generated date
-    var dateString = "<?php echo $currentDate; ?>"; // DD-MM-YYYY format
 
-    var timeString = "<?php echo $currentTime; ?>"; // HH:MM:SS AM/PM format
+    // --- FIX: USE FETCHED DATE FOR REPRINTING ---
+    // This logic now checks for a date from a fetched report.
+    // If no report was fetched, it defaults to the current date and time.
+    var fetchedDateValue = document.getElementById('fetched_date').value;
+    var dateTimeString;
 
-    // Combine date and time into a single string
-    var dateTimeString = dateString + ' ' + timeString;
+    if (fetchedDateValue) {
+        // A report was fetched. Use its date.
+        const dateParts = fetchedDateValue.split('-'); // Fetched date is YYYY-MM-DD
+        const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convert to DD-MM-YYYY
+        
+        // Use a placeholder time for reprints, as time isn't stored.
+        dateTimeString = formattedDate + ' 12:00:00 PM'; 
+    } else {
+        // No report fetched, so it's a new one. Use current date and time.
+        dateTimeString = "<?php echo $currentDate . ' ' . $currentTime; ?>";
+    }
+    // --- END OF FIX ---
     
     var name = document.getElementById('name').value.toUpperCase() || '';
     var mobile = document.getElementById('mobile').value  || '';
