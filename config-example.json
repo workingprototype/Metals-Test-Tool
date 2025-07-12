@@ -1,0 +1,18 @@
+{
+    "Fast2SMS": {
+        "api_key": "FAST2",
+        "sender_id": "NTGLD"
+    },
+    "WhatsApp": {
+        "access_token": "ACCESS",
+        "whatsapp_api_url": "https:\/\/graph.facebook.com\/v21.0\/",
+        "whatsapp_number": "531736480021115"
+    },
+    "Database": {
+        "db_host": "localhost",
+        "db_user": "username",
+        "db_password": "password",
+        "db_name": "metal_store"
+    },
+    "zoomLevel": "115"
+}

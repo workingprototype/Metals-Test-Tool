@@ -19,9 +19,12 @@ if ($conn->connect_error) {
 // Get the Sr. No. from the query parameter
 $sr_no = $_GET['sr_no'];
 
-// Fetch receipt data based on Sr. No.
-$sql = "SELECT * FROM receipts WHERE sr_no = '$sr_no'";
-$result = $conn->query($sql);
+// Fetch receipt data based on Sr. No. using a prepared statement
+$sql = "SELECT * FROM receipts WHERE sr_no = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $sr_no);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
@@ -30,5 +33,6 @@ if ($result->num_rows > 0) {
     echo json_encode(null); // Return null if no data is found
 }
 
+$stmt->close();
 $conn->close();
 ?>

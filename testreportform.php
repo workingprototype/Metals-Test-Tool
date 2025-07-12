@@ -758,6 +758,9 @@ $conn->close();
                     <a class="nav-link" href="config.php">Config Page</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="#" id="backup-to-drive-btn">Backup to Drive</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="exit.php" onclick="window.close(); return false;">Exit</a>
                 </li>
             </ul>

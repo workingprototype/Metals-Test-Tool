@@ -1,0 +1,16 @@
+# Ignore Composer dependencies
+/vendor/
+
+# Ignore Composer lock file (optional)
+/composer.lock
+
+# Ignore environment files
+.env
+
+# Ignore IDE and OS files
+/.idea/
+/*.swp
+.DS_Store
+Thumbs.db
+
+config.json

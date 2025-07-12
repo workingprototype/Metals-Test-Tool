@@ -114,6 +114,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a class="nav-link" href="config.php">Config Page</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="#" id="backup-to-drive-btn">Backup to Drive</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="service.php">Backup Service</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="" onclick="window.close(); return false;">Exit</a>
                 </li>
             </ul>
@@ -210,6 +216,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit" class="btn btn-success">Save Changes</button>
         </form>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const backupBtn = document.getElementById('backup-to-drive-btn');
+        if (backupBtn) {
+            backupBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                backupBtn.textContent = 'Backup starting...';
+                backupBtn.style.pointerEvents = 'none'; // Disable button
+                window.electron.ipcRenderer.send('backup:start');
+            });
+
+            window.electron.ipcRenderer.on('backup:status', (status) => {
+                backupBtn.textContent = status; // Update button text with status
+                
+                // If backup is done (successfully or with error), re-enable the button
+                if (status.toLowerCase().includes('success') || status.toLowerCase().includes('error')) {
+                    setTimeout(() => {
+                        backupBtn.textContent = 'Backup to Drive';
+                        backupBtn.style.pointerEvents = 'auto';
+                    }, 5000); // Reset after 5 seconds
+                }
+            });
+        }
+    });
+</script>
 
     <!-- Bootstrap JS and jQuery -->
     <script src="vendor/assets/jquery-3.5.1.slim.min.js"></script>

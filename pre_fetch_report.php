@@ -30,6 +30,7 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     echo json_encode([
         'success' => true,
+        'report_date' => $row['report_date'], // <-- ADD THIS LINE
         'name' => $row['name'],
         'mobile' => $row['mobile'],
         'alt_mobile' => $row['alt_mobile'],
